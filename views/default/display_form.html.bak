@@ -1,0 +1,6 @@
+{{extend 'layout.html'}}
+<link rel="stylesheet" href="{{=URL('static','css/bootstrap.min.css')}}"/>
+<link rel="stylesheet" href="{{=URL('static','css/web2py-bootstrap3.css')}}"/>
+
+<h2>Input form</h2>
+{{=form}}
