@@ -19,9 +19,7 @@ def index():
     if you need a simple wiki simply replace the two lines below with:
 
     """
-    proc = subprocess.Popen([os.path.join(request.folder,'static','propa'),str(45),str(45)],stdout=subprocess.PIPE)
-    (out,err)=proc.communicate()
-    return dict(message=T('Welcome to the Link Budget Server!'),ret=out)
+    return dict(message=T('Welcome to the Link Budget Server!'))
 
 def user():
     """
