@@ -2,3 +2,9 @@
 *.pyo
 *.pyc
 logs/*
+#Ignore previous database tables
+*.table
+*.log
+*.sqlite
+#Ignore uploaded Excel files
+*.xlsx
