@@ -1,0 +1,242 @@
+{{extend 'layout.html'}}
+<head>
+    <script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.12.3.js">
+	</script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js">
+	</script>
+    <script  type="text/javascript" src="https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js">
+    </script>
+</head>
+<body>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+    <div style="float:left; width:50%;">
+        <h1>
+            {{=dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).job_name}}
+        </h1>
+        <table id="job_table" class="table stripe hover display dt-center" cellspacing="0" width="100%">
+            <thead>
+                 <tr>
+                    <th>Job Nme </th>
+                    <th>Sim Mode</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <div style="float:left; width:50%;padding:30px;height:650px;overflow: auto">
+        <h4>
+            Update Form
+        </h4>
+        {{=form}}
+    </div>
+    <div class = "Bwidget">
+        <h1> Description</h1>
+        <p id="description">
+            <!--#TODO get description to fill in here-->
+            {{=dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).description}}
+        </p>
+        <button id="vsat">VSAT</button>
+        <button id="sat">Sat</button>
+        <button id="gw">Gateway</button>
+        <button id="process">Process</button>
+        {{if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).processed == True:}}
+        <button class="btn" id="processed" style="float;background-color:#6699ff">
+            Processed File
+        </button>
+        <button class="btn" id="cesium" style="float;background-color:#40ff00">
+            Cesium
+        </button>
+        {{pass}}
+    </div>
+    <div id="selected"  >
+        <div id = "vsat_div" style = "width:100%;">
+            <h2 align="center">
+                VSAT
+            </h2>
+            <table id="vsat_table" class="table stripe hover display" cellspacing="0" width="50%" >
+                <thead>
+                     <tr>
+                        <th>VSAT ID</th>
+                        <th>GPT(dB/K)</th>
+                        <th>Diameter (m)</th>
+                        <th>Polar</th>
+                        <th>Efficieny (%)</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div id="sat_div" style = "width:100%;">
+            <h2 align="center">
+                SAT
+            </h2>
+            <table id="sat_table" class="table stripe hover display" cellspacing="0" width="50%">
+                <thead>
+                     <tr>
+                        <th>Sat ID</th>
+                        <th>Nadir Lon (deg)</th>
+                        <th>Nadir Lat (deg)</th>
+                        <th>Distance (Km)</th>
+                        <th>Inclination Angle (deg)</th>
+                        <th>FOV Radius (deg)</th>
+                        <th>Acsend/Descen </th>
+                        <th>Interf Flag</th>
+                        <th>Roll (deg)</th>
+                        <th>Pitch (deg)</th>
+                        <th>Yaw (deg)</th>
+                        <th>Pawload ID</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div  id="gw_div" style = "width:100%;">
+            <h2 align="center">
+                Gateway
+            </h2>
+            <table id="gw_table" class="table stripe hover display" cellspacing="0" width="50%">
+                <thead>
+                     <tr>
+                        <th>Gateway ID</th>
+                        <th>EIRP Max (dBW)</th>
+                        <th>GT (dB/K)</th>
+                        <th>RS Min (MHz)</th>
+                        <th>RS Max (MHz)</th>
+                        <th>Bandwidth (MHz)</th>
+                        <th>Diameter (m)</th>
+                        <th>Polar</th>
+                        <th>Efficiency (%)</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <div>
+    </div>
+</body>
+<script type="text/javascript" >
+$(document).ready(function(){
+    var job_table = $("#job_table").DataTable({
+        select:true,
+        data:  {{=job}},
+        columns: [
+            { data: 'job_name' },
+            { data: 'simulator_mode' },
+            { data: 'Date'}
+            // 'id' omitted to show that you can
+            // use only the fields you choose
+        ],
+        order: [[2,'desc']],
+        "columnDefs": [
+            {"className": "dt-center", "targets": "_all"}
+        ]
+    });
+    job_table.each(function(){
+        var cellText = $(this).html();
+        if(cellText=='sffc'){
+            $(this).closest('tr').click().draw()
+        }
+    });
+    job_table.on('click','tr',function(){
+        var data = job_table.row(this).data();
+        window.location = data['id'];
+    });
+    //job_table.search('Job').draw()
+    var vsat_table = $("#vsat_table").DataTable({
+        bFilter: false,
+        bInfo: false,
+        bPaginate: false,
+        bLengthChange: false,
+        data:  {{=vsat}},
+        language : { "emptyTable":"Not Computed"},
+        columns: [
+            { data: 'VSAT_ID'},
+            { data: 'GPT' },
+            { data: 'DIAMETER' },
+            { data: 'POLAR'},
+            { data: 'EFFICIENCY'}
+            // 'id' omitted to show that you can
+            // use only the fields you choose
+        ],
+        "columnDefs": [
+            {"className": "dt-center", "targets": "_all"}
+        ]
+    });
+    var sat_table = $("#sat_table").DataTable({
+        bFilter: false,
+        bInfo: false,
+        bPaginate: false,
+        bLengthChange: false,
+        data:  {{=sat}},
+        columns: [
+            { data: 'SAT_ID' },
+            { data: 'NADIR_LON' },
+            { data: 'NADIR_LAT'},
+            { data: 'DISTANCE' },
+            { data: 'INCLINATION_ANGLE' },
+            { data: 'FOV_RADIUS'},
+            { data: 'FLAG_ASC_DESC' },
+            { data: 'INTERF_FLAG' },
+            { data: 'ROLL' },
+            { data: 'PITCH' },
+            { data: 'YAW' },
+            { data: 'PAYLOAD_ID' },
+            // 'id' omitted to show that you can
+            // use only the fields you choose
+        ],
+        language : { "emptyTable":"Not Computed"},
+        "columnDefs": [
+            {"className": "dt-center", "targets": "_all"}
+        ]
+    });
+    var gw_table = $("#gw_table").DataTable({
+        bFilter: false,
+        bInfo: false,
+        bPaginate: false,
+        bLengthChange: false,
+        data:  {{=gw}},
+        language : { "emptyTable":"Not Computed"},
+        columns: [
+            { data: 'GW_ID' },
+            { data: 'EIRP_MAX' },
+            { data: 'GT'},
+            { data: 'RS_MIN' },
+            { data: 'RS_MAX' },
+            { data: 'BANDWIDTH'},
+            { data: 'DIAMETER' },
+            { data: 'POLAR' },
+            { data: 'EFFICIENCY' }
+            // 'id' omitted to show that you can
+            // use only the fields you choose
+        ],
+        "columnDefs": [
+            {"className": "dt-center", "targets": "_all"}
+        ]
+    });
+    $("#gw_div").hide();
+    $("#sat_div").hide();
+    $("#vsat").click(function(){
+        $("#gw_div").hide(700);
+        $("#vsat_div").show(700);
+        $("#sat_div").hide(700);
+    });
+    $("#gw").click(function(){
+        $("#gw_div").show(700);
+        $("#vsat_div").hide(700);
+        $("#sat_div").hide(700);
+    });
+    $("#sat").click(function(){
+        $("#gw_div").hide(700);
+        $("#vsat_div").hide(700);
+        $("#sat_div").show(700);
+    });
+    $("#process").click(function(){
+        window.location="{{=URL('process',args = request.args(0))}}";
+    });
+    $("#processed").click(function(){
+        //window.location="{{=URL('download',args = dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).processed_file)}}";
+        window.location="{{=URL('create_download',args = request.args(0))}}";
+    });
+    $("#cesium").click(function(){
+        window.location="{{=URL('cesium',args = request.args(0))}}";
+    });
+});
+</script>

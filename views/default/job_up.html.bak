@@ -1,3 +1,0 @@
-{{extend 'layout.html'}}
-{{=form}}
-{{=form.custom.comment[Job] = 'Enter Job name here'}}

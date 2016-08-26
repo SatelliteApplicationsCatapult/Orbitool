@@ -51,6 +51,7 @@ def _():
     # ------------------------------------------------------------------------------------------------------------------
     response.menu += [
         ('Input Form', False, URL('default', 'job_up')),
+        ('Select',False,URL('default','search_db')),
         (T('This App'), False, '#', [
             (T('Design'), False, URL('admin', 'default', 'design/%s' % app)),
             LI(_class="divider"),

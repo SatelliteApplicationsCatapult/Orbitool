@@ -125,3 +125,18 @@ def compute_sat_params(SAT_dict, flag_intermediate_params=False):
         return SAT_dict, nadir_ecef, pos, normal_vector
     else:
         return SAT_dict
+
+def create_saving_worksheet(filename, my_dict, wksht_name):
+    import xlsxwriter
+
+    workbook = xlsxwriter.Workbook(filename)
+    wksht = workbook.add_worksheet(wksht_name)
+
+    #write_keys
+    wksht.write_row(0,0,my_dict.keys())
+    # write values
+    counter = 0
+    for key in my_dict.keys():
+        wksht.write_column(1,counter,my_dict[key]) #Needs to be of list format, not a single variable
+        counter += 1
+    workbook.close()
