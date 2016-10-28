@@ -8,7 +8,7 @@
 #response.logo = A(B('web', SPAN(2), 'py'), XML('&trade;&nbsp;'),
                  # _class="navbar-brand", _href="http://www.web2py.com/",
                   #_id="web2py-logo")
-response.logo = A(IMG(_src=URL('static','images/SAC.png'),_style="height:50px; width:auto;"),_href=URL('index'))
+response.logo = A(IMG(_src=URL('static','images/saWhite.png'),_style="height:40px; width:auto;margin-top: 7px"),_href=URL('index'))
 response.title = request.application.replace('_', ' ').title()
 response.subtitle = ''
 

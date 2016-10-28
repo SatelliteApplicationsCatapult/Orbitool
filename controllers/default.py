@@ -19,7 +19,7 @@ def index():
     if you need a simple wiki simply replace the two lines below with:
 
     """
-    return dict(message=T('Welcome to the Link Budget Server!'))
+    return dict(message=T('Multi-Mission Satellite Link Budget Analysis Framework'))
 
 def user():
     """
@@ -43,8 +43,10 @@ def job_up():                                 #Input Form page
     session.job = ""
     record = dbLinkBudget.Job(request.args(0))   #Required if page used to update records
     dbLinkBudget.Job.Date.readable = False       #SQL form formatting
+#    form = SQLFORM(dbLinkBudget.Job,record, deletable=True,
+#                  upload=URL('download'),formstyle='bootstrap3_inline')
     form = SQLFORM(dbLinkBudget.Job,record, deletable=True,
-                  upload=URL('download'),formstyle='bootstrap3_inline')
+                  upload=URL('download'),formstyle='bootstrap3_stacked')
     if form.process().accepted:
         session.job = form.vars.job_name
         add_excel_2_db()
@@ -58,7 +60,7 @@ def add_excel_2_db():       #Function used to insert excel dictionary into datab
 
     file = dbLinkBudget.Job(dbLinkBudget.Job.job_name==session.job).file_up       #Find uploaded file
     job_id = dbLinkBudget.Job(dbLinkBudget.Job.job_name==session.job).id
-    [SAT_dict, TRSP_dict, VSAT_dict, EARTH_COORD_GW_dict,  GW_dict, EARTH_COORD_VSAT_dict, display_dict_VSAT] = load_objects_from_xl(os.path.join(request.folder,'uploads',file))
+    [SAT_dict, TRSP_dict, VSAT_dict, EARTH_COORD_GW_dict, GW_dict, EARTH_COORD_VSAT_dict, display_dict_VSAT] = load_objects_from_xl(os.path.join(request.folder,'uploads',file))
     read_array_to_db(dbLinkBudget.VSAT,VSAT_dict)
     read_array_to_db(dbLinkBudget.Gateway,GW_dict)
     read_array_to_db(dbLinkBudget.TRSP,TRSP_dict)
@@ -184,3 +186,6 @@ def get_geojson_gw():    #Get geojson function called for cesium to query db and
                 }
             }for r in rows]
     return response.json({"type": "FeatureCollection", 'features': features})
+
+def test():
+    return 'hello world'
