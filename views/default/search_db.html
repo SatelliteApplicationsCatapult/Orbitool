@@ -13,8 +13,9 @@
     <table id="job_table" class="table table-striped hover display" cellspacing="0" width="100%">
         <thead>
              <tr>
-                <th>Job Nme </th>
+                <th>Job Name </th>
                 <th>Sim Mode</th>
+                <th>Propagation Library</th>
                 <th>Date</th>
             </tr>
         </thead>
@@ -29,11 +30,12 @@ $(document).ready(function(){
         columns: [
             { data: 'job_name' },
             { data: 'simulator_mode' },
+            { data: 'propaLib' },
             { data: 'Date'},
             // 'id' omitted to show that you can
             // use only the fields you choose
         ],
-        order: [[2,'desc']]
+        order: [[3,'desc']]
     });
     job_table.on('click','tr',function(){
         var data = job_table.row(this).data();

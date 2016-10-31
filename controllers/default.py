@@ -135,9 +135,19 @@ def create_download():
     os.remove(filepath)
     redirect(URL('download',args = dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).processed_file))
 
+
 def process():   #Process job function
     import subprocess   #TODO : extend to use input checklist and chose certain jobs, Damian Code required
-    cfile = os.path.join(request.folder,'static',"propa2")
+    #This changes the propa library path based on the propaLib field (TODO: add other library choices)
+    if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'CNES':
+        pathtoPropaDir = '/home/simon'
+        cfile = os.path.join(pathtoPropaDir, 'propa/dist/Debug/GNU-Linux/',"propa")
+    elif dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'OTHER1':
+        pathtoPropaDir = '/home/simon'
+        cfile = os.path.join(pathtoPropaDir, 'propa/dist/Debug/GNU-Linux/',"propa")
+    else:
+        pathtoPropaDir = '/home/simon'
+        cfile = os.path.join(pathtoPropaDir, 'propa/dist/Debug/GNU-Linux/',"propa")
     for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect():
         lon = row.LON
         lat = row.LAT
@@ -146,6 +156,10 @@ def process():   #Process job function
         dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.id == row.id).update(SAT_EIRP=out)
     dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(processed=True)
     redirect(URL('view_db',args = request.args(0)))
+    
+#    else:
+#        redirect(URL('index'))
+        
 
 def cesium():
     return dict(a = 1)
@@ -186,6 +200,3 @@ def get_geojson_gw():    #Get geojson function called for cesium to query db and
                 }
             }for r in rows]
     return response.json({"type": "FeatureCollection", 'features': features})
-
-def test():
-    return 'hello world'

@@ -12,12 +12,14 @@
     <div style="float:left; width:50%;">
         <h1>
             {{=dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).job_name}}
+            {{=dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib}}
         </h1>
         <table id="job_table" class="table stripe hover display dt-center" cellspacing="0" width="100%">
             <thead>
                  <tr>
-                    <th>Job Nme </th>
+                    <th>Job Name </th>
                     <th>Sim Mode</th>
+                    <th>Propagation Library</th>
                     <th>Date</th>
                 </tr>
             </thead>
@@ -30,13 +32,13 @@
         {{=form}}
     </div>
     <div class = "Bwidget">
-        <h1> Description</h1>
+        <h1> View</h1>
         <p id="description">
             <!--#TODO get description to fill in here-->
             {{=dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).description}}
         </p>
         <button id="vsat">VSAT</button>
-        <button id="sat">Sat</button>
+        <button id="sat">SAT</button>
         <button id="gw">Gateway</button>
         <button id="process">Process</button>
         {{if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).processed == True:}}
@@ -83,7 +85,7 @@
                         <th>Roll (deg)</th>
                         <th>Pitch (deg)</th>
                         <th>Yaw (deg)</th>
-                        <th>Pawload ID</th>
+                        <th>Payload ID</th>
                     </tr>
                 </thead>
             </table>
@@ -120,11 +122,12 @@ $(document).ready(function(){
         columns: [
             { data: 'job_name' },
             { data: 'simulator_mode' },
+            { data: 'propaLib' },
             { data: 'Date'}
             // 'id' omitted to show that you can
             // use only the fields you choose
         ],
-        order: [[2,'desc']],
+        order: [[3,'desc']],
         "columnDefs": [
             {"className": "dt-center", "targets": "_all"}
         ]
@@ -160,12 +163,14 @@ $(document).ready(function(){
             {"className": "dt-center", "targets": "_all"}
         ]
     });
+    
     var sat_table = $("#sat_table").DataTable({
         bFilter: false,
         bInfo: false,
         bPaginate: false,
         bLengthChange: false,
         data:  {{=sat}},
+        language : { "emptyTable":"Not Computed"},
         columns: [
             { data: 'SAT_ID' },
             { data: 'NADIR_LON' },
@@ -178,15 +183,44 @@ $(document).ready(function(){
             { data: 'ROLL' },
             { data: 'PITCH' },
             { data: 'YAW' },
-            { data: 'PAYLOAD_ID' },
+            { data: 'PAYLOAD_ID' }
             // 'id' omitted to show that you can
             // use only the fields you choose
         ],
-        language : { "emptyTable":"Not Computed"},
         "columnDefs": [
             {"className": "dt-center", "targets": "_all"}
         ]
     });
+    
+  //  var sat_table = $("#sat_table").DataTable({
+  //      bFilter: false,
+   //     bInfo: false,
+  //      bPaginate: false,
+  //      bLengthChange: false,
+  //      data:  {{=sat}},
+  //      language : { "emptyTable":"Why is this empty?"},
+  //      columns: [
+  //          { data: 'SAT_ID' },
+  //          { data: 'NADIR_LON' },
+  //          { data: 'NADIR_LAT'},
+  //          { data: 'DISTANCE' },
+   //         { data: 'INCLINATION_ANGLE' },
+   //         { data: 'FOV_RADIUS'},
+  //          { data: 'FLAG_ASC_DESC' },
+    //        { data: 'INTERF_FLAG' },
+      //      { data: 'ROLL' },
+        //    { data: 'PITCH' },
+          //  { data: 'YAW' },
+           // { data: 'PAYLOAD_ID' }
+            // 'id' omitted to show that you can
+            // use only the fields you choose
+      //  ],
+       // "columnDefs": [
+        //    {"className": "dt-center", "targets": "_all"}
+       // ]
+   // });
+    
+    
     var gw_table = $("#gw_table").DataTable({
         bFilter: false,
         bInfo: false,

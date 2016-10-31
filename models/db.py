@@ -196,7 +196,7 @@ dbLinkBudget.define_table('SAT',
                           Field('ROLL','double',requires=IS_NOT_EMPTY()),
                           Field('PITCH','double',requires=IS_NOT_EMPTY()),
                           Field('YAW','double',requires=IS_NOT_EMPTY()),
-                          Field('PAYLOAD_ID','string',requires=IS_IN_DB(dbLinkBudget,dbLinkBudget.TRSP.PAYLOAD_ID))) #Form a quick search online the IS_IN_DB function can't be in a list otherwise it won't
+                          Field('PAYLOAD_ID','string',requires=IS_IN_DB(dbLinkBudget,dbLinkBudget.TRSP.PAYLOAD_ID))) #From a quick search online the IS_IN_DB function can't be in a list otherwise it won't
 dbLinkBudget.SAT.PAYLOAD_ID.requires = IS_NOT_EMPTY()                                                                #generated as a list. Futher testing required
 dbLinkBudget.define_table('Job',
                           Field('job_name','string',requires=IS_NOT_EMPTY()),
@@ -204,6 +204,7 @@ dbLinkBudget.define_table('Job',
                           Field('file_up','upload',requires=IS_NOT_EMPTY(),label='File (excel spreadsheet)', autodelete=True),
                           Field('processed_file','upload',writable=False, readable=False,autodelete=True),
                           Field('simulator_mode','string',requires=IS_IN_SET(('FWD','RTN')),default='FWD',label='Simulation Mode (FWD or RTN)'),
+                          Field('propaLib','string',requires=IS_IN_SET(('CNES',)),default='CNES',label='Choose a Propagation Library'),
                           Field('sat_geo_params','boolean',label='1) Compute Satellite Geometric Parameters'),
                           Field('points2trsp','boolean',label='2) Assign Earth points coverage to transponder(VSAT)'),
                           Field('gw2trsp','boolean',label='3) Assign Earth gateways to transponder (Gateway)'),
@@ -215,7 +216,7 @@ dbLinkBudget.define_table('Job',
                           Field('sat_dwn_perf','boolean',label='9) Compute satellite downlink performances (e.g. EIRP)'),
                           Field('comp_link_budget','boolean',label='10) Compute link budget'),
                           Field('description','string'),
-                          Field('processed','boolean', default=False),
+                          Field('processed','boolean', default=False,label='Processed? Leave this unchecked and it becomes checked when you press the Process button'),
                           )
 #dbLinkBudget.Job.file_up.requires=IS_UPLOAD_FILENAME(extension=['xlsx','xls','xml'])
 dbLinkBudget.define_table('Earth_coord_GW',
