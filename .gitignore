@@ -11,3 +11,5 @@ logs/*
 #Ignore Backup files
 *.bak
 *.bk
+sessions/*
+errors/*

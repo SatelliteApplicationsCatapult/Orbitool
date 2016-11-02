@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from gluon import *
-import xlrd 
+import xlrd
 import numpy as np
 from collections import OrderedDict
 

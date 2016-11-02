@@ -8,10 +8,10 @@
 # - download is for downloading files uploaded in the db (does streaming)
 # -------------------------------------------------------------------------
 from excelHandling import *
+#from cesium import *
 import os
 
 def index():
-    import subprocess
     """
     example action using the internationalization operator T and flash
     rendered by views/default/index.html or views/generic.html
@@ -20,6 +20,16 @@ def index():
 
     """
     return dict(message=T('Multi-Mission Satellite Link Budget Analysis Framework'))
+
+def about():
+    """
+    example action using the internationalization operator T and flash
+    rendered by views/default/index.html or views/generic.html
+    return auth.wiki()
+    if you need a simple wiki simply replace the two lines below with:
+
+    """
+    return dict(message=T('About'))
 
 def user():
     """
@@ -39,13 +49,11 @@ def user():
     """
     return dict(form=auth())
 
-def job_up():                                 #Input Form page
+def input():                                 #Input Form page
     session.job = ""
     record = dbLinkBudget.Job(request.args(0))   #Required if page used to update records
     dbLinkBudget.Job.Date.readable = False       #SQL form formatting
-#    form = SQLFORM(dbLinkBudget.Job,record, deletable=True,
-#                  upload=URL('download'),formstyle='bootstrap3_inline')
-    form = SQLFORM(dbLinkBudget.Job,record, deletable=True,
+    form = SQLFORM(dbLinkBudget.Job,record, deletable=False,
                   upload=URL('download'),formstyle='bootstrap3_stacked')
     if form.process().accepted:
         session.job = form.vars.job_name
@@ -56,8 +64,6 @@ def test_crud():       #Test Function used to test code before major use
     return dict(a=0)
 
 def add_excel_2_db():       #Function used to insert excel dictionary into database
-    import numpy as np
-
     file = dbLinkBudget.Job(dbLinkBudget.Job.job_name==session.job).file_up       #Find uploaded file
     job_id = dbLinkBudget.Job(dbLinkBudget.Job.job_name==session.job).id
     [SAT_dict, TRSP_dict, VSAT_dict, EARTH_COORD_GW_dict, GW_dict, EARTH_COORD_VSAT_dict, display_dict_VSAT] = load_objects_from_xl(os.path.join(request.folder,'uploads',file))
@@ -71,7 +77,6 @@ def add_excel_2_db():       #Function used to insert excel dictionary into datab
     redirect(URL('view_db',args = job_id))
 
 def read_array_to_db(db, ordDict,job_id=0):     #Used to read in dictionaries which contain numpy arrays created when reading excel file
-    import numpy as np                         #The DAL insert statement can handle dictionaries but not arrays
     temp = ordDict.fromkeys(ordDict,0)
     if job_id <> 0:    #Check for tables which require records to be assigned with job_id number
         temp['Job_ID'] = job_id
@@ -80,7 +85,7 @@ def read_array_to_db(db, ordDict,job_id=0):     #Used to read in dictionaries wh
             temp[ordDict.keys()[j]] = ordDict.values()[j][i]
         db.update_or_insert(**temp)          #Update/Insert state used to create new database records
 
-def search_db():      #Search database page
+def select():      #Search database page
     import json
     job = json.dumps(dbLinkBudget(dbLinkBudget.Job).select().as_list(),default=json_serial)  #Formatting need to interface with JQuery Datatables
     return dict(job=XML(job))
@@ -91,17 +96,22 @@ def view_db():      #View database page
     gw=[]
     vsat=[]
     sat = []
+    trsp = []
     for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID==request.args(0)).iterselect(groupby = 'GW_ID'):
         gw.extend(dbLinkBudget(dbLinkBudget.Gateway.GW_ID==row['GW_ID']).select().as_list())
+#        sat.extend(dbLinkBudget(dbLinkBudget.SAT.SAT_ID==row['GW_ID']).select().as_list())
 
     for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID==request.args(0)).iterselect(groupby = 'VSAT_ID'): #groupby only selects the distinct values from DB
-            vsat.extend(dbLinkBudget(dbLinkBudget.VSAT.VSAT_ID==row['VSAT_ID']).select().as_list())
+        vsat.extend(dbLinkBudget(dbLinkBudget.VSAT.VSAT_ID==row['VSAT_ID']).select().as_list())
 
     for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID==request.args(0)).iterselect(groupby = 'SAT_ID'): #groupby only selects the distinct values from DB
-            sat.extend(dbLinkBudget(dbLinkBudget.SAT.SAT_ID==row['SAT_ID']).select().as_list())
+        sat.extend(dbLinkBudget(dbLinkBudget.SAT.SAT_ID==row['SAT_ID']).select().as_list())
+
+
     record = dbLinkBudget.Job(request.args(0))
     dbLinkBudget.Job.Date.readable=False
     form = SQLFORM(dbLinkBudget.Job,record, deletable=True,formstyle='table3cols',submit_button='Update')
+    form.add_button('Back', URL('select'))
     response.flash=form.vars.job_name
     if form.process().accepted:
         session.job = form.vars.job_name
@@ -160,43 +170,52 @@ def process():   #Process job function
 #    else:
 #        redirect(URL('index'))
         
-
 def cesium():
-    return dict(a = 1)
+    return dict(a=1)
 
-def get_geojson():   #Get geojson function called for cesium to query db and build json output
-    import json
-    rows= dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID==request.args(0)).iterselect()  #iterselect used to save on memory resources
-                                                                                            #TODO : test if iterselect is better than regular select, time and memory resources.
-    features= [{"type": "Feature",
-                "geometry": {
-                "type" : "Point",
-                "coordinates" : [r[dbLinkBudget.EARTH_coord_VSAT.LON],r[dbLinkBudget.EARTH_coord_VSAT.LAT]]
-                },
-                "properties": {
-                    "title": ["Lon: " + str(r[dbLinkBudget.EARTH_coord_VSAT.LON])," Lat: " +str(r[dbLinkBudget.EARTH_coord_VSAT.LAT])],
-                    "Job ID" : r[dbLinkBudget.EARTH_coord_VSAT.Job_ID],
-                    "EIRP" : r[dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP]
-                }
-            }for r in rows]  #TODO : Extend to include more information form database
+
+def copy():
+    a = dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0))
+    dbLinkBudget.Job.insert(**dbLinkBudget.Job._filter_fields(a)) 
+    redirect(URL('view_db',args = request.args(0)))
+
+def get_geojson():  # Get geojson function called for cesium to query db and build json output
+    rows = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(
+        0)).iterselect()  # iterselect used to save on memory resources
+    # TODO : test if iterselect is better than regular select, time and memory resources.
+    features = [{"type": "Feature",
+                 "geometry": {
+                     "type": "Point",
+                     "coordinates": [r[dbLinkBudget.EARTH_coord_VSAT.LON], r[dbLinkBudget.EARTH_coord_VSAT.LAT]]
+                 },
+                 "properties": {
+                     "title": ["Lon: " + str(r[dbLinkBudget.EARTH_coord_VSAT.LON]),
+                               " Lat: " + str(r[dbLinkBudget.EARTH_coord_VSAT.LAT])],
+                     "Job ID": r[dbLinkBudget.EARTH_coord_VSAT.Job_ID],
+                     "EIRP": r[dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP]
+                 }
+                 } for r in rows]  # TODO : Extend to include more information form database
     return response.json({"type": "FeatureCollection", 'features': features})
 
-def get_geojson_gw():    #Get geojson function called for cesium to query db and build json output
-    import json
-    rows= dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID==request.args(0)).iterselect()
 
-    features= [{"type": "Feature",
-                "geometry": {
-                "type" : "Point",
-                "coordinates" : [r[dbLinkBudget.Earth_coord_GW.LON],r[dbLinkBudget.Earth_coord_GW.LAT]]
-                },
-                "properties": {
-                    "title": "Gateway",
-                    "Job ID" : r[dbLinkBudget.Earth_coord_GW.Job_ID],
-                    "Gateway ID" : r[dbLinkBudget.Earth_coord_GW.GW_ID],
-                    "EIRP Max" : dbLinkBudget.Gateway(dbLinkBudget.Gateway.GW_ID==r[dbLinkBudget.Earth_coord_GW.GW_ID]).EIRP_MAX,
-                    "Bandwidth": dbLinkBudget.Gateway(dbLinkBudget.Gateway.GW_ID==r[dbLinkBudget.Earth_coord_GW.GW_ID]).BANDWIDTH,
-                    "Diameter": dbLinkBudget.Gateway(dbLinkBudget.Gateway.GW_ID==r[dbLinkBudget.Earth_coord_GW.GW_ID]).DIAMETER
-                }
-            }for r in rows]
+def get_geojson_gw():  # Get geojson function called for cesium to query db and build json output
+    rows = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect()
+
+    features = [{"type": "Feature",
+                 "geometry": {
+                     "type": "Point",
+                     "coordinates": [r[dbLinkBudget.Earth_coord_GW.LON], r[dbLinkBudget.Earth_coord_GW.LAT]]
+                 },
+                 "properties": {
+                     "title": "Gateway",
+                     "Job ID": r[dbLinkBudget.Earth_coord_GW.Job_ID],
+                     "Gateway ID": r[dbLinkBudget.Earth_coord_GW.GW_ID],
+                     "EIRP Max": dbLinkBudget.Gateway(
+                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).EIRP_MAX,
+                     "Bandwidth": dbLinkBudget.Gateway(
+                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).BANDWIDTH,
+                     "Diameter": dbLinkBudget.Gateway(
+                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).DIAMETER
+                 }
+                 } for r in rows]
     return response.json({"type": "FeatureCollection", 'features': features})

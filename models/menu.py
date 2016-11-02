@@ -30,10 +30,15 @@ response.google_analytics_id = None
 # ----------------------------------------------------------------------------------------------------------------------
 
 response.menu = [
-    (T('Home'), False, URL('default', 'index'), [])
+    (T('Home'), False, URL('lbController', 'index'), []),
+    (T('Input Form'), False, URL('lbController', 'input')),
+    (T('Select'), False, URL('lbController', 'select')),
+    (T('About'), False, URL('lbController', 'about')),
+    (T('My Sites'), False, URL('admin', 'default', 'site')),
+
 ]
 
-DEVELOPMENT_MENU = True
+DEVELOPMENT_MENU = False
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -50,8 +55,6 @@ def _():
     # useful links to internal and external resources
     # ------------------------------------------------------------------------------------------------------------------
     response.menu += [
-        ('Input Form', False, URL('default', 'job_up')),
-        ('Select',False,URL('default','search_db')),
         (T('This App'), False, '#', [
             (T('Design'), False, URL('admin', 'default', 'design/%s' % app)),
             LI(_class="divider"),
