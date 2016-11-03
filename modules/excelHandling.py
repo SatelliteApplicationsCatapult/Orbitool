@@ -8,6 +8,21 @@ def mult2(number):
     inter = number * 2
     return inter
 
+def read_array_to_db(db, ordDict,job_id=0):
+    """
+    Used to read in dictionaries which contain numpy arrays created when reading excel file
+
+    """
+    temp = ordDict.fromkeys(ordDict,0)
+    if job_id <> 0:    #Check for tables which require records to be assigned with job_id number
+        temp['Job_ID'] = job_id
+    for i in range(ordDict.values()[0].size):
+        for j in range(len(ordDict.keys())):
+            temp[ordDict.keys()[j]] = ordDict.values()[j][i]
+        db.update_or_insert(**temp)          #Update/Insert state used to create new database records
+
+
+
 def load_objects_from_xl(file_name):
 
     SAT_dict={}

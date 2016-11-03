@@ -2,32 +2,22 @@
 # this file is released under public domain and you can use without limitations
 
 # -------------------------------------------------------------------------
-# This is a sample controller
-# - index is the default action of any application
-# - user is required for authentication and authorization
-# - download is for downloading files uploaded in the db (does streaming)
+# This is the Link Budget Controller
 # -------------------------------------------------------------------------
 from excelHandling import *
 #from cesium import *
 import os
 
-
 def index():
     """
-    example action using the internationalization operator T and flash
-    rendered by views/default/index.html or views/generic.html
-    return auth.wiki()
-    if you need a simple wiki simply replace the two lines below with:
+    Home page
 
     """
     return dict(message=T('Multi-Mission Satellite Link Budget Analysis Framework'))
 
 def about():
     """
-    example action using the internationalization operator T and flash
-    rendered by views/default/index.html or views/generic.html
-    return auth.wiki()
-    if you need a simple wiki simply replace the two lines below with:
+    About page
 
     """
     return dict(message=T('About'))
@@ -50,7 +40,11 @@ def user():
     """
     return dict(form=auth())
 
-def input():                                 #Input Form page
+def input():
+    """
+    Input form
+
+    """
     session.job = ""
     record = dbLinkBudget.Job(request.args(0))   #Required if page used to update records
     dbLinkBudget.Job.Date.readable = False       #SQL form formatting
@@ -64,34 +58,16 @@ def input():                                 #Input Form page
 def test_crud():       #Test Function used to test code before major use
     return dict(a=0)
 
-def add_excel_2_db():       #Function used to insert excel dictionary into database
-    file = dbLinkBudget.Job(dbLinkBudget.Job.job_name==session.job).file_up       #Find uploaded file
-    job_id = dbLinkBudget.Job(dbLinkBudget.Job.job_name==session.job).id
-    [SAT_dict, TRSP_dict, VSAT_dict, EARTH_COORD_GW_dict, GW_dict, EARTH_COORD_VSAT_dict, display_dict_VSAT] = load_objects_from_xl(os.path.join(request.folder,'uploads',file))
-    read_array_to_db(dbLinkBudget.VSAT,VSAT_dict)
-    read_array_to_db(dbLinkBudget.Gateway,GW_dict)
-    read_array_to_db(dbLinkBudget.TRSP,TRSP_dict)
-    read_array_to_db(dbLinkBudget.SAT,SAT_dict)
-    read_array_to_db(dbLinkBudget.Earth_coord_GW,EARTH_COORD_GW_dict,job_id)
-    read_array_to_db(dbLinkBudget.EARTH_coord_VSAT,EARTH_COORD_VSAT_dict,job_id)
-    #SAT_dict = compute_sat_params(SAT_dict)
-    redirect(URL('view_db',args = job_id))
+def select():
+    """
+        Page for selecting which upload to work on
 
-def read_array_to_db(db, ordDict,job_id=0):     #Used to read in dictionaries which contain numpy arrays created when reading excel file
-    temp = ordDict.fromkeys(ordDict,0)
-    if job_id <> 0:    #Check for tables which require records to be assigned with job_id number
-        temp['Job_ID'] = job_id
-    for i in range(ordDict.values()[0].size):
-        for j in range(len(ordDict.keys())):
-            temp[ordDict.keys()[j]] = ordDict.values()[j][i]
-        db.update_or_insert(**temp)          #Update/Insert state used to create new database records
-
-def select():      #Search database page
+    """
     import json
     job = json.dumps(dbLinkBudget(dbLinkBudget.Job).select().as_list(),default=json_serial)  #Formatting need to interface with JQuery Datatables
     return dict(job=XML(job))
 
-def view_db():      #View database page
+def update():      #View database page
     import json
     job = json.dumps(dbLinkBudget(dbLinkBudget.Job).select().as_list(),default=json_serial)    #default json.dumps specificed
     gw=[]
@@ -118,6 +94,23 @@ def view_db():      #View database page
         session.job = form.vars.job_name
         add_excel_2_db()
     return dict(job=XML(job),vsat=XML(json.dumps(vsat)),gw = XML(json.dumps(gw)),sat=json.dumps(sat),form=form)
+
+def add_excel_2_db():
+    """
+    Function used to insert excel dictionary into database
+
+    """
+    file = dbLinkBudget.Job(dbLinkBudget.Job.job_name==session.job).file_up       #Find uploaded file
+    job_id = dbLinkBudget.Job(dbLinkBudget.Job.job_name==session.job).id
+    [SAT_dict, TRSP_dict, VSAT_dict, EARTH_COORD_GW_dict, GW_dict, EARTH_COORD_VSAT_dict, display_dict_VSAT] = load_objects_from_xl(os.path.join(request.folder,'uploads',file))
+    read_array_to_db(dbLinkBudget.VSAT,VSAT_dict)
+    read_array_to_db(dbLinkBudget.Gateway,GW_dict)
+    read_array_to_db(dbLinkBudget.TRSP,TRSP_dict)
+    read_array_to_db(dbLinkBudget.SAT,SAT_dict)
+    read_array_to_db(dbLinkBudget.Earth_coord_GW,EARTH_COORD_GW_dict,job_id)
+    read_array_to_db(dbLinkBudget.EARTH_coord_VSAT,EARTH_COORD_VSAT_dict,job_id)
+    #SAT_dict = compute_sat_params(SAT_dict)
+    redirect(URL('update',args = job_id))
 
 def json_serial(obj):    #function needed to serialise the date field for json output
     from datetime import datetime
@@ -157,12 +150,7 @@ def run():
        """
     import subprocess   #TODO : extend to use input checklist and chose certain jobs, Damian Code required
     from config import pathtopropadir
-    if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'CNES':     #Changes the propa library path based on the propaLib field
-        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
-    elif dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'OTHER1':
-        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
-    else:
-        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
+    checkPropa()
     for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect():
         lon = row.LON
         lat = row.LAT
@@ -170,10 +158,19 @@ def run():
         (out,err)=proc.communicate()
         dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.id == row.id).update(SAT_EIRP=out)
     dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(processed=True)
-    redirect(URL('view_db',args = request.args(0)))
-    
-#    else:
-#        redirect(URL('index'))
+    redirect(URL('update',args = request.args(0)))
+
+def checkPropa():
+    """
+          Checks which propagation library is being used.
+
+          """
+    if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'CNES':
+        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
+    elif dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'OTHER1':
+        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
+    else:
+        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
         
 def cesium():
     return dict(a=1)
@@ -182,7 +179,7 @@ def cesium():
 def copy():
     a = dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0))
     dbLinkBudget.Job.insert(**dbLinkBudget.Job._filter_fields(a)) 
-    redirect(URL('view_db',args = request.args(0)))
+    redirect(URL('update',args = request.args(0)))
 
 def get_geojson():  # Get geojson function called for cesium to query db and build json output
     import json

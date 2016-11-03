@@ -39,7 +39,7 @@ $(document).ready(function(){
     });
     job_table.on('click','tr',function(){
         var data = job_table.row(this).data();
-        window.location = 'view_db/' +data['id'];
+        window.location = 'update/' +data['id'];
     });
 });
 </script>
