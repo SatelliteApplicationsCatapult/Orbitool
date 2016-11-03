@@ -112,6 +112,21 @@ def add_excel_2_db():
     #SAT_dict = compute_sat_params(SAT_dict)
     redirect(URL('update',args = job_id))
 
+
+def read_array_to_db(db, ordDict,job_id=0):
+    """
+    Used to read in dictionaries which contain numpy arrays created when reading excel file
+
+    """
+    temp = ordDict.fromkeys(ordDict,0)
+    if job_id <> 0:    #Check for tables which require records to be assigned with job_id number
+        temp['Job_ID'] = job_id
+    for i in range(ordDict.values()[0].size):
+        for j in range(len(ordDict.keys())):
+            temp[ordDict.keys()[j]] = ordDict.values()[j][i]
+        db.update_or_insert(**temp)          #Update/Insert state used to create new database records
+
+
 def json_serial(obj):    #function needed to serialise the date field for json output
     from datetime import datetime
     """JSON serializer for objects not serializable by default json code"""
