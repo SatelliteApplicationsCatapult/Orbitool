@@ -268,7 +268,7 @@ $(document).ready(function(){
         window.location="{{=URL('create_download',args = request.args(0))}}";
     });
     $("#cesium").click(function(){
-        window.location="{{=URL('cesium',args = request.args(0))}}";
+        window.open("{{=URL('cesium',args = request.args(0))}}");
     });
 });
 </script>
