@@ -5,6 +5,7 @@
 # This is the Link Budget Controller
 # -------------------------------------------------------------------------
 from excelHandling import *
+from config import *
 #from cesium import *
 import os
 
