@@ -149,7 +149,7 @@ def create_download():
 
 def process():   #Process job function
     import subprocess   #TODO : extend to use input checklist and chose certain jobs, Damian Code required
-    from modules.config import pathtopropadir
+    from config import pathtopropadir
     #This changes the propa library path based on the propaLib field (TODO: add other library choices)
     if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'CNES':
         cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
