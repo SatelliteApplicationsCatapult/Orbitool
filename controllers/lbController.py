@@ -11,6 +11,7 @@ from excelHandling import *
 #from cesium import *
 import os
 
+
 def index():
     """
     example action using the internationalization operator T and flash
@@ -148,16 +149,14 @@ def create_download():
 
 def process():   #Process job function
     import subprocess   #TODO : extend to use input checklist and chose certain jobs, Damian Code required
+    from modules.config import pathtopropadir
     #This changes the propa library path based on the propaLib field (TODO: add other library choices)
     if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'CNES':
-        pathtoPropaDir = '/home/simon'
-        cfile = os.path.join(pathtoPropaDir, 'propa/dist/Debug/GNU-Linux/',"propa")
+        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
     elif dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'OTHER1':
-        pathtoPropaDir = '/home/simon'
-        cfile = os.path.join(pathtoPropaDir, 'propa/dist/Debug/GNU-Linux/',"propa")
+        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
     else:
-        pathtoPropaDir = '/home/simon'
-        cfile = os.path.join(pathtoPropaDir, 'propa/dist/Debug/GNU-Linux/',"propa")
+        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
     for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect():
         lon = row.LON
         lat = row.LAT
