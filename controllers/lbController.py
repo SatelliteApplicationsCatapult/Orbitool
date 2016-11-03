@@ -5,8 +5,7 @@
 # This is the Link Budget Controller
 # -------------------------------------------------------------------------
 from excelHandling import *
-from config import *
-#from cesium import *
+
 import os
 
 def index():
@@ -166,7 +165,12 @@ def run():
        """
     import subprocess   #TODO : extend to use input checklist and chose certain jobs, Damian Code required
     from config import pathtopropadir
-    checkPropa()
+    if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'CNES':
+        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
+    elif dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'OTHER1':
+        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
+    else:
+        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
     for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect():
         lon = row.LON
         lat = row.LAT
@@ -175,18 +179,6 @@ def run():
         dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.id == row.id).update(SAT_EIRP=out)
     dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(processed=True)
     redirect(URL('update',args = request.args(0)))
-
-def checkPropa():
-    """
-          Checks which propagation library is being used.
-
-          """
-    if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'CNES':
-        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
-    elif dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'OTHER1':
-        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
-    else:
-        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
         
 def cesium():
     return dict(a=1)
