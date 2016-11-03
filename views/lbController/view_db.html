@@ -31,14 +31,14 @@
         {{=form}}
     </div>
     <div class = "Bwidget">
-        <h1>Processing</h1>
-        <button id="process" lass="btn" style="float;background-color:#e04c4c">Process</button>
+        <h1>Actions</h1>
+        <button id="run" lass="btn" style="float;background-color:#e04c4c">Run</button>
         {{if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).processed == True:}}
         <button class="btn" id="processed" style="float;background-color:#6699ff">
-            Processed File
+            Output File
         </button>
         <button class="btn" id="cesium" style="float;background-color:#40ff00">
-            Cesium
+            Plot in Cesium
         </button>
         {{pass}}
          <button id="copy" class="btn" style="float;background-color: #dbe04c">Copy Record to New</button>
@@ -257,8 +257,8 @@ $(document).ready(function(){
         $("#vsat_div").hide(700);
         $("#sat_div").hide(700);
     });
-    $("#process").click(function(){
-        window.location="{{=URL('process',args = request.args(0))}}";
+    $("#run").click(function(){
+        window.location="{{=URL('run',args = request.args(0))}}";
     });
     $("#copy").click(function(){
         window.location="{{=URL('copy',args = request.args(0))}}";

@@ -147,11 +147,17 @@ def create_download():
     redirect(URL('download',args = dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).processed_file))
 
 
-def process():   #Process job function
+def run():
+    """
+       This runs the processing of the excel file.
+       Currently asks which propagation library is being used.
+       Adds EIRP values
+       Updates 'processed' checkbox.
+
+       """
     import subprocess   #TODO : extend to use input checklist and chose certain jobs, Damian Code required
     from config import pathtopropadir
-    #This changes the propa library path based on the propaLib field (TODO: add other library choices)
-    if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'CNES':
+    if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'CNES':     #Changes the propa library path based on the propaLib field
         cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
     elif dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'OTHER1':
         cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/',"propa")
