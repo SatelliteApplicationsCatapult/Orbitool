@@ -44,7 +44,7 @@
             });
             //var dataSource = Cesium.GeoJsonDataSource.load('{{=URL('default', 'get_geojson')}}');
             var VSAT = new Cesium.GeoJsonDataSource();
-            VSAT.load('{{=URL('default', 'get_geojson',args=[request.args(0)])}}').then(function(){
+            VSAT.load('{{=URL('lbController', 'get_geojson',args=[request.args(0)])}}').then(function(){
                 var entities = VSAT.entities.values;
                 for (var i = 0; i < entities.length; i++) {
                     var entity = entities[i];
@@ -57,7 +57,7 @@
                 };
             });
            var GW = new Cesium.GeoJsonDataSource();
-           GW.load('{{=URL('default', 'get_geojson_gw',args=[request.args(0)])}}').then(function(){
+           GW.load('{{=URL('lbController', 'get_geojson_gw',args=[request.args(0)])}}').then(function(){
                 var entities = GW.entities.values;
                 for (var i = 0; i < entities.length; i++) {
                     var entity = entities[i];

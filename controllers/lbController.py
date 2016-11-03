@@ -180,6 +180,7 @@ def copy():
     redirect(URL('view_db',args = request.args(0)))
 
 def get_geojson():  # Get geojson function called for cesium to query db and build json output
+    import json
     rows = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(
         0)).iterselect()  # iterselect used to save on memory resources
     # TODO : test if iterselect is better than regular select, time and memory resources.
@@ -199,6 +200,7 @@ def get_geojson():  # Get geojson function called for cesium to query db and bui
 
 
 def get_geojson_gw():  # Get geojson function called for cesium to query db and build json output
+    import json
     rows = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect()
 
     features = [{"type": "Feature",
