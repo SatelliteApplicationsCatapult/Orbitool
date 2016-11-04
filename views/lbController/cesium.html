@@ -42,7 +42,6 @@
                 timeline : false,
                 animation : false
             });
-            //var dataSource = Cesium.GeoJsonDataSource.load('{{=URL('default', 'get_geojson')}}');
             var VSAT = new Cesium.GeoJsonDataSource();
             VSAT.load('{{=URL('lbController', 'get_geojson',args=[request.args(0)])}}').then(function(){
                 var entities = VSAT.entities.values;

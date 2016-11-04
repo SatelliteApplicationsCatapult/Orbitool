@@ -85,7 +85,7 @@ def update():
     dbLinkBudget.Job.Date.readable=False
     dbLinkBudget.Job.file_up.writable = False
     dbLinkBudget.Job.file_up.readable = False
-    dbLinkBudget.Job.job_name.writable = False
+    dbLinkBudget.Job.job_name.writable = True
     form = SQLFORM(dbLinkBudget.Job,record, deletable=True,formstyle='table3cols',submit_button='Update')
     form.add_button('Back', URL('select'))
     response.flash=form.vars.job_name
@@ -185,7 +185,7 @@ def run():
     for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect():
         lon = row.LON
         lat = row.LAT
-        proc = subprocess.Popen([cfile,str(lon),str(lat),],stdout=subprocess.PIPE)
+        proc = subprocess.Popen([cfile,str(lon),str(lat),],stdout=subprocess.PIPE) #implements propa
         (out,err)=proc.communicate()
         dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.id == row.id).update(SAT_EIRP=out)
     dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(processed=True)
@@ -207,8 +207,9 @@ def copy():
 
 def get_geojson():
     """
-    Get geojson function called for cesium to query db and build json output
+    Function to get the coordinates into a GeoJSON format
     This adds the lat and longitude for the User Terminals
+    Called in cesium.html
     """
     rows = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(
         0)).iterselect()  # iterselect used to save on memory resources
@@ -230,8 +231,9 @@ def get_geojson():
 
 def get_geojson_gw():
     """
-    Get geojson function called for cesium to query db and build json output
+    Function to get the coordinates into a GeoJSON format
     This adds the lat and longitudes for the gateways
+    Called in cesium.html
     """
     rows = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect()
 
