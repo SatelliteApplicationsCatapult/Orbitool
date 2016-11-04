@@ -1,10 +1,10 @@
+{{response.title='About'}}
 {{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
 {{extend 'layout.html'}}
-
 {{block header}}
 
 {{end}}
-
+<title>test</title>
 {{if 'message' in globals():}}
 <h2>{{=message}}</h2>
 <!--<p class="lead">{{=T('How did you get here?')}}</p>>-->

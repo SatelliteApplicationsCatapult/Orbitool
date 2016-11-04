@@ -1,3 +1,4 @@
+{{response.title='Update'}}
 {{extend 'layout.html'}}
 <head>
     <script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.12.3.js">
@@ -9,25 +10,10 @@
 </head>
 <body>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
-  <!--  <div style="float:left; width:50%;">
+    <div style="float:left; width:50%;padding:10px;height:750px;overflow: auto">
         <h1>
-           Selected job: {{=dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).job_name}}
+            Update
         </h1>
-        <table id="job_table" class="table stripe hover display dt-center" cellspacing="0" width="100%">
-            <thead>
-                 <tr>
-                    <th>Job Name </th>
-                    <th>Sim Mode</th>
-                    <th>Propagation Library</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-        </table>
-    </div>-->
-    <div style="float:left; width:50%;padding:30px;height:700px;overflow: auto">
-        <h4>
-            Update Form
-        </h4>
         {{=form}}
     </div>
     <div class = "Bwidget">
@@ -181,36 +167,7 @@ $(document).ready(function(){
             {"className": "dt-center", "targets": "_all"}
         ]
     });
-    
-  //  var sat_table = $("#sat_table").DataTable({
-  //      bFilter: false,
-   //     bInfo: false,
-  //      bPaginate: false,
-  //      bLengthChange: false,
-  //      data:  {{=sat}},
-  //      language : { "emptyTable":"Why is this empty?"},
-  //      columns: [
-  //          { data: 'SAT_ID' },
-  //          { data: 'NADIR_LON' },
-  //          { data: 'NADIR_LAT'},
-  //          { data: 'DISTANCE' },
-   //         { data: 'INCLINATION_ANGLE' },
-   //         { data: 'FOV_RADIUS'},
-  //          { data: 'FLAG_ASC_DESC' },
-    //        { data: 'INTERF_FLAG' },
-      //      { data: 'ROLL' },
-        //    { data: 'PITCH' },
-          //  { data: 'YAW' },
-           // { data: 'PAYLOAD_ID' }
-            // 'id' omitted to show that you can
-            // use only the fields you choose
-      //  ],
-       // "columnDefs": [
-        //    {"className": "dt-center", "targets": "_all"}
-       // ]
-   // });
-    
-    
+
     var gw_table = $("#gw_table").DataTable({
         bFilter: false,
         bInfo: false,

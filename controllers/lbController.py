@@ -5,21 +5,17 @@
 # This is the Link Budget Controller
 # -------------------------------------------------------------------------
 from excelHandling import *
+from gluon import *
 
 import os
+#response.title = 'Link Budget Calculator'
 
 def index():
-    """
-    Home page
-
-    """
+    """ Home page """
     return dict(message=T('Multi-Mission Satellite Link Budget Analysis Framework'))
 
 def about():
-    """
-    About page
-
-    """
+    """ About page """
     return dict(message=T('About'))
 
 def user():
@@ -41,13 +37,10 @@ def user():
     return dict(form=auth())
 
 def input():
-    """
-    Input form
-
-    """
+    """ Input form """
     session.job = ""
-    record = dbLinkBudget.Job(request.args(0))   #Required if page used to update records
-    dbLinkBudget.Job.Date.readable = False       #SQL form formatting
+    record = dbLinkBudget.Job(request.args(0))
+    dbLinkBudget.Job.Date.readable = False
     form = SQLFORM(dbLinkBudget.Job,record, deletable=False,
                   upload=URL('download'),formstyle='bootstrap3_stacked')
     if form.process().accepted:
@@ -55,19 +48,22 @@ def input():
         add_excel_2_db()
     return dict(form = form)
 
-def test_crud():       #Test Function used to test code before major use
+def test_crud():
+    """ Test Function used to test code before major use """
     return dict(a=0)
 
 def select():
-    """
-        Page for selecting which upload to work on
-
-    """
+    """  Page for selecting which upload to work on  """
     import json
     job = json.dumps(dbLinkBudget(dbLinkBudget.Job).select().as_list(),default=json_serial)  #Formatting need to interface with JQuery Datatables
     return dict(job=XML(job))
 
-def update():      #View database page
+def update():
+    """ Update form
+    This function created the update form and
+    creates dictionaries to be displayed.
+
+    """
     import json
     job = json.dumps(dbLinkBudget(dbLinkBudget.Job).select().as_list(),default=json_serial)    #default json.dumps specificed
     gw=[]
@@ -87,10 +83,13 @@ def update():      #View database page
 
     record = dbLinkBudget.Job(request.args(0))
     dbLinkBudget.Job.Date.readable=False
+    dbLinkBudget.Job.file_up.writable = False
+    dbLinkBudget.Job.file_up.readable = False
+    dbLinkBudget.Job.job_name.writable = False
     form = SQLFORM(dbLinkBudget.Job,record, deletable=True,formstyle='table3cols',submit_button='Update')
     form.add_button('Back', URL('select'))
     response.flash=form.vars.job_name
-    if form.process().accepted:
+    if form.process().accepted: #error here as this checks to see if the form works and then calls
         session.job = form.vars.job_name
         add_excel_2_db()
     return dict(job=XML(job),vsat=XML(json.dumps(vsat)),gw = XML(json.dumps(gw)),sat=json.dumps(sat),form=form)
@@ -115,7 +114,8 @@ def add_excel_2_db():
 
 def read_array_to_db(db, ordDict,job_id=0):
     """
-    Used to read in dictionaries which contain numpy arrays created when reading excel file
+    Used to read in dictionaries which contain
+    numpy arrays created when reading excel file
 
     """
     temp = ordDict.fromkeys(ordDict,0)
@@ -127,18 +127,29 @@ def read_array_to_db(db, ordDict,job_id=0):
         db.update_or_insert(**temp)          #Update/Insert state used to create new database records
 
 
-def json_serial(obj):    #function needed to serialise the date field for json output
+def json_serial(obj):
+    """
+    Function needed to serialise the date field for json output
+
+    """
     from datetime import datetime
-    """JSON serializer for objects not serializable by default json code"""
     if isinstance(obj,datetime):
         serial = obj.strftime("%d-%m-%Y  %H:%M")
         return serial
     raise TypeError ("Type not serializable")
 
 def download():
+    """
+    allows downloading of uploaded files
+    http://..../[app]/default/download/[filename]
+    """
     return response.download(request, dbLinkBudget)
 
 def create_download():
+    """
+    Creates downloadable file.
+    This is called in update.py under options
+    """
     rowt = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID==request.args(0)).iterselect("PAYLOAD_ID","AVAILABILITY_DN","TRSP_ID","LON","LAT","AVAILABILITY_UP","SAT_ID","SAT_EIRP","ALT","VSAT_ID").first().as_dict()
     temp = dict.fromkeys(rowt["_extra"])
     for key in temp.keys():
@@ -157,12 +168,12 @@ def create_download():
 
 def run():
     """
-       This runs the processing of the excel file.
-       Currently asks which propagation library is being used.
-       Adds EIRP values
-       Updates 'processed' checkbox.
+    This runs the processing of the excel file.
+    Currently asks which propagation library is being used.
+    Adds EIRP values
+    Updates 'processed' checkbox.
 
-       """
+    """
     import subprocess   #TODO : extend to use input checklist and chose certain jobs, Damian Code required
     from config import pathtopropadir
     if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).propaLib == 'CNES':
@@ -181,16 +192,24 @@ def run():
     redirect(URL('update',args = request.args(0)))
         
 def cesium():
+    """    Cesium viewing page cesium.html    """
     return dict(a=1)
 
 
 def copy():
+    """
+    Function for a copy button on update.html
+    Need to change it to make a new file and ID otherwise there's no point
+    """
     a = dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0))
     dbLinkBudget.Job.insert(**dbLinkBudget.Job._filter_fields(a)) 
     redirect(URL('update',args = request.args(0)))
 
-def get_geojson():  # Get geojson function called for cesium to query db and build json output
-    import json
+def get_geojson():
+    """
+    Get geojson function called for cesium to query db and build json output
+    This adds the lat and longitude for the User Terminals
+    """
     rows = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(
         0)).iterselect()  # iterselect used to save on memory resources
     # TODO : test if iterselect is better than regular select, time and memory resources.
@@ -209,8 +228,11 @@ def get_geojson():  # Get geojson function called for cesium to query db and bui
     return response.json({"type": "FeatureCollection", 'features': features})
 
 
-def get_geojson_gw():  # Get geojson function called for cesium to query db and build json output
-    import json
+def get_geojson_gw():
+    """
+    Get geojson function called for cesium to query db and build json output
+    This adds the lat and longitudes for the gateways
+    """
     rows = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect()
 
     features = [{"type": "Feature",

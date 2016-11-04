@@ -199,7 +199,7 @@ dbLinkBudget.define_table('SAT',
                           Field('PAYLOAD_ID','string',requires=IS_IN_DB(dbLinkBudget,dbLinkBudget.TRSP.PAYLOAD_ID))) #From a quick search online the IS_IN_DB function can't be in a list otherwise it won't
 dbLinkBudget.SAT.PAYLOAD_ID.requires = IS_NOT_EMPTY()                                                                #generated as a list. Futher testing required
 dbLinkBudget.define_table('Job',
-                          Field('job_name','string',requires=IS_NOT_EMPTY()),
+                          Field('job_name','string',requires=IS_NOT_EMPTY(), label= 'Name'),
                           Field('Date','string',default=request.now, update=request.now, writable=False,label='Upload Date'),
                           Field('file_up','upload',requires=IS_NOT_EMPTY(),label='File (excel spreadsheet)', autodelete=True),
                           Field('processed_file','upload',writable=False, readable=False,autodelete=True),
