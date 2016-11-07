@@ -4,11 +4,9 @@
 # ## make sure administrator is on localhost
 # ###########################################################
 
-import os
 import socket
 import datetime
 import copy
-import gluon.contenttype
 import gluon.fileutils
 
 try:
