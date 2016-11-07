@@ -8,7 +8,7 @@ from excelHandling import *
 from gluon import *
 
 import os
-#response.title = 'Link Budget Calculator'
+response.title = 'Link Budget Calculator'
 
 def index():
     """ Home page """
@@ -72,14 +72,12 @@ def update():
     trsp = []
     for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID==request.args(0)).iterselect(groupby = 'GW_ID'):
         gw.extend(dbLinkBudget(dbLinkBudget.Gateway.GW_ID==row['GW_ID']).select().as_list())
-#        sat.extend(dbLinkBudget(dbLinkBudget.SAT.SAT_ID==row['GW_ID']).select().as_list())
 
     for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID==request.args(0)).iterselect(groupby = 'VSAT_ID'): #groupby only selects the distinct values from DB
         vsat.extend(dbLinkBudget(dbLinkBudget.VSAT.VSAT_ID==row['VSAT_ID']).select().as_list())
 
     for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID==request.args(0)).iterselect(groupby = 'SAT_ID'): #groupby only selects the distinct values from DB
         sat.extend(dbLinkBudget(dbLinkBudget.SAT.SAT_ID==row['SAT_ID']).select().as_list())
-
 
     record = dbLinkBudget.Job(request.args(0))
     dbLinkBudget.Job.Date.readable=False
@@ -111,15 +109,19 @@ def add_excel_2_db():
     #SAT_dict = compute_sat_params(SAT_dict)
     redirect(URL('update',args = job_id))
 
-
-def read_array_to_db(db, ordDict,job_id=0):
+def read_array_to_db(db, ordDict, job_id=0):
     """
     Used to read in dictionaries which contain
     numpy arrays created when reading excel file
 
+    Args:
+        db: database
+        ordDict: ordered dictionary
+        job_id:
+
     """
-    temp = ordDict.fromkeys(ordDict,0)
-    if job_id <> 0:    #Check for tables which require records to be assigned with job_id number
+    temp = ordDict.fromkeys(ordDict, 0)
+    if job_id:    #Check for tables which require records to be assigned with job_id number
         temp['Job_ID'] = job_id
     for i in range(ordDict.values()[0].size):
         for j in range(len(ordDict.keys())):
@@ -130,6 +132,9 @@ def read_array_to_db(db, ordDict,job_id=0):
 def json_serial(obj):
     """
     Function needed to serialise the date field for json output
+
+    Args:
+        obj:
 
     """
     from datetime import datetime
@@ -185,7 +190,7 @@ def run():
     for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect():
         lon = row.LON
         lat = row.LAT
-        proc = subprocess.Popen([cfile,str(lon),str(lat),],stdout=subprocess.PIPE) #implements propa
+        proc = subprocess.Popen([cfile,str(lon),str(lat),],stdout=subprocess.PIPE) #runs propa
         (out,err)=proc.communicate()
         dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.id == row.id).update(SAT_EIRP=out)
     dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(processed=True)
@@ -194,7 +199,6 @@ def run():
 def cesium():
     """    Cesium viewing page cesium.html    """
     return dict(a=1)
-
 
 def copy():
     """
@@ -210,10 +214,9 @@ def get_geojson():
     Function to get the coordinates into a GeoJSON format
     This adds the lat and longitude for the User Terminals
     Called in cesium.html
+    TODO : test if iterselect is better than regular select, time and memory resources.
     """
-    rows = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(
-        0)).iterselect()  # iterselect used to save on memory resources
-    # TODO : test if iterselect is better than regular select, time and memory resources.
+    rows = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect()
     features = [{"type": "Feature",
                  "geometry": {
                      "type": "Point",
