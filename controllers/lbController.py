@@ -81,16 +81,17 @@ def update():
     vsat = []
     sat = []
     trsp = []
-    for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect(groupby='GW_ID'):
+    for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect(groupby='GW_ID'): #this looks for the different types of gateway referred to in gw Earth_coord
         gw.extend(dbLinkBudget(dbLinkBudget.Gateway.GW_ID == row['GW_ID']).select().as_list())
 
-    for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect(
-            groupby='VSAT_ID'):  # groupby only selects the distinct values from DB
+    for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect(groupby='VSAT_ID'):  #this looks for the different types of vsat referred to in vsat Earth_coord
         vsat.extend(dbLinkBudget(dbLinkBudget.VSAT.VSAT_ID == row['VSAT_ID']).select().as_list())
 
-    for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect(
-            groupby='SAT_ID'):  # groupby only selects the distinct values from DB
+    for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect(groupby='SAT_ID'): #this looks for the different types of Satellite referred to in gateway Earth_coord
         sat.extend(dbLinkBudget(dbLinkBudget.SAT.SAT_ID == row['SAT_ID']).select().as_list())
+
+    for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect(groupby='PAYLOAD_ID'): #this looks for the different types of payload referred to in gateway Earth_coord and outputs transponder information
+        trsp.extend(dbLinkBudget(dbLinkBudget.TRSP.PAYLOAD_ID == row['PAYLOAD_ID']).select().as_list())
 
     record = dbLinkBudget.Job(request.args(0))
     dbLinkBudget.Job.Date.readable = False
@@ -107,7 +108,7 @@ def update():
         else:
             session.job = form.vars.job_name
             add_excel_2_db()
-    return dict(job=XML(job), vsat=XML(json.dumps(vsat)), gw=XML(json.dumps(gw)), sat=json.dumps(sat), form=form)
+    return dict(job=XML(job), vsat=XML(json.dumps(vsat)), gw=XML(json.dumps(gw)), sat=XML(json.dumps(sat)), trsp=XML(json.dumps(trsp)), form=form)
 
 
 def add_excel_2_db():
@@ -182,7 +183,7 @@ def download():
 def create_download():
     """
     Creates downloadable file.
-    This is called in update.py under options
+    This is called in update.html under options
 
     Returns:
         object: 
@@ -264,6 +265,9 @@ def get_geojson():
     This adds the lat and longitude for the User Terminals
     Called in cesium.html
     TODO : test if iterselect is better than regular select, time and memory resources.
+
+    Returns:
+        object:
     """
     rows = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect()
     features = [{"type": "Feature",
@@ -286,6 +290,9 @@ def get_geojson_gw():
     Function to get the coordinates into a GeoJSON format
     This adds the lat and longitudes for the gateways
     Called in cesium.html
+
+    Returns:
+        object: 
     """
     rows = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect()
 

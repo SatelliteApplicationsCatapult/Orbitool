@@ -216,7 +216,7 @@ dbLinkBudget.define_table('Job',
                           Field('sat_dwn_perf','boolean',label='9) Compute satellite downlink performances (e.g. EIRP)'),
                           Field('comp_link_budget','boolean',label='10) Compute link budget'),
                           Field('description','string'),
-                          Field('processed','boolean', default=False,label='Processed? Leave this unchecked and it becomes checked when you press the Process button'),
+                          Field('processed','boolean', default=False,label='Processed? Leave this unchecked and it becomes checked when you press the Run button'),
                           )
 #dbLinkBudget.Job.file_up.requires=IS_UPLOAD_FILENAME(extension=['xlsx','xls','xml'])
 dbLinkBudget.define_table('Earth_coord_GW',

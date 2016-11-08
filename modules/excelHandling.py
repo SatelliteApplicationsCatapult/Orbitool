@@ -10,6 +10,12 @@ def mult2(number):
 
 def load_objects_from_xl(file_name):
 
+    """
+    Loads the excel file worksheets into dictionaries
+
+    Returns:
+        object:
+    """
     SAT_dict={}
     TRSP_dict={}
     VSAT_dict={}
@@ -74,16 +80,18 @@ def load_objects_from_xl(file_name):
 
 
     return SAT_dict, TRSP_dict, VSAT_dict, EARTH_COORD_GW_dict,  GW_dict, EARTH_COORD_VSAT_dict, display_dict_VSAT
-####################################################################################################
 
-#def load_objects(file_name, wksheet_name):
+
 def load_object(worksheet):
+    """
+
+    workbook = xlrd.open_workbook(file_name)
+    worksheet = workbook.sheet_by_name(wksheet_name)
+
+    Returns:
+        object:
+    """
     d=OrderedDict({})
-#    #
-#    workbook = xlrd.open_workbook(file_name)
-#    worksheet = workbook.sheet_by_name(wksheet_name)
-#    #
-#
     for curr_col in range(0, worksheet.ncols):
         liste_elts = worksheet.col_values(curr_col)
 
@@ -92,10 +100,16 @@ def load_object(worksheet):
     return d
 
 def compute_sat_params(SAT_dict, flag_intermediate_params=False):
-    ''' This function computes main satellite characteristics, needed for other
+    '''
+    This function computes main satellite characteristics, needed for other
     calculation :
     - nadir in ECEF coordinates
     - satellite position in ECEF coordinates
+
+    It's from Damien code
+
+    Returns:
+        object:
     '''
 
     nadir                    =   np.array([SAT_dict['NADIR_LON'],SAT_dict['NADIR_LAT']])

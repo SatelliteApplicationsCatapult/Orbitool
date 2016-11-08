@@ -24,20 +24,21 @@
             Output File
         </button>
         <button class="btn" id="cesium" style="float;background-color:#40ff00">
-            Plot in Cesium
+            Plot Earth stations
         </button>
         {{pass}}
          <button id="copy" class="btn" style="float;background-color: #dbe04c">Copy Record to New</button>
         </div>
     <div class = "Bwidget">
-        <h1>Data Views</h1>
+        <h1>Component types </h1>
         <p id="description">
             {{=dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).description}}
         </p>
         <button id="vsat">VSAT</button>
+        <button id="gw">Gateways</button>
         <button id="sat">SAT</button>
-        <button id="gw">Gateway</button>
-        <button id="trsp">Transponder</button>
+        <button id="trsp">Transponders</button>
+        <p>The satellites and transponders used are assumed from Gateway Earth Points worksheet.</p>
     </div>
     <div id="selected"  style="float:right; width:50%;padding:30px;height:700px;overflow: auto">
         <div id = "vsat_div" style = "width:100%;">
@@ -64,6 +65,7 @@
                 <thead>
                      <tr>
                         <th>Sat ID</th>
+                        <th>Payload ID</th>
                         <th>Nadir Lon (deg)</th>
                         <th>Nadir Lat (deg)</th>
                         <th>Distance (Km)</th>
@@ -74,7 +76,7 @@
                         <th>Roll (deg)</th>
                         <th>Pitch (deg)</th>
                         <th>Yaw (deg)</th>
-                        <th>Payload ID</th>
+
                     </tr>
                 </thead>
             </table>
@@ -99,20 +101,19 @@
                 </thead>
             </table>
         </div>
-       <!-- <div id = "trsp_div" style = "width:100%;">
+        <div  id="trsp_div" style = "width:100%;">
             <h2 align="center">
                 Transponder
             </h2>
-            <table id="trsp_table" class="table stripe hover display" cellspacing="0" width="50%" >
+            <table id="trsp_table" class="table stripe hover display" cellspacing="0" width="50%">
                 <thead>
                      <tr>
-                        <th>Forward/Return Flag</th>
-                        <th>Payload ID</th>
-                        <th>Transponder ID</th>
+                         <th>Payload ID</th>
+                         <th>Transponder ID</th>
                     </tr>
                 </thead>
             </table>
-        </div> -->
+        </div>
     </div>
     <div>
     </div>
@@ -146,9 +147,10 @@ $(document).ready(function(){
         bPaginate: false,
         bLengthChange: false,
         data:  {{=sat}},
-        language : { "emptyTable":"Not Computed"},
+        language : { "emptyTable":"Not Computedd"},
         columns: [
-            { data: 'SAT_ID' },
+            { data: 'SAT_ID'},
+            { data: 'PAYLOAD_ID' },
             { data: 'NADIR_LON' },
             { data: 'NADIR_LAT'},
             { data: 'DISTANCE' },
@@ -158,8 +160,7 @@ $(document).ready(function(){
             { data: 'INTERF_FLAG' },
             { data: 'ROLL' },
             { data: 'PITCH' },
-            { data: 'YAW' },
-            { data: 'PAYLOAD_ID' }
+            { data: 'YAW' }
             // 'id' omitted to show that you can
             // use only the fields you choose
         ],
@@ -192,27 +193,52 @@ $(document).ready(function(){
             {"className": "dt-center", "targets": "_all"}
         ]
     });
+
+    var trsp_table = $("#trsp_table").DataTable({
+        bFilter: false,
+        bInfo: false,
+        bPaginate: false,
+        bLengthChange: false,
+        data:  {{=trsp}},
+        language : { "emptyTable":"Not Computed"},
+        columns: [
+            { data: 'PAYLOAD_ID' },
+            { data: 'TRSP_ID'}
+            // 'id' omitted to show that you can
+            // use only the fields you choose
+        ],
+        "columnDefs": [
+            {"className": "dt-center", "targets": "_all"}
+        ]
+    });
+
+
     $("#gw_div").hide();
     $("#sat_div").hide();
+    $("#trsp_div").hide();
     $("#vsat").click(function(){
         $("#gw_div").hide(700);
         $("#vsat_div").show(700);
         $("#sat_div").hide(700);
+        $("#trsp_div").hide(700);
     });
     $("#gw").click(function(){
         $("#gw_div").show(700);
         $("#vsat_div").hide(700);
         $("#sat_div").hide(700);
+        $("#trsp_div").hide(700);
     });
     $("#sat").click(function(){
         $("#gw_div").hide(700);
         $("#vsat_div").hide(700);
         $("#sat_div").show(700);
+        $("#trsp_div").hide(700);
     });
         $("#trsp").click(function(){
         $("#gw_div").hide(700);
         $("#vsat_div").hide(700);
         $("#sat_div").hide(700);
+        $("#trsp_div").show(700);
     });
     $("#run").click(function(){
         window.location="{{=URL('run',args = request.args(0))}}";
