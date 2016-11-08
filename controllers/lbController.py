@@ -14,7 +14,7 @@ response.title = 'Link Budget Calculator'
 
 
 def index():
-    """ Home page """
+    """ Home Page """
     return dict(message=T('Multi-Mission Satellite Link Budget Analysis Framework'))
 
 
@@ -99,10 +99,14 @@ def update():
     dbLinkBudget.Job.job_name.writable = True
     form = SQLFORM(dbLinkBudget.Job, record, deletable=True, formstyle='table3cols', submit_button='Update')
     form.add_button('Back', URL('select'))
-    response.flash = form.vars.job_name
-    if form.process().accepted:  # error here as this checks to see if the form works and then calls
-        session.job = form.vars.job_name
-        add_excel_2_db()
+    if form.process().accepted:
+        session.flash = "%s) %s has been updated" % (form.vars.id, form.vars.job_name)
+        if form.deleted:
+            session.flash = "%s) %s has been deleted" % (form.vars.id, form.vars.job_name)
+            redirect(URL('select'))
+        else:
+            session.job = form.vars.job_name
+            add_excel_2_db()
     return dict(job=XML(job), vsat=XML(json.dumps(vsat)), gw=XML(json.dumps(gw)), sat=json.dumps(sat), form=form)
 
 
@@ -135,6 +139,9 @@ def read_array_to_db(db, ordDict, job_id=0):
         ordDict: OrderedDict
         job_id:
 
+    Returns:
+        object: 
+
     """
     temp = ordDict.fromkeys(ordDict, 0)
     if job_id:  # Check for tables which require records to be assigned with job_id number
@@ -151,6 +158,7 @@ def json_serial(obj):
 
     Args:
         obj:
+
 
     """
     from datetime import datetime
@@ -175,6 +183,9 @@ def create_download():
     """
     Creates downloadable file.
     This is called in update.py under options
+
+    Returns:
+        object: 
     """
     rowt = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect("PAYLOAD_ID",
                                                                                             "AVAILABILITY_DN",
@@ -215,13 +226,13 @@ def run():
 
     """
     import subprocess  # TODO : extend to use input checklist and chose certain jobs, Damian Code required
-    from config import pathtopropadir
+    import config
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'CNES':
-        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/', "propa")
+        cfile = os.path.join(config.pathtopropadir, 'propa/dist/Debug/GNU-Linux/', "propa")
     elif dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'OTHER1':
-        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/', "propa")
+        cfile = os.path.join(config.pathtopropadir, 'propa/dist/Debug/GNU-Linux/', "propa")
     else:
-        cfile = os.path.join(pathtopropadir, 'propa/dist/Debug/GNU-Linux/', "propa")
+        cfile = os.path.join(config.pathtopropadir, 'propa/dist/Debug/GNU-Linux/', "propa")
     for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect():
         lon = row.LON
         lat = row.LAT
