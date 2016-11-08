@@ -99,46 +99,6 @@ def load_object(worksheet):
 
     return d
 
-def compute_sat_params(SAT_dict, flag_intermediate_params=False):
-    '''
-    This function computes main satellite characteristics, needed for other
-    calculation :
-    - nadir in ECEF coordinates
-    - satellite position in ECEF coordinates
-
-    It's from Damien code
-
-    Returns:
-        object:
-    '''
-
-    nadir                    =   np.array([SAT_dict['NADIR_LON'],SAT_dict['NADIR_LAT']])
-
-
-    nadir_ecef               =   ll_geod2ecef(nadir) # switch to ecef set of coordinates
-    SAT_dict['NADIR_X_ECEF'] =   nadir_ecef[0]   
-    SAT_dict['NADIR_Y_ECEF'] =   nadir_ecef[1]   
-    SAT_dict['NADIR_Z_ECEF'] =   nadir_ecef[2]   
-
-
-    pos                      =   compute_sat_position(nadir_ecef, SAT_dict['DISTANCE'])
-    SAT_dict['SAT_POS_X_ECEF']   =   pos[0]
-    SAT_dict['SAT_POS_Y_ECEF']   =   pos[1]
-    SAT_dict['SAT_POS_Z_ECEF']   =   pos[2]
-
-
-    normal_vector              =   compute_normal_vector(SAT_dict['INCLINATION_ANGLE']*np.pi/180, nadir_ecef, SAT_dict['FLAG_ASC_DESC'])
-    SAT_dict['NORMAL_VECT_X']   =   normal_vector[0]
-    SAT_dict['NORMAL_VECT_Y']   =   normal_vector[1]
-    SAT_dict['NORMAL_VECT_Z']   =   normal_vector[2]
-
-
-
-    if flag_intermediate_params:
-        return SAT_dict, nadir_ecef, pos, normal_vector
-    else:
-        return SAT_dict
-
 def create_saving_worksheet(filename, my_dict, wksht_name):
     import xlsxwriter
 

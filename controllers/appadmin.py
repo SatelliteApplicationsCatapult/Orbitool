@@ -157,7 +157,6 @@ def insert():
 
 
 def download():
-    import os
     db = get_database(request)
     return response.download(request, db)
 

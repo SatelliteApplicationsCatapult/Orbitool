@@ -69,9 +69,12 @@ def select():
 
 
 def update():
-    """ Update form
-    This function created the update form and
-    creates dictionaries to be displayed.
+    """
+    Update form
+    This function creates the update form and
+    creates dictionaries to be viewed on the right hand side of the page.
+    Returns:
+        JSON formatted stream
 
     """
     import json
@@ -139,9 +142,6 @@ def read_array_to_db(db, ordDict, job_id=0):
         db: database
         ordDict: OrderedDict
         job_id:
-
-    Returns:
-        object: 
 
     """
     temp = ordDict.fromkeys(ordDict, 0)
@@ -223,7 +223,7 @@ def run():
     Updates 'processed' checkbox.
 
     Returns:
-        object:
+        Refreshes the update page
 
     """
     import subprocess  # TODO : extend to use input checklist and chose certain jobs, Damian Code required
@@ -256,11 +256,11 @@ def copy():
     """
     import os
     a = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0))
-    fileuppath = os.path.join('/home/www-data/web2py/applications/linkbudgetweb/uploads/', a.file_up)
-    stream = open(fileuppath, 'rb')
+    #fileuppath = os.path.join('/home/www-data/web2py/applications/linkbudgetweb/uploads/', a.file_up)
+    filename, stream = dbLinkBudget.Job.file_up.retrieve(a.file_up)
     dbLinkBudget.Job.insert(job_name= '%s_copy' % (a.job_name),
                             Date = request.now,
-                            file_up = stream, #this needs to be renamed
+                            file_up = dbLinkBudget.Job.file_up.store(stream, filename), #this needs to be renamed
                             simulator_mode = a.simulator_mode,
                             propaLib = a.propaLib,
                             sat_geo_params = a.sat_geo_params,
