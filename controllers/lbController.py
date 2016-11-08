@@ -254,9 +254,29 @@ def copy():
     Function for a copy button on update.html
     Need to change it to make a new file and ID otherwise there's no point
     """
+    import os
     a = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0))
-    dbLinkBudget.Job.insert(**dbLinkBudget.Job._filter_fields(a))
-    redirect(URL('update', args=request.args(0)))
+    fileuppath = os.path.join('/home/www-data/web2py/applications/linkbudgetweb/uploads/', a.file_up)
+    stream = open(fileuppath, 'rb')
+    dbLinkBudget.Job.insert(job_name= '%s_copy' % (a.job_name),
+                            Date = request.now,
+                            file_up = stream, #this needs to be renamed
+                            simulator_mode = a.simulator_mode,
+                            propaLib = a.propaLib,
+                            sat_geo_params = a.sat_geo_params,
+                            points2trsp = a.points2trsp,
+                            gw2trsp = a.gw2trsp,
+                            comp_point_cover = a.comp_point_cover,
+                            comp_gw_cover = a.comp_gw_cover,
+                            propa_feeder_link = a.propa_feeder_link,
+                            propa_user_link = a.propa_user_link,
+                            sat_up_perf = a.sat_up_perf,
+                            sat_dwn_perf = a.sat_dwn_perf,
+                            comp_link_budget = a.comp_link_budget,
+                            description = a.description,
+                            processed = a.processed)
+    session.flash = "%s has been copied" % (request.args(0))
+    redirect(URL('select'))
 
 
 def get_geojson():
