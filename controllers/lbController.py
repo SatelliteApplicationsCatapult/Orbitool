@@ -22,32 +22,12 @@ def about():
     """ About page """
     return dict(message=T('About'))
 
-
-def user():
-    """
-    exposes:
-    http://..../[app]/default/user/login
-    http://..../[app]/default/user/logout
-    http://..../[app]/default/user/register
-    http://..../[app]/default/user/profile
-    http://..../[app]/default/user/retrieve_password
-    http://..../[app]/default/user/change_password
-    http://..../[app]/default/user/bulk_register
-    use @auth.requires_login()
-        @auth.requires_membership('group name')
-        @auth.requires_permission('read','table name',record_id)
-    to decorate functions that need access control
-    also notice there is http://..../[app]/appadmin/manage/auth to allow administrator to manage users
-    """
-    return dict(form=auth())
-
-
 def input():
     """ Input form """
     session.job = ""
     record = dbLinkBudget.Job(request.args(0))
     dbLinkBudget.Job.Date.readable = False
-    form = SQLFORM(dbLinkBudget.Job, record, deletable=False,
+    form = SQLFORM(dbLinkBudget.Job, record, deletable=True,
                    upload=URL('download'), formstyle='bootstrap3_stacked')
     if form.process().accepted:
         session.job = form.vars.job_name
@@ -61,12 +41,11 @@ def test_crud():
 
 
 def select():
-    """  Page for selecting which upload to work on  """
+    """  Page which renders a JQuery Datatable to let you select entries  """
     import json
     job = json.dumps(dbLinkBudget(dbLinkBudget.Job).select().as_list(),
                      default=json_serial)  # Formatting need to interface with JQuery Datatables
     return dict(job=XML(job))
-
 
 def update():
     """
@@ -185,8 +164,6 @@ def create_download():
     Creates downloadable file.
     This is called in update.html under options
 
-    Returns:
-        object: 
     """
     rowt = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect("PAYLOAD_ID",
                                                                                             "AVAILABILITY_DN",
@@ -206,7 +183,7 @@ def create_download():
         for key in temp.keys():
             temp[key].append(row["_extra"][key])
     filename = request.args(0) + ".xlsx"
-    filepath = os.path.join(request.folder, 'uploads', filename)
+    filepath = os.path.join(request.folder, 'uploads', filename) # TODO: look at maybe use .retrieve() here
     create_saving_worksheet(filepath, temp, "Output")
     stream = open(filepath, 'rb')
     dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(
@@ -226,7 +203,7 @@ def run():
         Refreshes the update page
 
     """
-    import subprocess  # TODO : extend to use input checklist and chose certain jobs, Damian Code required
+    import subprocess  # TODO : extend to use input checklist and chose certain jobs, Damien Code required
     import config
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'CNES':
         cfile = os.path.join(config.pathtopropadir, 'propa/dist/Debug/GNU-Linux/', "propa")
@@ -251,12 +228,11 @@ def cesium():
 
 def copy():
     """
-    Function for a copy button on update.html
-    Need to change it to make a new file and ID otherwise there's no point
+    Function for a copy button on update.html.
+    It copies the currently viewed data entry to a new row and renames it _copy
+
     """
-    import os
     a = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0))
-    #fileuppath = os.path.join('/home/www-data/web2py/applications/linkbudgetweb/uploads/', a.file_up)
     filename, stream = dbLinkBudget.Job.file_up.retrieve(a.file_up)
     dbLinkBudget.Job.insert(job_name= '%s_copy' % (a.job_name),
                             Date = request.now,
@@ -283,12 +259,11 @@ def get_geojson():
     Function to get the coordinates into a GeoJSON format
     This adds the lat and longitude for the User Terminals
     Called in cesium.html
-    TODO : test if iterselect is better than regular select, time and memory resources.
 
     Returns:
-        object:
+        object: GeoJSON
     """
-    rows = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect()
+    rows = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect() # TODO : test if iterselect is better than regular select, time and memory resources.
     features = [{"type": "Feature",
                  "geometry": {
                      "type": "Point",
@@ -311,7 +286,7 @@ def get_geojson_gw():
     Called in cesium.html
 
     Returns:
-        object: 
+        object: GeoJSON
     """
     rows = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect()
 
@@ -333,3 +308,20 @@ def get_geojson_gw():
                  }
                  } for r in rows]
     return response.json({"type": "FeatureCollection", 'features': features})
+
+@request.restful()
+def api():
+
+    def GET(*args, **vars):
+        return dict()
+
+    def POST(*args, **vars):
+        return dict()
+
+    def PUT(*args, **vars):
+        return dict()
+
+    def DELETE(*args, **vars):
+        return dict()
+
+    return locals()

@@ -13,8 +13,11 @@ def load_objects_from_xl(file_name):
     """
     Loads the excel file worksheets into dictionaries
 
+    Args:
+        object: excel file names
+
     Returns:
-        object:
+        object: dictionaries
     """
     SAT_dict={}
     TRSP_dict={}
@@ -84,12 +87,12 @@ def load_objects_from_xl(file_name):
 
 def load_object(worksheet):
     """
-
-    workbook = xlrd.open_workbook(file_name)
-    worksheet = workbook.sheet_by_name(wksheet_name)
+    Converts worksheet to dictionary
+    Args:
+        object: worksheet
 
     Returns:
-        object:
+        object: dictionary
     """
     d=OrderedDict({})
     for curr_col in range(0, worksheet.ncols):
@@ -100,6 +103,18 @@ def load_object(worksheet):
     return d
 
 def create_saving_worksheet(filename, my_dict, wksht_name):
+    """
+    Creates an excel worksheet.
+    Used in create_download() in lbController.py
+
+    Args:
+        filename:
+        my_dict:
+        wksht_name:
+
+    Returns:
+
+    """
     import xlsxwriter
 
     workbook = xlsxwriter.Workbook(filename)
