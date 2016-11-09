@@ -308,20 +308,38 @@ def get_geojson_gw():
                  }
                  } for r in rows]
     return response.json({"type": "FeatureCollection", 'features': features})
+#
+# @request.restful()
+# def api():
+#
+#     def GET(*args, **vars):
+#         return dict()
+#
+#     def POST(*args, **vars):
+#         return dict()
+#
+#     def PUT(*args, **vars):
+#         return dict()
+#
+#     def DELETE(*args, **vars):
+#         return dict()
+#
+#     return locals()
 
 @request.restful()
 def api():
-
-    def GET(*args, **vars):
-        return dict()
-
-    def POST(*args, **vars):
-        return dict()
-
-    def PUT(*args, **vars):
-        return dict()
-
-    def DELETE(*args, **vars):
-        return dict()
-
-    return locals()
+    response.view = 'generic.'+request.extension
+    def GET(*args,**vars):
+        patterns = 'auto'
+        parser = dbLinkBudget.parse_as_rest(patterns,args,vars)
+        if parser.status == 200:
+            return dict(content=parser.response)
+        else:
+            raise HTTP(parser.status,parser.error)
+    # def POST(table_name,**vars):
+    #     return dbLinkBudget[Job].validate_and_insert(**vars)
+    # def PUT(table_name,record_id,**vars):
+    #     return dbLinkBudget(dbLinkBudget[Job]._id==record_id).update(**vars)
+    # def DELETE(table_name,record_id):
+    #     return dbLinkBudget(dbLinkBudget[Job]._id==record_id).delete()
+    return dict(GET=GET)
