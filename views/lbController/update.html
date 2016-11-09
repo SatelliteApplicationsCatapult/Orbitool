@@ -27,7 +27,7 @@
             Plot Earth stations
         </button>
         {{pass}}
-        <button id="copy" class="btn" style="float;background-color: #dbe04c">Copy Record to New</button>
+        <button id="copy" class="btn" style="float;background-color: #dbe04c">Copy</button>
         </div>
     <div class = "Bwidget">
         <h1>Component types </h1>
@@ -115,10 +115,9 @@
             </table>
         </div>
     </div>
-    <div>
-    </div>
 </body>
 <script type="text/javascript" >
+
 $(document).ready(function(){
     var vsat_table = $("#vsat_table").DataTable({
         bFilter: false,
@@ -126,7 +125,7 @@ $(document).ready(function(){
         bPaginate: false,
         bLengthChange: false,
         data:  {{=vsat}},
-        language : { "emptyTable":"Not Computed"},
+        language : { "emptyTable":"If these are empty hit Update"},
         columns: [
             { data: 'VSAT_ID'},
             { data: 'GPT' },
@@ -147,7 +146,7 @@ $(document).ready(function(){
         bPaginate: false,
         bLengthChange: false,
         data:  {{=sat}},
-        language : { "emptyTable":"Not Computedd"},
+        language : { "emptyTable":"Not Computed"},
         columns: [
             { data: 'SAT_ID'},
             { data: 'PAYLOAD_ID' },
@@ -211,7 +210,6 @@ $(document).ready(function(){
             {"className": "dt-center", "targets": "_all"}
         ]
     });
-
 
     $("#gw_div").hide();
     $("#sat_div").hide();

@@ -278,7 +278,6 @@ def copy():
     session.flash = "%s has been copied" % (request.args(0))
     redirect(URL('select'))
 
-
 def get_geojson():
     """
     Function to get the coordinates into a GeoJSON format

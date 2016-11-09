@@ -14,9 +14,9 @@
     <table id="job_table" class="table table-striped hover display" cellspacing="0" width="100%">
         <thead>
              <tr>
-                <th>Job Name </th>
+                <th>ID</th>
+                <th>Name </th>
                 <th>Sim Mode</th>
-                <th>Propagation Library</th>
                 <th>Date</th>
             </tr>
         </thead>
@@ -29,9 +29,9 @@ $(document).ready(function(){
         select:true,
         data:  {{=job}},
         columns: [
+            { data: 'id' },
             { data: 'job_name' },
             { data: 'simulator_mode' },
-            { data: 'propaLib' },
             { data: 'Date'},
             // 'id' omitted to show that you can
             // use only the fields you choose
