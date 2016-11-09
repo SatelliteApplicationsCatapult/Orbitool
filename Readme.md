@@ -1,9 +1,9 @@
-#Multi-Mission Link Budget
+# Multi-Mission Link Budget
 
 
 This is a web2py implementation of a satcoms tool to calculate various parameters incl link budget analysis
 
-##Getting Started
+## Getting Started
 
 INSTALL WEB2PY:
 git clone https://github.com/web2py/web2py.git
@@ -25,7 +25,7 @@ make sure this directory is in /web2py/applications/
 Give the directory the correct permissions:
 sudo chown -R www-data:www-data linkbudgetweb
 
-###Prerequisites
+### Prerequisites
 
 Multi-Mission Link budget is based on Python 2.7+ and web2py. 
 List of prerequisites to be satisfied before start the installation
@@ -36,11 +36,11 @@ sudo privileged
 
 
 
-###Installing
+### Installing
 
 
 
-###Running the tests
+### Running the tests
 
 Explain how to run the automated tests for this system
 
@@ -55,31 +55,31 @@ Explain what these tests test and why
 
 Give an example
 
-###Deployment
+### Deployment
 
 Add additional notes about how to deploy this on a live system
 
-###Built With
+### Built With
 
 web2py - The web framework used
 
-###Contributing
+### Contributing
 
 
 
-###Versioning
+### Versioning
 
 
 
-###Authors
+### Authors
 
 Jonathan Karimian
 Simon Andersson
 
-###License
+### License
 
 
 
-###Acknowledgments
+### Acknowledgments
 
 
