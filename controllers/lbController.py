@@ -196,7 +196,7 @@ def run():
     """
     This runs the processing of the excel file.
     Currently asks which propagation library is being used.
-    Adds EIRP values
+    Adds EIRP values (in fact it outputs temperature at the moment)
     Updates 'processed' checkbox.
 
     Returns:
@@ -206,11 +206,11 @@ def run():
     import subprocess  # TODO : extend to use input checklist and chose certain jobs, Damien Code required
     import config
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'CNES':
-        cfile = os.path.join(config.pathtopropadir, 'propa/dist/Debug/GNU-Linux/', "propa")
+        cfile = os.path.join(config.pathtopropadir, 'propa/', "propa_temperature")
     elif dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'OTHER1':
-        cfile = os.path.join(config.pathtopropadir, 'propa/dist/Debug/GNU-Linux/', "propa")
+        cfile = os.path.join(config.pathtopropadir, 'propa/', "propa_temperature")
     else:
-        cfile = os.path.join(config.pathtopropadir, 'propa/dist/Debug/GNU-Linux/', "propa")
+        cfile = os.path.join(config.pathtopropadir, 'propa/', "propa_temperature")
     for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect():
         lon = row.LON
         lat = row.LAT
