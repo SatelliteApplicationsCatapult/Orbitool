@@ -206,15 +206,15 @@ def run():
     import subprocess  # TODO : extend to use input checklist and chose certain jobs, Damien Code required
     import config
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'CNES':
-        cfile = os.path.join(config.pathtopropadir, 'propa/', "propa_temperature")
+        cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
     elif dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'OTHER1':
-        cfile = os.path.join(config.pathtopropadir, 'propa/', "propa_temperature")
+        cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
     else:
-        cfile = os.path.join(config.pathtopropadir, 'propa/', "propa_temperature")
+        cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
     for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect():
         lon = row.LON
         lat = row.LAT
-        proc = subprocess.Popen([cfile, str(lon), str(lat), ], stdout=subprocess.PIPE)  # runs propa
+        proc = subprocess.Popen([cfile, "--operation", "temperature", "--lon", str(lon), "--lat", str(lat),],stdout=subprocess.PIPE) # runs propa
         (out, err) = proc.communicate()
         dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.id == row.id).update(SAT_EIRP=out)
     dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(processed=True)
