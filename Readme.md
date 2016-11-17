@@ -7,15 +7,23 @@ This is a web2py implementation of a satcoms tool to perform link budget analysi
 
 **INSTALL WEB2PY:**
 `git clone https://github.com/web2py/web2py.git
+
 cd web2py/scripts
+
 chmod +x setup-web2py-ubuntu.sh (change for your distribution)
+
 sudo ./setup-web2py-ubuntu.sh`
 
 **Script also installs:
+
 python (2 branch) if it is not present on the machine
+
 ipython
+
 postregreSQL 
+
 apache 2
+
 python-matplotlib
 
 Edit modules/config.py to give the correct propa path
@@ -28,10 +36,15 @@ Give the directory the correct permissions:
 ### Prerequisites
 
 Multi-Mission Link budget is based on Python 2.7+ and web2py. 
+
 List of prerequisites to be satisfied before start the installation
+
 linux machine (ubuntu or centos distribution)
+
 development profile installed (with gcc included)
+
 python 2.7+ installed
+
 sudo privileged 
 
 
