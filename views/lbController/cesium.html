@@ -49,7 +49,7 @@
                     var entity = entities[i];
                     entity.billboard = undefined;
                     entity.point = new Cesium.PointGraphics({
-                        color: Cesium.Color.fromBytes((entity.properties.EIRP-290)*17.5,0,0,255),
+                        color: Cesium.Color.fromBytes((entity.properties.EIRP-280)*17.5,0,0,255),
                         pixelSize: 8,
                         scaleByDistance : Cesium.NearFarScalar(3.2e5, 90.0, 1.2e6, 0.01),
                     })
