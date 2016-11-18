@@ -8,15 +8,24 @@
     <title>Cesium / ID: {{=request.args(0)}}</title>
     <script src="{{=URL("static","cesium/Build/Cesium/Cesium.js")}}"></script>
     <style>
+        @import url(../templates/bucket.css);
         @import url({{=URL("static","cesium/Build/Cesium/Widgets/widgets.css")}});
         html,body,#cesiumContainer {
             width:100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
         }
-        .toolbar-left{
+        #toolbar{
             display:block;
             position:absolute;
             top:5px;
             left:5px;
+            background: rgba(42, 42, 42, 0.8);
+            padding: 4px;
+            border-radius: 4px;
+          }
+        #toolbar input {
+          vertical-align: middle;
+          padding-top: 2px;
+          padding-bottom: 2px;
         }
     </style>
     <style>
@@ -26,22 +35,33 @@
 <body>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
     <div id="cesiumContainer" class="fullSize"></div>
-    <div id="toolbar"></div>
-    <div class="toolbar-left">
+    <div id="loadingOverlay"><h1>Loading...</h1></div>
+    <div id="target"></div>
+    <div id="toolbar">
         <button onclick="alert('You clicked!');">Click me!</button>
-        <button type="button" class="btn btn-default">
-            Hello World
-        </button>
+        <button type="button" class="btn btn-default">Toggle</button>
+        <table>
+            <tbody><tr>
+                <td><font color="white">Adjust Colour</font></td>
+                <td>
+                    <input type="range" min="270" max="290" step="0.02" data-bind="value: , valueUpdate: 'input'">
+                    <input type="text" size="5" data-bind="value: brightness">
+                </td>
+            </tr>
+        </tbody></table>
     </div>
-        <button>
-            hello
-        </button>
-    </div>
+
         <script>
             var viewer = new Cesium.Viewer('cesiumContainer',{
                 timeline : false,
                 animation : false
             });
+            var viewModel = {
+                Tmin: 282,  //need to write a function to determin minimum temperature
+            };
+            //ajax('{{=URL('lbController', 'test')}},[],'target')
+            //var toolbar = document.getElementById('toolbar');
+            //Cesium.knockout.applyBindings(viewModel, toolbar);
             var VSAT = new Cesium.GeoJsonDataSource();
             VSAT.load('{{=URL('lbController', 'get_geojson',args=[request.args(0)])}}').then(function(){
                 var entities = VSAT.entities.values;
@@ -49,9 +69,9 @@
                     var entity = entities[i];
                     entity.billboard = undefined;
                     entity.point = new Cesium.PointGraphics({
-                        color: Cesium.Color.fromBytes((entity.properties.EIRP-280)*17.5,0,0,255),
+                        color: Cesium.Color.fromBytes((entity.properties.EIRP-viewModel.Tmin)*20.875,0,((1/(entity.properties.EIRP-viewModel.Tmin)))*540.875,210),  //currently plots temperature
                         pixelSize: 8,
-                        scaleByDistance : Cesium.NearFarScalar(3.2e5, 90.0, 1.2e6, 0.01),
+                        scaleByDistance : Cesium.NearFarScalar(3.2e5, 90.0, 1.2e6, 0.01)
                     })
                 };
             });
@@ -65,8 +85,9 @@
                     })
                 };
             });
+            
             viewer.dataSources.add(VSAT);
             viewer.dataSources.add(GW);
-            viewer.zoomTo(VSAT);
+            viewer.zoomTo(GW);
         </script>
 </body>

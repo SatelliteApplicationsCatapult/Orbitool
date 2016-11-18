@@ -9,6 +9,8 @@ from excelHandling import *
 from gluon import *
 
 import os
+import subprocess  # TODO : extend to use input checklist and chose certain jobs, Damien Code required
+import config
 
 response.title = 'Link Budget Calculator'
 
@@ -203,22 +205,22 @@ def run():
         Refreshes the update page
 
     """
-    import subprocess  # TODO : extend to use input checklist and chose certain jobs, Damien Code required
-    import config
-    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'CNES':
+    select_element = request.args(0)
+    select_db_Job = dbLinkBudget.Job(dbLinkBudget.Job.id == select_element)
+    if select_db_Job.propaLib == 'CNES':
         cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
-    elif dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'OTHER1':
+    elif select_db_Job.propaLib == 'OTHER1':
         cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
     else:
         cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
-    for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect():
+    for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == select_element).iterselect():
         lon = row.LON
         lat = row.LAT
         proc = subprocess.Popen([cfile, "--operation", "temperature", "--lon", str(lon), "--lat", str(lat),],stdout=subprocess.PIPE) # runs propa
         (out, err) = proc.communicate()
         dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.id == row.id).update(SAT_EIRP=out)
-    dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(processed=True)
-    redirect(URL('update', args=request.args(0)))
+    dbLinkBudget(dbLinkBudget.Job.id == select_element).update(processed=True)
+    redirect(URL('update', args=select_element))
 
 
 def cesium():
@@ -253,6 +255,22 @@ def copy():
                             processed = a.processed)
     session.flash = "%s has been copied" % (request.args(0))
     redirect(URL('select'))
+    
+def maxmin(dbtablecol, option):
+    """
+    Function to get the maximum value of a column.
+    
+    Usage:
+    maxmin(dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP, 'min')
+    """
+    if option == 'max':
+        field = dbtablecol.max()
+    if option == 'min':
+        field = dbtablecol.min()
+    return dbLinkBudget(dbtablecol).select(field)
+
+def test():
+    return maxmin(dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP, 'min')
 
 def get_geojson():
     """
