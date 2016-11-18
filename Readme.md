@@ -6,33 +6,40 @@ This is a web2py implementation of a satcoms tool to perform link budget analysi
 ## Getting Started
 
 **INSTALL WEB2PY:**
-`git clone https://github.com/web2py/web2py.git
+
+```
+git clone https://github.com/web2py/web2py.git
 cd web2py/scripts
-chmod +x setup-web2py-ubuntu.sh (change for your distribution)
-sudo ./setup-web2py-ubuntu.sh`
+chmod +x setup-web2py-ubuntu.sh //(change for your distribution)
+sudo ./setup-web2py-ubuntu.sh
+```
 
-**Script also installs:
-python (2 branch) if it is not present on the machine
-ipython
-postregreSQL 
-apache 2
-python-matplotlib
+**Script also installs:**
 
-Edit modules/config.py to give the correct propa path
+* python (2 branch) if it is not present on the machine
+* ipython
+* postregreSQL 
+* apache 2
+* python-matplotlib
 
-make sure this directory is in /web2py/applications/
+Edit `modules/config.py` to give the correct propa path
+
+Move this repository to web2py/applications/
 
 Give the directory the correct permissions:
+
 `sudo chown -R www-data:www-data linkbudgetweb
 `
 ### Prerequisites
 
 Multi-Mission Link budget is based on Python 2.7+ and web2py. 
-List of prerequisites to be satisfied before start the installation
-linux machine (ubuntu or centos distribution)
-development profile installed (with gcc included)
-python 2.7+ installed
-sudo privileged 
+
+List of prerequisites to be satisfied before start the installation:
+
+* linux machine (ubuntu or centos distribution)
+* development profile installed (with gcc included)
+* python 2.7+ installed
+* sudo privileged 
 
 
 
@@ -74,7 +81,9 @@ web2py - The web framework used
 ### Authors
 
 Damien Roques
+
 Jonathan Karimian
+
 Simon Andersson
 
 ### License
@@ -84,3 +93,6 @@ Simon Andersson
 ### Acknowledgments
 
 
+Federica Moscato
+
+Alessandro Modigliana
