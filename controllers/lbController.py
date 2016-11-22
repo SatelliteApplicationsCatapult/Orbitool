@@ -268,7 +268,7 @@ def cesium():
     return dict(a=1)
 
 
-def copy():
+def copy(): # TODO: Add all of the new fields to this list
     """
     Function for a copy button on update.html.
     It copies the currently viewed data entry to a new row and renames it _copy
