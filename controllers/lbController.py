@@ -9,8 +9,6 @@ from excelHandling import *
 from gluon import *
 
 import os
-import subprocess  # TODO : extend to use input checklist and chose certain jobs, Damien Code required
-import config
 
 response.title = 'Link Budget Calculator'
 
@@ -28,7 +26,38 @@ def input():
     """ Input form """
     session.job = ""
     record = dbLinkBudget.Job(request.args(0))
+    dbLinkBudget.Job.file_up.show_if = (dbLinkBudget.Job.excel_or_fromdb=='EXCEL')
+    dbLinkBudget.Job.VSAT_ID.show_if = (dbLinkBudget.Job.excel_or_fromdb=='FROMDB')
+    dbLinkBudget.Job.SAT_ID.show_if = (dbLinkBudget.Job.excel_or_fromdb=='FROMDB')
+    dbLinkBudget.Job.GW_ID.show_if = (dbLinkBudget.Job.excel_or_fromdb=='FROMDB')
+    dbLinkBudget.Job.TRSP_ID.show_if = (dbLinkBudget.Job.excel_or_fromdb=='FROMDB')
     dbLinkBudget.Job.Date.readable = False
+    
+    dbLinkBudget.Job.simulator_mode.readable = False
+    dbLinkBudget.Job.simulator_mode.writable = False
+    dbLinkBudget.Job.sat_geo_params.readable = False
+    dbLinkBudget.Job.sat_geo_params.writable = False
+    dbLinkBudget.Job.points2trsp.readable = False
+    dbLinkBudget.Job.points2trsp.writable = False
+    dbLinkBudget.Job.gw2trsp.readable = False
+    dbLinkBudget.Job.gw2trsp.writable = False
+    dbLinkBudget.Job.comp_point_cover.readable = False
+    dbLinkBudget.Job.comp_point_cover.writable = False
+    dbLinkBudget.Job.comp_gw_cover.readable = False
+    dbLinkBudget.Job.comp_gw_cover.writable = False
+    dbLinkBudget.Job.propa_feeder_link.readable = False
+    dbLinkBudget.Job.propa_feeder_link.writable = False
+    dbLinkBudget.Job.propa_user_link.readable = False
+    dbLinkBudget.Job.propa_user_link.writable = False
+    dbLinkBudget.Job.sat_up_perf.readable = False
+    dbLinkBudget.Job.sat_up_perf.writable = False
+    dbLinkBudget.Job.sat_dwn_perf.readable = False
+    dbLinkBudget.Job.sat_dwn_perf.writable = False
+    dbLinkBudget.Job.comp_link_budget.readable = False
+    dbLinkBudget.Job.comp_link_budget.writable = False
+    dbLinkBudget.Job.processed.readable = False
+    dbLinkBudget.Job.processed.writable = False
+    
     form = SQLFORM(dbLinkBudget.Job, record, deletable=True,
                    upload=URL('download'), formstyle='bootstrap3_stacked')
     if form.process().accepted:
@@ -79,9 +108,20 @@ def update():
 
     record = dbLinkBudget.Job(request.args(0))
     dbLinkBudget.Job.Date.readable = False
+    dbLinkBudget.Job.excel_or_fromdb.readable = False
+    dbLinkBudget.Job.excel_or_fromdb.writable = False
     dbLinkBudget.Job.file_up.writable = False
     dbLinkBudget.Job.file_up.readable = False
-    dbLinkBudget.Job.job_name.writable = True
+    dbLinkBudget.Job.VSAT_ID.readable = False
+    dbLinkBudget.Job.VSAT_ID.writable = False
+    dbLinkBudget.Job.SAT_ID.readable = False
+    dbLinkBudget.Job.SAT_ID.writable = False
+    dbLinkBudget.Job.GW_ID.readable = False
+    dbLinkBudget.Job.GW_ID.writable = False
+    dbLinkBudget.Job.TRSP_ID.readable = False
+    dbLinkBudget.Job.TRSP_ID.writable = False
+#    dbLinkBudget.Job.processed.readable = False # enable these when in use. Having it off is good for debugging
+#    dbLinkBudget.Job.processed.writable = False
     form = SQLFORM(dbLinkBudget.Job, record, deletable=True, formstyle='table3cols', submit_button='Update')
     form.add_button('Back', URL('select'))
     if form.process().accepted:
@@ -205,22 +245,22 @@ def run():
         Refreshes the update page
 
     """
-    select_element = request.args(0)
-    select_db_Job = dbLinkBudget.Job(dbLinkBudget.Job.id == select_element)
-    if select_db_Job.propaLib == 'CNES':
+    import subprocess  # TODO : extend to use input checklist and chose certain jobs, Damien Code required
+    import config
+    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'CNES':
         cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
-    elif select_db_Job.propaLib == 'OTHER1':
+    elif dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'OTHER1':
         cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
     else:
         cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
-    for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == select_element).iterselect():
+    for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect():
         lon = row.LON
         lat = row.LAT
         proc = subprocess.Popen([cfile, "--operation", "temperature", "--lon", str(lon), "--lat", str(lat),],stdout=subprocess.PIPE) # runs propa
         (out, err) = proc.communicate()
         dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.id == row.id).update(SAT_EIRP=out)
-    dbLinkBudget(dbLinkBudget.Job.id == select_element).update(processed=True)
-    redirect(URL('update', args=select_element))
+    dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(processed=True)
+    redirect(URL('update', args=request.args(0)))
 
 
 def cesium():
@@ -255,22 +295,6 @@ def copy():
                             processed = a.processed)
     session.flash = "%s has been copied" % (request.args(0))
     redirect(URL('select'))
-    
-def maxmin(dbtablecol, option):
-    """
-    Function to get the maximum value of a column.
-    
-    Usage:
-    maxmin(dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP, 'min')
-    """
-    if option == 'max':
-        field = dbtablecol.max()
-    if option == 'min':
-        field = dbtablecol.min()
-    return dbLinkBudget(dbtablecol).select(field)
-
-def test():
-    return maxmin(dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP, 'min')
 
 def get_geojson():
     """
