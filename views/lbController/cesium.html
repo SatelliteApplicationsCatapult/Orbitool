@@ -85,9 +85,25 @@
                     })
                 };
             });
+           var SAT = new Cesium.GeoJsonDataSource();
+           SAT.load('{{=URL('lbController', 'get_geojson_sat',args=[request.args(0)])}}').then(function(){
+                var entities = SAT.entities.values;
+                for (var i = 0; i < entities.length; i++) {
+                    var entity = entities[i];
+//                    entity.point = new Cesium.PointGraphics({
+//                        color: Cesium.Color.fromBytes(255,0,0,210),
+//                        pixelSize: 8,
+//                        scaleByDistance : Cesium.NearFarScalar(3.2e5, 90.0, 1.2e6, 0.01)
+//                   })
+                    entity.billboard = new Cesium.BillboardGraphics({
+                        image : '{{=URL("static","satellite1.gif")}}',
+                    })
+                };
+            });
             
             viewer.dataSources.add(VSAT);
             viewer.dataSources.add(GW);
+            viewer.dataSources.add(SAT);
             viewer.zoomTo(GW);
         </script>
 </body>

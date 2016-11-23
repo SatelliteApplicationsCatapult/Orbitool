@@ -394,6 +394,36 @@ def get_geojson_gw():
                  }
                  } for r in rows]
     return response.json({"type": "FeatureCollection", 'features': features})
+
+def get_geojson_sat():
+    """
+    Function to get the coordinates into a GeoJSON format
+    This adds the lat and longitudes for the SAT
+    Called in cesium.html
+
+    Returns:
+        object: GeoJSON
+    """
+    rows = dbLinkBudget(dbLinkBudget.SAT.id == request.args(0)).iterselect()
+
+    features = [{"type": "Feature",
+                 "geometry": {
+                     "type": "Point",
+                     "coordinates": [r[dbLinkBudget.SAT.NADIR_LON], r[dbLinkBudget.SAT.NADIR_LAT], r[dbLinkBudget.SAT.DISTANCE]*1000]
+                 },
+                 "properties": {
+                     "title": "SAT",
+                     "SAT ID": r[dbLinkBudget.SAT.SAT_ID],
+#                     "Job ID": r[dbLinkBudget.Earth_coord_GW.Job_ID],
+#                     "EIRP Max": dbLinkBudget.Gateway(
+#                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).EIRP_MAX,
+#                     "Bandwidth": dbLinkBudget.Gateway(
+#                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).BANDWIDTH,
+#                     "Diameter": dbLinkBudget.Gateway(
+#                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).DIAMETER
+                 }
+                 } for r in rows]
+    return response.json({"type": "FeatureCollection", 'features': features})
 #
 # @request.restful()
 # def api():
