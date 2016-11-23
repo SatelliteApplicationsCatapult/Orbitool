@@ -200,17 +200,26 @@ dbLinkBudget.define_table('SAT',
 dbLinkBudget.SAT.PAYLOAD_ID.requires = IS_NOT_EMPTY()                                                                #generated as a list. Futher testing required
 dbLinkBudget.define_table('Job',
                           Field('job_name','string',requires=IS_NOT_EMPTY(), label= 'Name'),
+                          Field('description','string'),
                           Field('Date','string',default=request.now, update=request.now, writable=False,label='Upload Date'),
                           Field('excel_or_fromdb', 'string', requires=IS_IN_SET(('EXCEL', 'FROMDB',)), default='EXEL',
                                 label='Excel or From DB'),
-                          Field('VSAT_ID','string',requires=IS_EMPTY_OR(IS_IN_DB(dbLinkBudget,dbLinkBudget.VSAT.VSAT_ID))),
-                          Field('SAT_ID','string',requires=IS_EMPTY_OR(IS_IN_DB(dbLinkBudget,dbLinkBudget.SAT.SAT_ID))),
-                          Field('GW_ID','string',requires=IS_EMPTY_OR(IS_IN_DB(dbLinkBudget,dbLinkBudget.Gateway.GW_ID))),
-                          Field('TRSP_ID','string',requires=IS_EMPTY_OR(IS_IN_DB(dbLinkBudget,dbLinkBudget.TRSP.TRSP_ID))),
+                          
+                          Field('VSAT_ID','string',requires=IS_EMPTY_OR(IS_IN_DB(dbLinkBudget,dbLinkBudget.VSAT.VSAT_ID)), label=''),
+                          Field('GW_NUM','string',requires=IS_EMPTY_OR(IS_IN_SET(('1', '2', '3'))), label='Number of Gateways'),
+                          
+                          Field('GW1_ID','string',requires=IS_EMPTY_OR(IS_IN_DB(dbLinkBudget,dbLinkBudget.Gateway.GW_ID)), label='1st Gateway Info'),
+                          Field('GW1_LAT','double', label='Lat'),
+                          Field('GW1_LON','double', label='Lon'),
+                          Field('GW1_SAT_ID','string',requires=IS_EMPTY_OR(IS_IN_DB(dbLinkBudget,dbLinkBudget.SAT.SAT_ID)), label='Sat ID'),
+                          Field('GW1_PAYL_ID','string',requires=IS_EMPTY_OR(IS_IN_DB(dbLinkBudget,dbLinkBudget.SAT.PAYLOAD_ID)), label='Payload ID'),
+                          Field('GW1_TRSP_ID','string',requires=IS_EMPTY_OR(IS_IN_DB(dbLinkBudget,dbLinkBudget.TRSP.TRSP_ID)), label='Transponder ID'),
+                          
                           Field('file_up','upload',requires=IS_NOT_EMPTY(),label='File (excel spreadsheet)', autodelete=True),
                           Field('processed_file','upload',writable=False, readable=False,autodelete=True),
                           Field('simulator_mode','string',requires=IS_IN_SET(('FWD','RTN')),default='FWD',label='Simulation Mode (FWD or RTN)'),
                           Field('propaLib','string',requires=IS_IN_SET(('CNES',)),default='CNES',label='Choose a Propagation Library'),
+                          
                           Field('sat_geo_params','boolean',label='1) Compute Satellite Geometric Parameters'),
                           Field('points2trsp','boolean',label='2) Assign Earth points coverage to transponder(VSAT)'),
                           Field('gw2trsp','boolean',label='3) Assign Earth gateways to transponder (Gateway)'),
@@ -221,7 +230,6 @@ dbLinkBudget.define_table('Job',
                           Field('sat_up_perf','boolean',label='8) Compute satellite uplink performances (e.g. G/T)'),
                           Field('sat_dwn_perf','boolean',label='9) Compute satellite downlink performances (e.g. EIRP)'),
                           Field('comp_link_budget','boolean',label='10) Compute link budget'),
-                          Field('description','string'),
                           Field('processed','boolean', default=False,label='Processed? Leave this unchecked and it becomes checked when you press the Run button'),
                           )
 #dbLinkBudget.Job.file_up.requires=IS_UPLOAD_FILENAME(extension=['xlsx','xls','xml'])

@@ -28,10 +28,18 @@ def input():
     record = dbLinkBudget.Job(request.args(0))
     dbLinkBudget.Job.file_up.show_if = (dbLinkBudget.Job.excel_or_fromdb=='EXCEL')
     dbLinkBudget.Job.VSAT_ID.show_if = (dbLinkBudget.Job.excel_or_fromdb=='FROMDB')
-    dbLinkBudget.Job.SAT_ID.show_if = (dbLinkBudget.Job.excel_or_fromdb=='FROMDB')
-    dbLinkBudget.Job.GW_ID.show_if = (dbLinkBudget.Job.excel_or_fromdb=='FROMDB')
-    dbLinkBudget.Job.TRSP_ID.show_if = (dbLinkBudget.Job.excel_or_fromdb=='FROMDB')
+    
+    dbLinkBudget.Job.GW_NUM.show_if = (dbLinkBudget.Job.excel_or_fromdb=='FROMDB')
+    
+    dbLinkBudget.Job.GW1_ID.show_if = ((dbLinkBudget.Job.GW_NUM=='1'))
+    dbLinkBudget.Job.GW1_LAT.show_if = (dbLinkBudget.Job.GW_NUM=='1')
+    dbLinkBudget.Job.GW1_LON.show_if = (dbLinkBudget.Job.GW_NUM=='1')
+    dbLinkBudget.Job.GW1_SAT_ID.show_if = (dbLinkBudget.Job.GW_NUM=='1')
+    dbLinkBudget.Job.GW1_TRSP_ID.show_if = (dbLinkBudget.Job.GW_NUM=='1')
+    dbLinkBudget.Job.GW1_PAYL_ID.show_if = (dbLinkBudget.Job.GW_NUM=='1')
+
     dbLinkBudget.Job.Date.readable = False
+
     
     dbLinkBudget.Job.simulator_mode.readable = False
     dbLinkBudget.Job.simulator_mode.writable = False
@@ -59,10 +67,14 @@ def input():
     dbLinkBudget.Job.processed.writable = False
     
     form = SQLFORM(dbLinkBudget.Job, record, deletable=True,
-                   upload=URL('download'), formstyle='bootstrap3_stacked')
+#                   upload=URL('download'), formstyle='bootstrap3_stacked')
+                    upload=URL('download'), formstyle='table3cols')
     if form.process().accepted:
+        session.flash = "%s - %s has been accepted" % (form.vars.id, form.vars.job_name)
         session.job = form.vars.job_name
-        add_excel_2_db()
+        if form.vars.excel_or_fromdb == 'EXCEL':
+            add_excel_2_db()
+#        if form.vars.GW_NUM == '1':
     return dict(form=form)
 
 
@@ -114,18 +126,26 @@ def update():
     dbLinkBudget.Job.file_up.readable = False
     dbLinkBudget.Job.VSAT_ID.readable = False
     dbLinkBudget.Job.VSAT_ID.writable = False
-    dbLinkBudget.Job.SAT_ID.readable = False
-    dbLinkBudget.Job.SAT_ID.writable = False
-    dbLinkBudget.Job.GW_ID.readable = False
-    dbLinkBudget.Job.GW_ID.writable = False
-    dbLinkBudget.Job.TRSP_ID.readable = False
-    dbLinkBudget.Job.TRSP_ID.writable = False
+    dbLinkBudget.Job.GW_NUM.readable = False
+    dbLinkBudget.Job.GW_NUM.writable = False
+    dbLinkBudget.Job.GW1_SAT_ID.readable = False
+    dbLinkBudget.Job.GW1_SAT_ID.writable = False
+    dbLinkBudget.Job.GW1_ID.readable = False
+    dbLinkBudget.Job.GW1_ID.writable = False
+    dbLinkBudget.Job.GW1_TRSP_ID.readable = False
+    dbLinkBudget.Job.GW1_TRSP_ID.writable = False
+    dbLinkBudget.Job.GW1_PAYL_ID.readable = False
+    dbLinkBudget.Job.GW1_PAYL_ID.writable = False
+    dbLinkBudget.Job.GW1_LAT.readable = False
+    dbLinkBudget.Job.GW1_LAT.writable = False
+    dbLinkBudget.Job.GW1_LON.readable = False
+    dbLinkBudget.Job.GW1_LON.writable = False
 #    dbLinkBudget.Job.processed.readable = False # enable these when in use. Having it off is good for debugging
 #    dbLinkBudget.Job.processed.writable = False
     form = SQLFORM(dbLinkBudget.Job, record, deletable=True, formstyle='table3cols', submit_button='Update')
     form.add_button('Back', URL('select'))
     if form.process().accepted:
-        session.flash = "%s) %s has been updated" % (form.vars.id, form.vars.job_name)
+        session.flash = "%s - %s has been updated" % (form.vars.id, form.vars.job_name)
         if form.deleted:
             session.flash = "%s) %s has been deleted" % (form.vars.id, form.vars.job_name)
             redirect(URL('select'))
