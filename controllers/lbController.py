@@ -26,17 +26,6 @@ def input():
     """ Input form """
     session.job = ""
     record = dbLinkBudget.Job(request.args(0))
-    dbLinkBudget.Job.file_up.show_if = (dbLinkBudget.Job.excel_or_fromdb=='EXCEL')
-    dbLinkBudget.Job.VSAT_ID.show_if = (dbLinkBudget.Job.excel_or_fromdb=='FROMDB')
-    
-    dbLinkBudget.Job.GW_NUM.show_if = (dbLinkBudget.Job.excel_or_fromdb=='FROMDB')
-    
-    dbLinkBudget.Job.GW1_ID.show_if = ((dbLinkBudget.Job.GW_NUM=='1'))
-    dbLinkBudget.Job.GW1_LAT.show_if = (dbLinkBudget.Job.GW_NUM=='1')
-    dbLinkBudget.Job.GW1_LON.show_if = (dbLinkBudget.Job.GW_NUM=='1')
-    dbLinkBudget.Job.GW1_SAT_ID.show_if = (dbLinkBudget.Job.GW_NUM=='1')
-    dbLinkBudget.Job.GW1_TRSP_ID.show_if = (dbLinkBudget.Job.GW_NUM=='1')
-    dbLinkBudget.Job.GW1_PAYL_ID.show_if = (dbLinkBudget.Job.GW_NUM=='1')
 
     dbLinkBudget.Job.Date.readable = False
 
@@ -120,30 +109,39 @@ def update():
 
     record = dbLinkBudget.Job(request.args(0))
     dbLinkBudget.Job.Date.readable = False
-    dbLinkBudget.Job.excel_or_fromdb.readable = False
-    dbLinkBudget.Job.excel_or_fromdb.writable = False
+   
     dbLinkBudget.Job.file_up.writable = False
     dbLinkBudget.Job.file_up.readable = False
-    dbLinkBudget.Job.VSAT_ID.readable = False
-    dbLinkBudget.Job.VSAT_ID.writable = False
-    dbLinkBudget.Job.GW_NUM.readable = False
-    dbLinkBudget.Job.GW_NUM.writable = False
-    dbLinkBudget.Job.GW1_SAT_ID.readable = False
-    dbLinkBudget.Job.GW1_SAT_ID.writable = False
-    dbLinkBudget.Job.GW1_ID.readable = False
-    dbLinkBudget.Job.GW1_ID.writable = False
-    dbLinkBudget.Job.GW1_TRSP_ID.readable = False
-    dbLinkBudget.Job.GW1_TRSP_ID.writable = False
-    dbLinkBudget.Job.GW1_PAYL_ID.readable = False
-    dbLinkBudget.Job.GW1_PAYL_ID.writable = False
-    dbLinkBudget.Job.GW1_LAT.readable = False
-    dbLinkBudget.Job.GW1_LAT.writable = False
-    dbLinkBudget.Job.GW1_LON.readable = False
-    dbLinkBudget.Job.GW1_LON.writable = False
+    
+    dbLinkBudget.Job.simulator_mode.readable = False
+    dbLinkBudget.Job.simulator_mode.writable = False
+    dbLinkBudget.Job.sat_geo_params.readable = False
+    dbLinkBudget.Job.sat_geo_params.writable = False
+    dbLinkBudget.Job.points2trsp.readable = False
+    dbLinkBudget.Job.points2trsp.writable = False
+    dbLinkBudget.Job.gw2trsp.readable = False
+    dbLinkBudget.Job.gw2trsp.writable = False
+    dbLinkBudget.Job.comp_point_cover.readable = False
+    dbLinkBudget.Job.comp_point_cover.writable = False
+    dbLinkBudget.Job.comp_gw_cover.readable = False
+    dbLinkBudget.Job.comp_gw_cover.writable = False
+    dbLinkBudget.Job.propa_feeder_link.readable = False
+    dbLinkBudget.Job.propa_feeder_link.writable = False
+    dbLinkBudget.Job.propa_user_link.readable = False
+    dbLinkBudget.Job.propa_user_link.writable = False
+    dbLinkBudget.Job.sat_up_perf.readable = False
+    dbLinkBudget.Job.sat_up_perf.writable = False
+    dbLinkBudget.Job.sat_dwn_perf.readable = False
+    dbLinkBudget.Job.sat_dwn_perf.writable = False
+    dbLinkBudget.Job.comp_link_budget.readable = False
+    dbLinkBudget.Job.comp_link_budget.writable = False
+    dbLinkBudget.Job.processed.readable = False
+    dbLinkBudget.Job.processed.writable = False
+
 #    dbLinkBudget.Job.processed.readable = False # enable these when in use. Having it off is good for debugging
 #    dbLinkBudget.Job.processed.writable = False
     form = SQLFORM(dbLinkBudget.Job, record, deletable=True, formstyle='table3cols', submit_button='Update')
-    form.add_button('Back', URL('select'))
+    form.add_button('Next', URL('launch', args=request.args(0)))
     if form.process().accepted:
         session.flash = "%s - %s has been updated" % (form.vars.id, form.vars.job_name)
         if form.deleted:
@@ -154,6 +152,32 @@ def update():
             add_excel_2_db()
     return dict(job=XML(job), vsat=XML(json.dumps(vsat)), gw=XML(json.dumps(gw)), sat=XML(json.dumps(sat)), trsp=XML(json.dumps(trsp)), form=form)
 
+def launch():
+    """
+    Run page
+    
+
+    """
+    record = dbLinkBudget.Job(request.args(0))
+    dbLinkBudget.Job.Date.readable = False
+   
+    dbLinkBudget.Job.file_up.writable = False
+    dbLinkBudget.Job.file_up.readable = False
+    dbLinkBudget.Job.job_name.writable = False
+    dbLinkBudget.Job.description.writable = False
+    #    dbLinkBudget.Job.processed.readable = False # enable these when in use. Having it off is good for debugging
+#    dbLinkBudget.Job.processed.writable = False
+    form = SQLFORM(dbLinkBudget.Job, record, deletable=True, formstyle='table3cols', submit_button='Save')
+    form.add_button('Select Page', URL('select'))
+    if form.process().accepted:
+        session.flash = "%s - %s has been updated" % (form.vars.id, form.vars.job_name)
+        if form.deleted:
+            session.flash = "%s) %s has been deleted" % (form.vars.id, form.vars.job_name)
+            redirect(URL('select'))
+        else:
+            session.job = form.vars.job_name
+            add_excel_2_db()
+    return dict(form=form)
 
 def add_excel_2_db():
     """

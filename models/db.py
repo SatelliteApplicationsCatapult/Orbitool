@@ -202,18 +202,7 @@ dbLinkBudget.define_table('Job',
                           Field('job_name','string',requires=IS_NOT_EMPTY(), label= 'Name'),
                           Field('description','string'),
                           Field('Date','string',default=request.now, update=request.now, writable=False,label='Upload Date'),
-                          Field('excel_or_fromdb', 'string', requires=IS_IN_SET(('EXCEL', 'FROMDB',)), default='EXEL',
-                                label='Excel or From DB'),
-                          
-                          Field('VSAT_ID','string',requires=IS_EMPTY_OR(IS_IN_DB(dbLinkBudget,dbLinkBudget.VSAT.VSAT_ID)), label=''),
-                          Field('GW_NUM','string',requires=IS_EMPTY_OR(IS_IN_SET(('1', '2', '3'))), label='Number of Gateways'),
-                          
-                          Field('GW1_ID','string',requires=IS_EMPTY_OR(IS_IN_DB(dbLinkBudget,dbLinkBudget.Gateway.GW_ID)), label='1st Gateway Info'),
-                          Field('GW1_LAT','double', label='Lat'),
-                          Field('GW1_LON','double', label='Lon'),
-                          Field('GW1_SAT_ID','string',requires=IS_EMPTY_OR(IS_IN_DB(dbLinkBudget,dbLinkBudget.SAT.SAT_ID)), label='Sat ID'),
-                          Field('GW1_PAYL_ID','string',requires=IS_EMPTY_OR(IS_IN_DB(dbLinkBudget,dbLinkBudget.SAT.PAYLOAD_ID)), label='Payload ID'),
-                          Field('GW1_TRSP_ID','string',requires=IS_EMPTY_OR(IS_IN_DB(dbLinkBudget,dbLinkBudget.TRSP.TRSP_ID)), label='Transponder ID'),
+
                           
                           Field('file_up','upload',requires=IS_NOT_EMPTY(),label='File (excel spreadsheet)', autodelete=True),
                           Field('processed_file','upload',writable=False, readable=False,autodelete=True),
