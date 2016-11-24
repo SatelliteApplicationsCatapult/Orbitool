@@ -23,7 +23,7 @@ def about():
     return dict(message=T('About'))
 
 def input():
-    """ Input form """
+    """ Input form """ #TODO: Think about adding drag and drop plugin
     session.job = ""
     record = dbLinkBudget.Job(request.args(0))
 
@@ -61,9 +61,7 @@ def input():
     if form.process().accepted:
         session.flash = "%s - %s has been accepted" % (form.vars.id, form.vars.job_name)
         session.job = form.vars.job_name
-        if form.vars.excel_or_fromdb == 'EXCEL':
-            add_excel_2_db()
-#        if form.vars.GW_NUM == '1':
+        add_excel_2_db()
     return dict(form=form)
 
 
@@ -304,7 +302,7 @@ def run():
         (out, err) = proc.communicate()
         dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.id == row.id).update(SAT_EIRP=out)
     dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(processed=True)
-    redirect(URL('update', args=request.args(0)))
+    redirect(URL('launch', args=request.args(0)))
 
 
 def cesium():
