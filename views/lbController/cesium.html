@@ -81,7 +81,7 @@
                 for (var i = 0; i < entities.length; i++) {
                     var entity = entities[i];
                     entity.billboard = new Cesium.BillboardGraphics({
-                        image : '{{=URL("static","facility.gif")}}',
+                        image : '{{=URL("static","facility.gif")}}', //This image ships with cesium I believe
                     })
                 };
             });
@@ -96,7 +96,7 @@
 //                        scaleByDistance : Cesium.NearFarScalar(3.2e5, 90.0, 1.2e6, 0.01)
 //                   })
                     entity.billboard = new Cesium.BillboardGraphics({
-                        image : '{{=URL("static","satellite1.gif")}}',
+                        image : '{{=URL("static","satellite1.gif")}}', //TODO: change this to properly licensed image
                     })
                 };
             });
@@ -104,6 +104,6 @@
             viewer.dataSources.add(VSAT);
             viewer.dataSources.add(GW);
             viewer.dataSources.add(SAT);
-            viewer.zoomTo(GW);
+            viewer.zoomTo(SAT);
         </script>
 </body>

@@ -356,10 +356,11 @@ def get_geojson():
                      "coordinates": [r[dbLinkBudget.EARTH_coord_VSAT.LON], r[dbLinkBudget.EARTH_coord_VSAT.LAT]]
                  },
                  "properties": {
-                     "title": ["Lon: " + str(r[dbLinkBudget.EARTH_coord_VSAT.LON]),
-                               " Lat: " + str(r[dbLinkBudget.EARTH_coord_VSAT.LAT])],
+                     "title": [str(r[dbLinkBudget.EARTH_coord_VSAT.VSAT_ID])],
                      "Job ID": r[dbLinkBudget.EARTH_coord_VSAT.Job_ID],
-                     "EIRP": r[dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP]
+                     "EIRP": r[dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP],
+                     "Lat": r[dbLinkBudget.EARTH_coord_VSAT.LAT],
+                     "Lon": r[dbLinkBudget.EARTH_coord_VSAT.LON],
                  }
                  } for r in rows]  # TODO : Extend to include more information form database
     return response.json({"type": "FeatureCollection", 'features': features})
@@ -390,7 +391,9 @@ def get_geojson_gw():
                      "Bandwidth": dbLinkBudget.Gateway(
                          dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).BANDWIDTH,
                      "Diameter": dbLinkBudget.Gateway(
-                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).DIAMETER
+                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).DIAMETER,
+                     "Lat": r[dbLinkBudget.Earth_coord_GW.LAT],
+                     "Lon": r[dbLinkBudget.Earth_coord_GW.LON],
                  }
                  } for r in rows]
     return response.json({"type": "FeatureCollection", 'features': features})
@@ -404,19 +407,23 @@ def get_geojson_sat():
     Returns:
         object: GeoJSON
     """
-    rows = dbLinkBudget(dbLinkBudget.SAT.id == request.args(0)).iterselect()
+    rows = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect()
 
     features = [{"type": "Feature",
                  "geometry": {
                      "type": "Point",
-                     "coordinates": [r[dbLinkBudget.SAT.NADIR_LON], r[dbLinkBudget.SAT.NADIR_LAT], r[dbLinkBudget.SAT.DISTANCE]*1000]
+                     "coordinates": [dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON, dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT, (dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE)*1000]
                  },
                  "properties": {
                      "title": "SAT",
-                     "SAT ID": r[dbLinkBudget.SAT.SAT_ID],
-#                     "Job ID": r[dbLinkBudget.Earth_coord_GW.Job_ID],
-#                     "EIRP Max": dbLinkBudget.Gateway(
-#                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).EIRP_MAX,
+                     "Height": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE,
+                     "SAT ID": r[dbLinkBudget.Earth_coord_GW.SAT_ID],
+                     "Job ID": r[dbLinkBudget.Earth_coord_GW.Job_ID],
+                     "FOV Radius": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).FOV_RADIUS,
+                     "Payload ID": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).PAYLOAD_ID,
+                     "Lat": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT,
+                     "Lon": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON,
+#                     "NADIR_LON": dbLinkBudget.Gateway(dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).EIRP_MAX,
 #                     "Bandwidth": dbLinkBudget.Gateway(
 #                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).BANDWIDTH,
 #                     "Diameter": dbLinkBudget.Gateway(
