@@ -10,7 +10,7 @@
 </head>
 <body>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
-    <div style="float:left; width:50%;padding:10px;height:750px;overflow: auto">
+    <div style="float:left; width:40%;padding:10px;height:750px;overflow: auto">
         <h1>
             Review and update
         </h1>
@@ -26,8 +26,9 @@
         <button id="sat">SAT</button>
         <button id="trsp">Transponders</button>
         <p>The satellites and transponders used are assumed from Gateway Earth Points worksheet.</p>
+        <button id="delete">Remove selected</button>
     </div>
-    <div id="selected"  style="float:right; width:50%;padding:30px;height:700px;overflow: auto">
+    <div id="selected"  style="float:right; width:60%;padding:30px;height:700px;overflow: auto">
         <div id = "vsat_div" style = "width:100%;">
             <h2 align="center">
                 VSAT
@@ -126,6 +127,13 @@ $(document).ready(function(){
             {"className": "dt-center", "targets": "_all"}
         ]
     });
+    $('#vsat_table tbody').on('click' , 'tr', function() {
+      if ( $(this).hasClass('selected') ) {
+            $(this).removeClass('selected');
+      }
+      else {$(this).addClass('selected');
+        }
+    } );
     
     var sat_table = $("#sat_table").DataTable({
         bFilter: false,
@@ -154,6 +162,13 @@ $(document).ready(function(){
             {"className": "dt-center", "targets": "_all"}
         ]
     });
+    $('#sat_table tbody').on('click' , 'tr', function() {
+      if ( $(this).hasClass('selected') ) {
+            $(this).removeClass('selected');
+      }
+      else {$(this).addClass('selected');
+        }
+    } );
 
     var gw_table = $("#gw_table").DataTable({
         bFilter: false,
@@ -179,6 +194,13 @@ $(document).ready(function(){
             {"className": "dt-center", "targets": "_all"}
         ]
     });
+    $('#gw_table tbody').on('click' , 'tr', function() {
+      if ( $(this).hasClass('selected') ) {
+            $(this).removeClass('selected');
+      }
+      else {$(this).addClass('selected');
+        }
+    } );
 
     var trsp_table = $("#trsp_table").DataTable({
         bFilter: false,
@@ -197,33 +219,46 @@ $(document).ready(function(){
             {"className": "dt-center", "targets": "_all"}
         ]
     });
+    $('#trsp_table tbody').on('click' , 'tr', function() {
+      if ( $(this).hasClass('selected') ) {
+            $(this).removeClass('selected');
+      }
+      else {$(this).addClass('selected');
+        }
+    } );
+    $('#delete').click( function () {
+        vsat_table.rows('.selected').remove().draw( false );
+        gw_table.rows('.selected').remove().draw( false );
+        sat_table.rows('.selected').remove().draw( false );
+        trsp_table.rows('.selected').remove().draw( false );
+    } );
 
     $("#gw_div").hide();
     $("#sat_div").hide();
     $("#trsp_div").hide();
     $("#vsat").click(function(){
-        $("#gw_div").hide(700);
-        $("#vsat_div").show(700);
-        $("#sat_div").hide(700);
-        $("#trsp_div").hide(700);
+        $("#gw_div").hide(100);
+        $("#vsat_div").show(100);
+        $("#sat_div").hide(100);
+        $("#trsp_div").hide(100);
     });
     $("#gw").click(function(){
-        $("#gw_div").show(700);
-        $("#vsat_div").hide(700);
-        $("#sat_div").hide(700);
-        $("#trsp_div").hide(700);
+        $("#gw_div").show(100);
+        $("#vsat_div").hide(100);
+        $("#sat_div").hide(100);
+        $("#trsp_div").hide(100);
     });
     $("#sat").click(function(){
-        $("#gw_div").hide(700);
-        $("#vsat_div").hide(700);
-        $("#sat_div").show(700);
-        $("#trsp_div").hide(700);
+        $("#gw_div").hide(100);
+        $("#vsat_div").hide(100);
+        $("#sat_div").show(100);
+        $("#trsp_div").hide(100);
     });
         $("#trsp").click(function(){
-        $("#gw_div").hide(700);
-        $("#vsat_div").hide(700);
-        $("#sat_div").hide(700);
-        $("#trsp_div").show(700);
+        $("#gw_div").hide(100);
+        $("#vsat_div").hide(100);
+        $("#sat_div").hide(100);
+        $("#trsp_div").show(100);
     });
     $("#run").click(function(){
         window.location="{{=URL('run',args = request.args(0))}}";
