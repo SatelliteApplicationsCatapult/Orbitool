@@ -5,9 +5,8 @@
 # This is the Link Budget Controller
 # -------------------------------------------------------------------------
 from excelHandling import *
-
+import numpy
 from gluon import *
-
 import os
 
 response.title = 'Link Budget Calculator'
@@ -193,6 +192,11 @@ def add_excel_2_db():
     read_array_to_db(dbLinkBudget.Earth_coord_GW, EARTH_COORD_GW_dict, job_id)
     read_array_to_db(dbLinkBudget.EARTH_coord_VSAT, EARTH_COORD_VSAT_dict, job_id)
     # SAT_dict = compute_sat_params(SAT_dict)
+    #EXTRACT THE DICTS TO HAVE A LOOK AT THEM
+#    np.save('/tmp/picklefile',EARTH_COORD_VSAT_dict.keys())
+    import pickle
+    with open('/tmp/picklefile1', 'wb') as handle:
+      pickle.dump(EARTH_COORD_VSAT_dict.keys(), handle)
     redirect(URL('update', args=job_id))
 
 
@@ -338,6 +342,57 @@ def copy(): # TODO: Add all of the new fields to this list
     session.flash = "%s has been copied" % (request.args(0))
     redirect(URL('select'))
 
+def maxmin(dbtablecol, option):
+    """
+    Function to get the maximum value of a column.
+    
+    Usage:
+    maxmin(dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP, 'min')
+    """
+    if option == 'max':
+        field = dbtablecol.max()
+    if option == 'min':
+        field = dbtablecol.min()
+    return dbLinkBudget(dbtablecol).select(field)
+
+def testmax():
+    return maxmin(dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP, 'min')   
+
+def VSATcoverage(lat, lon, npoints, distance):
+    """
+    Produces 2 arrays
+
+    Usage example:
+    VSATcoverage(-90,0,300,.2)
+    """
+    sidelength = numpy.floor(numpy.sqrt(npoints))
+    lonarray_calc = numpy.arange(lon - (distance * sidelength / 2), lon + (distance * sidelength / 2), distance)
+    lonarray = numpy.empty([0, 100])
+    latarray = numpy.empty([0, 100])
+    for i in lonarray_calc:
+        if 360 > i > 180:
+            i = -180 + i % 180
+            lonarray = numpy.append(lonarray, i)
+        elif -180 > i > -360:
+            i = i % 180
+            lonarray = numpy.append(lonarray, i)
+        else:
+            lonarray = numpy.append(lonarray, i)
+    latarray_calc = numpy.arange(lat - (distance * sidelength / 2), lat + (distance * sidelength / 2), distance)
+    for i in latarray_calc:
+        if i > 90 or i < -90:
+            i = 0
+            latarray = numpy.append(latarray, i)
+        else:
+            latarray = numpy.append(latarray, i)
+    latfull = numpy.repeat(latarray, sidelength)
+    lonfull = numpy.tile(lonarray, sidelength)
+    EARTH_COORD_VSAT_dict = {'LON': lonfull, 'LAT': latfull}
+    return EARTH_COORD_VSAT_dict
+
+def testthis():
+    return VSATcoverage(-90.,0.,300.,0.2) #you need to convert the output from a np array to something else to show it in a browser. Or do eg lonarray[3]
+    
 def get_geojson():
     """
     Function to get the coordinates into a GeoJSON format
