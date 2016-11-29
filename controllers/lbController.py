@@ -194,9 +194,9 @@ def add_excel_2_db():
     # SAT_dict = compute_sat_params(SAT_dict)
     #EXTRACT THE DICTS TO HAVE A LOOK AT THEM
 #    np.save('/tmp/picklefile',EARTH_COORD_VSAT_dict.keys())
-    import pickle
-    with open('/tmp/picklefile1', 'wb') as handle:
-      pickle.dump(EARTH_COORD_VSAT_dict.keys(), handle)
+#    import pickle
+#    with open('/tmp/picklefile1', 'wb') as handle:
+#      pickle.dump(EARTH_COORD_VSAT_dict.keys(), handle)
     redirect(URL('update', args=job_id))
 
 
