@@ -10,9 +10,11 @@ refer to CNES documentation (user manual of library)
 
 import ctypes as p
 import os
+import config
+import subprocess
 filepath = os.path.dirname(os.path.abspath(__file__)) #current directory
-_lib = p.windll.LoadLibrary(filepath + '\\propa.dll')
-
+#_lib = p.windll.LoadLibrary(filepath + '\\propa.dll') #use this for shared library
+cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
 
 #-------------------------------------------------------------------
 # NWET
@@ -26,110 +28,118 @@ def NWET(lat,lon):
 
 #-------------------------------------------------------------------
 # rain_height
-_lib.rain_height.restype                  =   p.c_double
-_lib.rain_height.argtypes                 =   [p.c_double, p.c_double]
-
 def rain_height(lat,lon):
-    return _lib.rain_height(lat, lon)
+    proc = subprocess.Popen([cfile, "--operation", "rain_height", "--lon", str(lon), "--lat", str(lat), ],
+                            stdout=subprocess.PIPE)
+    (out, err) = proc.communicate()
+    return out
 #-------------------------------------------------------------------
 
 #-------------------------------------------------------------------
 # temperature
-_lib.temperature.restype                  =   p.c_double
-_lib.temperature.argtypes                 =   [p.c_double, p.c_double]
-
 def temperature(lat,lon):
-    return _lib.temperature(lat, lon)
+    proc = subprocess.Popen([cfile, "--operation", "temperature", "--lon", str(lon), "--lat", str(lat), ],stdout=subprocess.PIPE)
+    (out, err) = proc.communicate()
+    return out
 #-------------------------------------------------------------------
 
 #-------------------------------------------------------------------
 # rain intensity
-_lib.rain_intensity.restype               =   p.c_double
-_lib.rain_intensity.argtypes              =   [p.c_double, p.c_double, p.c_double]
-
 def rain_intensity(lat,lon,p):
-    return _lib.rain_intensity(lat, lon, p)
+    proc = subprocess.Popen([cfile, "--operation", "rain_intensity", "--lon", str(lon), "--lat", str(lat), "--p" str(p) ],
+                            stdout=subprocess.PIPE)
+    (out, err) = proc.communicate()
+    return out
 #-------------------------------------------------------------------
     
 #-------------------------------------------------------------------
 # rain_probability
-_lib.rain_probability.restype             =   p.c_double
-_lib.rain_probability.argtypes            =   [p.c_double, p.c_double]
-
 def rain_probability(lat,lon):
-    return _lib.rain_probability(lat, lon)
+    proc = subprocess.Popen([cfile, "--operation", "rain_probability", "--lon", str(lon), "--lat", str(lat), ],
+                            stdout=subprocess.PIPE)
+    (out, err) = proc.communicate()
+    return out
 #-------------------------------------------------------------------
 
 #-------------------------------------------------------------------
 # LWCC
-_lib.LWCC.restype                         =   p.c_double
-_lib.LWCC.argtypes                        =   [p.c_double, p.c_double, p.c_double]
-
 def LWCC(lat,lon,p):
-    return _lib.LWCC(lat, lon, p)
+    proc = subprocess.Popen(
+        [cfile, "--operation", "LWCC", "--lon", str(lon), "--lat", str(lat), "--p" str(p)],
+        stdout=subprocess.PIPE)
+    (out, err) = proc.communicate()
+    return out
 #-------------------------------------------------------------------
     
 
 #-------------------------------------------------------------------
 # IWVC
-_lib.IWVC.restype                         =   p.c_double
-_lib.IWVC.argtypes                        =   [p.c_double, p.c_double, p.c_double]
-
 def IWVC(lat,lon,p):
-    return _lib.IWVC(lat, lon, p)
+    proc = subprocess.Popen(
+        [cfile, "--operation", "IWVC", "--lon", str(lon), "--lat", str(lat), "--p" str(p)],
+        stdout=subprocess.PIPE)
+    (out, err) = proc.communicate()
+    return out
 #-------------------------------------------------------------------
     
 #-------------------------------------------------------------------
 # SWVD
-_lib.SWVD.restype                         =   p.c_double
-_lib.SWVD.argtypes                        =   [p.c_double, p.c_double]
-
 def SWVD(lat,lon):
-    return _lib.SWVD(lat, lon)
+    proc = subprocess.Popen([cfile, "--operation", "SWVD", "--lon", str(lon), "--lat", str(lat), ],
+                            stdout=subprocess.PIPE)
+    (out, err) = proc.communicate()
+    return out
 #-------------------------------------------------------------------
     
 #-------------------------------------------------------------------
 # gaseous_attenuation
-_lib.gaseous_attenuation.restype          =   p.c_double
-_lib.gaseous_attenuation.argtypes         =   [p.c_double, p.c_double, p.c_double, p.c_double]
-
 def gaseous_attenuation(f,E, Temp, ro):
-    return _lib.gaseous_attenuation(f,E, Temp, ro)
+    proc = subprocess.Popen([cfile, "--operation", "gaseous_attenuation", "--freq", str(f), "--elev", str(E), "--T", str(Temp), "--ro", str(ro),],
+                            stdout=subprocess.PIPE)
+    (out, err) = proc.communicate()
+    return out
 #-------------------------------------------------------------------
     
 #-------------------------------------------------------------------
 # gaseous_attenuation_exc
-_lib.gaseous_attenuation_exc.restype      =   p.c_double
-_lib.gaseous_attenuation_exc.argtypes     =   [p.c_double, p.c_double, p.c_double, p.c_double, p.c_double]
-
 def gaseous_attenuation_exc(f,E, Temp, WVC, ro):
-    return _lib.gaseous_attenuation_exc(f,E, Temp, WVC, ro)
+    proc = subprocess.Popen(
+        [cfile, "--operation", "gaseous_attenuation_exc", "--freq", str(f), "--elev", str(E), "--T", str(Temp), "--iwvc", str(WVC), "--ro",
+         str(ro), ],
+        stdout=subprocess.PIPE)
+    (out, err) = proc.communicate()
+    return out
 #-------------------------------------------------------------------
     
 #-------------------------------------------------------------------
 # cloud_attenuation
-_lib.cloud_attenuation.restype            =   p.c_double
-_lib.cloud_attenuation.argtypes           =   [p.c_double, p.c_double, p.c_double]
-
 def cloud_attenuation(f, E, L):
-    return _lib.cloud_attenuation(f, E, L)
+    proc = subprocess.Popen(
+        [cfile, "--operation", "gaseous_attenuation", "--freq", str(f), "--elev", str(E), "--lwcc", str(L),],
+        stdout=subprocess.PIPE)
+    (out, err) = proc.communicate()
+    return out
 #-------------------------------------------------------------------
     
 #-------------------------------------------------------------------
 # rain_attenuation
-_lib.rain_attenuation.restype             =   p.c_double
-_lib.rain_attenuation.argtypes            =   [p.c_double, p.c_double, p.c_double, p.c_double, \
-                                               p.c_double, p.c_double, p.c_double, p.c_double]        
 def rain_attenuation(lat, f, E, p, hs, hr, R001, to):
-    return _lib.rain_attenuation(lat, f, E, p, hs, hr, R001, to)
+    proc = subprocess.Popen(
+        [cfile, "--operation", "rain_attenuation", "--lat", str(lat), "--freq", str(f), "--elev", str(E), "--p", str(p),
+         "--s_height", str(hs),"--r_height", str(hr),"--R001", str(R001),"--to", str(to),],
+        stdout=subprocess.PIPE)
+    (out, err) = proc.communicate()
+    return out
 #-------------------------------------------------------------------
 
 #-------------------------------------------------------------------
 # scintillation
-_lib.scintillation.restype                =   p.c_double
-_lib.scintillation.argtypes               =   [p.c_double, p.c_double, p.c_double, p.c_double, \
-                                               p.c_double, p.c_double, p.c_double]        
 def scintillation(Nwet, f, E, p, hs, eta, D):
-    return _lib.scintillation(Nwet, f, E, p, hs, eta, D)
+    proc = subprocess.Popen(
+        [cfile, "--operation", "rain_attenuation", "--nwet", str(Nwet), "--freq", str(f), "--elev", str(E), "--p", str(p),
+         "--s_height", str(hs), "--ant_eff", str(eta), "--ant_diam", str(D), ],
+        stdout=subprocess.PIPE)
+    (out, err) = proc.communicate()
+    return out
 #-------------------------------------------------------------------
 
