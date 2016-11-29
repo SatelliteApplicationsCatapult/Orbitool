@@ -145,8 +145,8 @@ def update():
             session.flash = "%s) %s has been deleted" % (form.vars.id, form.vars.job_name)
             redirect(URL('select'))
         else:
-            session.job = form.vars.job_name
-            add_excel_2_db()
+            session.job = form1.vars.job_name
+            add_excel_2_db()       
     return dict(job=XML(job), vsat=XML(json.dumps(vsat)), gw=XML(json.dumps(gw)), sat=XML(json.dumps(sat)), trsp=XML(json.dumps(trsp)), form=form)
 
 def launch():

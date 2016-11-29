@@ -391,17 +391,18 @@ $(document).ready(function(){
         </div>
     </div>
     <div id="dialog-form" title="Create new job">
-      <form>
+      <form  enctype="multipart/form-data"
+      action="{{=URL()}}" method="post">
         <p>For now this just lets you update VSAT coverage. In the future you might be able to change satellite and gateway coordinates from this form.</p>
         <fieldset>
           <label for="name">Name</label>
           <input type="text" name="name" id="name" placeholder="Job" class="text ui-widget-content ui-corner-all"/>
-          <label for="email">Description</label>
-          <input type="text" name="email" id="email" class="text ui-widget-content ui-corner-all"/>
+          <label for="description">Description</label>
+          <input type="text" name="description" id="description" class="text ui-widget-content ui-corner-all"/>
             
           <label for="Coverage">VSAT Coverage</label>
-          <input type="text" name="email" placeholder="<lat>,<lon> (Central point)" onfocus="inputFocus(this)" onblur="inputBlur(this)" id="50" class="text ui-widget-content ui-corner-all"/>
-          <select name="cars">
+          <input type="text" name="coverage" placeholder="<lat>,<lon> (Central point)" onfocus="inputFocus(this)" onblur="inputBlur(this)" id="50" class="text ui-widget-content ui-corner-all"/>
+        <select name="cars">
             <option value="volvo">Small grid</option>
             <option value="saab">Medium grid</option>
             <option value="fiat">Large grid</option>
@@ -413,7 +414,6 @@ $(document).ready(function(){
             <option value="fiat">Very dense</option>
             <option value="audi">Dense</option>
            </select><br><br>
-                        
  
           <!-- Allow form submission with keyboard without duplicating the dialog button -->
           <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
