@@ -10,19 +10,18 @@ refer to CNES documentation (user manual of library)
 
 import ctypes as p
 import os
-import config
 import subprocess
 filepath = os.path.dirname(os.path.abspath(__file__)) #current directory
 #_lib = p.windll.LoadLibrary(filepath + '\\propa.dll') #use this for shared library
-cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
+cfile = os.path.join('/home/simon/', 'propa/', "propaexec")
 
 #-------------------------------------------------------------------
 # NWET
-_lib.NWET.restype                         =   p.c_double
-_lib.NWET.argtypes                        =   [p.c_double, p.c_double]
-
 def NWET(lat,lon):
-    return _lib.NWET(lat, lon)
+    proc = subprocess.Popen([cfile, "--operation", "NWET", "--lon", str(lon), "--lat", str(lat), ],
+                            stdout=subprocess.PIPE)
+    (out, err) = proc.communicate()
+    return out
 #-------------------------------------------------------------------
 
 
@@ -46,7 +45,7 @@ def temperature(lat,lon):
 #-------------------------------------------------------------------
 # rain intensity
 def rain_intensity(lat,lon,p):
-    proc = subprocess.Popen([cfile, "--operation", "rain_intensity", "--lon", str(lon), "--lat", str(lat), "--p" str(p) ],
+    proc = subprocess.Popen([cfile, "--operation", "rain_intensity", "--lon", str(lon), "--lat", str(lat), "--p", str(p), ],
                             stdout=subprocess.PIPE)
     (out, err) = proc.communicate()
     return out
@@ -65,7 +64,7 @@ def rain_probability(lat,lon):
 # LWCC
 def LWCC(lat,lon,p):
     proc = subprocess.Popen(
-        [cfile, "--operation", "LWCC", "--lon", str(lon), "--lat", str(lat), "--p" str(p)],
+        [cfile, "--operation", "LWCC", "--lon", str(lon), "--lat", str(lat), "--p", str(p),],
         stdout=subprocess.PIPE)
     (out, err) = proc.communicate()
     return out
@@ -76,7 +75,7 @@ def LWCC(lat,lon,p):
 # IWVC
 def IWVC(lat,lon,p):
     proc = subprocess.Popen(
-        [cfile, "--operation", "IWVC", "--lon", str(lon), "--lat", str(lat), "--p" str(p)],
+        [cfile, "--operation", "IWVC", "--lon", str(lon), "--lat", str(lat), "--p", str(p)],
         stdout=subprocess.PIPE)
     (out, err) = proc.communicate()
     return out
@@ -115,7 +114,7 @@ def gaseous_attenuation_exc(f,E, Temp, WVC, ro):
 # cloud_attenuation
 def cloud_attenuation(f, E, L):
     proc = subprocess.Popen(
-        [cfile, "--operation", "gaseous_attenuation", "--freq", str(f), "--elev", str(E), "--lwcc", str(L),],
+        [cfile, "--operation", "cloud_attenuation", "--freq", str(f), "--elev", str(E), "--lwcc", str(L),],
         stdout=subprocess.PIPE)
     (out, err) = proc.communicate()
     return out
@@ -136,7 +135,7 @@ def rain_attenuation(lat, f, E, p, hs, hr, R001, to):
 # scintillation
 def scintillation(Nwet, f, E, p, hs, eta, D):
     proc = subprocess.Popen(
-        [cfile, "--operation", "rain_attenuation", "--nwet", str(Nwet), "--freq", str(f), "--elev", str(E), "--p", str(p),
+        [cfile, "--operation", "scintillation", "--nwet", str(Nwet), "--freq", str(f), "--elev", str(E), "--p", str(p),
          "--s_height", str(hs), "--ant_eff", str(eta), "--ant_diam", str(D), ],
         stdout=subprocess.PIPE)
     (out, err) = proc.communicate()
