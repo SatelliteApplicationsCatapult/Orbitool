@@ -8,6 +8,11 @@ from excelHandling import *
 import numpy
 from gluon import *
 import os
+from lib_lkb.propa_func import *
+from lib_lkb.functions_to_use import *
+from lib_lkb.xl_func import *
+from lib_lkb.compute_high_level_func import *
+import subprocess
 
 response.title = 'Link Budget Calculator'
 
@@ -28,7 +33,7 @@ def input():
 
     dbLinkBudget.Job.Date.readable = False
 
-    
+
     dbLinkBudget.Job.simulator_mode.readable = False
     dbLinkBudget.Job.simulator_mode.writable = False
     dbLinkBudget.Job.sat_geo_params.readable = False
@@ -53,7 +58,7 @@ def input():
     dbLinkBudget.Job.comp_link_budget.writable = False
     dbLinkBudget.Job.processed.readable = False
     dbLinkBudget.Job.processed.writable = False
-    
+
     form = SQLFORM(dbLinkBudget.Job, record, deletable=True,
 #                   upload=URL('download'), formstyle='bootstrap3_stacked')
                     upload=URL('download'), formstyle='table3cols')
@@ -106,10 +111,10 @@ def update():
 
     record = dbLinkBudget.Job(request.args(0))
     dbLinkBudget.Job.Date.readable = False
-   
+
     dbLinkBudget.Job.file_up.writable = False
     dbLinkBudget.Job.file_up.readable = False
-    
+
     dbLinkBudget.Job.simulator_mode.readable = False
     dbLinkBudget.Job.simulator_mode.writable = False
     dbLinkBudget.Job.sat_geo_params.readable = False
@@ -145,19 +150,19 @@ def update():
             session.flash = "%s) %s has been deleted" % (form.vars.id, form.vars.job_name)
             redirect(URL('select'))
         else:
-            session.job = form1.vars.job_name
-            add_excel_2_db()       
+            session.job = form.vars.job_name
+            add_excel_2_db()
     return dict(job=XML(job), vsat=XML(json.dumps(vsat)), gw=XML(json.dumps(gw)), sat=XML(json.dumps(sat)), trsp=XML(json.dumps(trsp)), form=form)
 
 def launch():
     """
     Run page
-    
+
 
     """
     record = dbLinkBudget.Job(request.args(0))
     dbLinkBudget.Job.Date.readable = False
-   
+
     dbLinkBudget.Job.file_up.writable = False
     dbLinkBudget.Job.file_up.readable = False
     dbLinkBudget.Job.job_name.writable = False
@@ -185,13 +190,22 @@ def add_excel_2_db():
     job_id = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).id
     [SAT_dict, TRSP_dict, VSAT_dict, EARTH_COORD_GW_dict, GW_dict, EARTH_COORD_VSAT_dict,
      display_dict_VSAT] = load_objects_from_xl(os.path.join(request.folder, 'uploads', file))
+    #-----------------  1/ Compute SAT geometric params ------------------
+    SAT_dict = compute_sat_params(SAT_dict)
+    #----------------- 2/ Assign sat to each point of coverage -----------
+    EARTH_COORD_VSAT_dict = compute_transponder_assignment(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, 'FWD', 'DN')
+    #----------------- 3/ Compute RX/TX COV geometric params -------------------
+    EARTH_COORD_VSAT_dict = compute_coverage_points_geo_params(SAT_dict, EARTH_COORD_VSAT_dict)
+    #----------------- 4/ Compute propag params -------------------
+    EARTH_COORD_VSAT_dict = compute_lkb_propag_params(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, VSAT_dict, 'DN', True, 'FWD')
+    #----------------- 5/ Compute satellite perfos -------------------
+    #EARTH_COORD_VSAT_dict = compute_satellite_perfos(EARTH_COORD_VSAT_dict, TRSP_dict, 'DN')
     read_array_to_db(dbLinkBudget.VSAT, VSAT_dict)
     read_array_to_db(dbLinkBudget.Gateway, GW_dict)
     read_array_to_db(dbLinkBudget.TRSP, TRSP_dict)
     read_array_to_db(dbLinkBudget.SAT, SAT_dict)
     read_array_to_db(dbLinkBudget.Earth_coord_GW, EARTH_COORD_GW_dict, job_id)
     read_array_to_db(dbLinkBudget.EARTH_coord_VSAT, EARTH_COORD_VSAT_dict, job_id)
-    # SAT_dict = compute_sat_params(SAT_dict)
     #EXTRACT THE DICTS TO HAVE A LOOK AT THEM
 #    np.save('/tmp/picklefile',EARTH_COORD_VSAT_dict.keys())
 #    import pickle
@@ -242,7 +256,7 @@ def download():
     http://..../[app]/default/download/[filename]
 
     Returns:
-        object: 
+        object:
     """
     return response.download(request, dbLinkBudget)
 
@@ -291,20 +305,17 @@ def run():
         Refreshes the update page
 
     """
-    import subprocess  # TODO : extend to use input checklist and chose certain jobs, Damien Code required
-    import config
-    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'CNES':
-        cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
-    elif dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'OTHER1':
-        cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
-    else:
-        cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
+    # TODO : extend to use input checklist and chose certain jobs, Damien Code required
+    #if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'CNES':
+    #    cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
+    #elif dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'OTHER1':
+    #    cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
+    #else:
+    #    cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
     for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect():
         lon = row.LON
         lat = row.LAT
-        proc = subprocess.Popen([cfile, "--operation", "temperature", "--lon", str(lon), "--lat", str(lat),],stdout=subprocess.PIPE) # runs propa
-        (out, err) = proc.communicate()
-        dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.id == row.id).update(SAT_EIRP=out)
+        dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.id == row.id).update(SAT_EIRP=temperature(lat,lon))
     dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(processed=True)
     redirect(URL('launch', args=request.args(0)))
 
@@ -345,7 +356,7 @@ def copy(): # TODO: Add all of the new fields to this list
 def maxmin(dbtablecol, option):
     """
     Function to get the maximum value of a column.
-    
+
     Usage:
     maxmin(dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP, 'min')
     """
@@ -356,7 +367,7 @@ def maxmin(dbtablecol, option):
     return dbLinkBudget(dbtablecol).select(field)
 
 def testmax():
-    return maxmin(dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP, 'min')   
+    return maxmin(dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP, 'min')
 
 def VSATcoverage(lat, lon, npoints, distance):
     """
@@ -392,7 +403,7 @@ def VSATcoverage(lat, lon, npoints, distance):
 
 def testthis():
     return VSATcoverage(-90.,0.,300.,0.2) #you need to convert the output from a np array to something else to show it in a browser. Or do eg lonarray[3]
-    
+
 def get_geojson():
     """
     Function to get the coordinates into a GeoJSON format

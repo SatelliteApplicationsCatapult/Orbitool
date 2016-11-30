@@ -9,11 +9,14 @@ refer to CNES documentation (user manual of library)
 """
 
 import ctypes as p
+from sys import path
+path.append("../")
 import os
 import subprocess
+import config
 filepath = os.path.dirname(os.path.abspath(__file__)) #current directory
 #_lib = p.windll.LoadLibrary(filepath + '\\propa.dll') #use this for shared library
-cfile = os.path.join('/home/simon/', 'propa/', "propaexec")
+cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
 
 #-------------------------------------------------------------------
 # NWET

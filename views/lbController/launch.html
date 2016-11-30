@@ -19,10 +19,10 @@
     <div class = "Bwidget">
         <h1>Actions</h1>
         <button id="run" class="btn" style="float;background-color:#e04c4c">Launch calculation</button>
-        {{if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).processed == True:}}
         <button class="btn" id="processed" style="float;background-color:#6699ff">
             Output File
         </button>
+        {{if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).processed == True:}}
         <button class="btn" id="cesium" style="float;background-color:#40ff00">
             Plot Earth stations
         </button>

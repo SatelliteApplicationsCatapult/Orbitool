@@ -12,7 +12,7 @@ import xlrd
 import numpy as np
 #from lib_lkb.mesh_func import *
 #import xlsxwriter
-import xlwings
+#import xlwings
 from collections import OrderedDict
 
 # TODO : load from CSV ? (faster ?)
