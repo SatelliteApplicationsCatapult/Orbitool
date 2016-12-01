@@ -199,7 +199,7 @@ def add_excel_2_db():
     #----------------- 4/ Compute propag params -------------------
     EARTH_COORD_VSAT_dict = compute_lkb_propag_params(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, VSAT_dict, 'DN', True, 'FWD')
     #----------------- 5/ Compute satellite perfos -------------------
-    #EARTH_COORD_VSAT_dict = compute_satellite_perfos(EARTH_COORD_VSAT_dict, TRSP_dict, 'DN')
+    EARTH_COORD_VSAT_dict = compute_satellite_perfos(EARTH_COORD_VSAT_dict, TRSP_dict, 'DN')
     read_array_to_db(dbLinkBudget.VSAT, VSAT_dict)
     read_array_to_db(dbLinkBudget.Gateway, GW_dict)
     read_array_to_db(dbLinkBudget.TRSP, TRSP_dict)
@@ -337,7 +337,6 @@ def copy(): # TODO: Add all of the new fields to this list
                             Date = request.now,
                             file_up = dbLinkBudget.Job.file_up.store(stream, filename), #this needs to be renamed
                             simulator_mode = a.simulator_mode,
-                            propaLib = a.propaLib,
                             sat_geo_params = a.sat_geo_params,
                             points2trsp = a.points2trsp,
                             gw2trsp = a.gw2trsp,

@@ -183,7 +183,7 @@ dbLinkBudget.define_table('TRSP',
                           Field('BEAM_TX_THETA_3DB','double',requires=IS_NOT_EMPTY()),
                           Field('BEAM_TX_EFF','double',requires=IS_NOT_EMPTY()),
                           Field('BEAM_TX_RADIUS','double',requires=IS_NOT_EMPTY()),
-                          Field('Max_Gain_TX','double'))
+                          Field('MAX_GAIN_TX','double'))
 dbLinkBudget.define_table('SAT',
                           Field('SAT_ID','string',requires=IS_NOT_EMPTY()),#,unique = True),
                           Field('NADIR_LON','double',requires=IS_NOT_EMPTY()),
@@ -217,7 +217,6 @@ dbLinkBudget.define_table('Job',
                           Field('file_up','upload',requires=IS_NOT_EMPTY(),label='File (excel spreadsheet)', autodelete=True),
                           Field('processed_file','upload',writable=False, readable=False,autodelete=True),
                           Field('simulator_mode','string',requires=IS_IN_SET(('FWD','RTN')),default='FWD',label='Simulation Mode (FWD or RTN)'),
-                          Field('propaLib','string',requires=IS_IN_SET(('CNES',)),default='CNES',label='Choose a Propagation Library'),
                           
                           Field('sat_geo_params','boolean',label='1) Compute Satellite Geometric Parameters'),
                           Field('points2trsp','boolean',label='2) Assign Earth points coverage to transponder(VSAT)'),

@@ -57,6 +57,7 @@
                 animation : false
             });
             var viewModel = {
+                EIRPmin: 31.1984391831,
                 Tmin: 282,  //need to write a function to determin minimum temperature
             };
             //ajax('{{=URL('lbController', 'test')}},[],'target')
@@ -69,7 +70,9 @@
                     var entity = entities[i];
                     entity.billboard = undefined;
                     entity.point = new Cesium.PointGraphics({
-                        color: Cesium.Color.fromBytes((entity.properties.EIRP-viewModel.Tmin)*20.875,0,((1/(entity.properties.EIRP-viewModel.Tmin)))*540.875,210),  //currently plots temperature
+                        color: Cesium.Color.fromBytes((((entity.properties.EIRP-viewModel.EIRPmin)))*80.875,0,(1/(entity.properties.EIRP-viewModel.EIRPmin))*320.875,210),
+                        //color: Cesium.Color.fromBytes(0,((1/(entity.properties.EIRP-viewModel.EIRPmin)))*400.875,(entity.properties.EIRP-viewModel.EIRPmin)*120.875,210),
+                        //color: Cesium.Color.fromBytes((entity.properties.EIRP-viewModel.Tmin)*20.875,0,((1/(entity.properties.EIRP-viewModel.Tmin)))*540.875,210),  //currently plots temperature
                         pixelSize: 8,
                         scaleByDistance : Cesium.NearFarScalar(3.2e5, 90.0, 1.2e6, 0.01)
                     })
@@ -104,6 +107,6 @@
             viewer.dataSources.add(VSAT);
             viewer.dataSources.add(GW);
             viewer.dataSources.add(SAT);
-            viewer.zoomTo(GW);
+            viewer.zoomTo(VSAT);
         </script>
 </body>
