@@ -3,6 +3,7 @@
 import xlrd
 import numpy as np
 from collections import OrderedDict
+import xlsxwriter
 
 def mult2(number):
     inter = number * 2
@@ -102,7 +103,7 @@ def load_object(worksheet):
 
     return d
 
-def create_saving_worksheet(filename, my_dict, wksht_name):
+def create_saving_worksheet(filename, my_dict, wksht_name, my_dict2, wksht_name2, my_dict3, wksht_name3):
     """
     Creates an excel worksheet.
     Used in create_download() in lbController.py
@@ -115,16 +116,33 @@ def create_saving_worksheet(filename, my_dict, wksht_name):
     Returns:
 
     """
-    import xlsxwriter
 
     workbook = xlsxwriter.Workbook(filename)
-    wksht = workbook.add_worksheet(wksht_name)
 
+    wksht = workbook.add_worksheet(wksht_name)
     #write_keys
     wksht.write_row(0,0,my_dict.keys())
     # write values
     counter = 0
     for key in my_dict.keys():
         wksht.write_column(1,counter,my_dict[key]) #Needs to be of list format, not a single variable
+        counter += 1
+
+    wksht2 = workbook.add_worksheet(wksht_name2)
+    #write_keys
+    wksht2.write_row(0,0,my_dict2.keys())
+    # write values
+    counter = 0
+    for key in my_dict2.keys():
+        wksht2.write_column(1,counter,my_dict2[key]) #Needs to be of list format, not a single variable
+        counter += 1
+
+    wksht3 = workbook.add_worksheet(wksht_name3)
+    #write_keys
+    wksht3.write_row(0,0,my_dict3.keys())
+    # write values
+    counter = 0
+    for key in my_dict3.keys():
+        wksht3.write_column(1,counter,my_dict3[key]) #Needs to be of list format, not a single variable
         counter += 1
     workbook.close()

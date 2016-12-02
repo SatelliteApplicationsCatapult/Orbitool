@@ -13,6 +13,8 @@ from lib_lkb.functions_to_use import *
 from lib_lkb.xl_func import *
 from lib_lkb.compute_high_level_func import *
 import subprocess
+from collections import OrderedDict
+
 
 response.title = 'Link Budget Calculator'
 
@@ -204,6 +206,7 @@ def add_excel_2_db():
     read_array_to_db(dbLinkBudget.SAT, SAT_dict)
     read_array_to_db(dbLinkBudget.Earth_coord_GW, EARTH_COORD_GW_dict, job_id)
     read_array_to_db(dbLinkBudget.EARTH_coord_VSAT, EARTH_COORD_VSAT_dict, job_id)
+    #TODO: could add a table for display_dict_VSAT
     #EXTRACT THE DICTS TO HAVE A LOOK AT THEM
 #    np.save('/tmp/picklefile',EARTH_COORD_VSAT_dict.keys())
 #    import pickle
@@ -231,6 +234,37 @@ def read_array_to_db(db, ordDict, job_id=0):
             temp[ordDict.keys()[j]] = ordDict.values()[j][i]
         db.update_or_insert(**temp)  # Update/Insert state used to create new database records
 
+def read_db_to_array(db, job_id=0):
+    """
+    Used to read from the db and output
+    dictionaries which contain
+    numpy arrays, same as inputted from the excel file
+
+    Args:
+        db: database
+        job_id:
+
+    """
+    SAT_dict=OrderedDict({})
+    TRSP_dict=OrderedDict({})
+    VSAT_dict=OrderedDict({})
+    EARTH_COORD_GW_dict=OrderedDict({})
+    GW_dict=OrderedDict({})
+    EARTH_COORD_VSAT_dict=OrderedDict({})
+    display_dict_VSAT==OrderedDict({})
+
+    gw=[]
+    for field in dbLinkBudget.Gateway:
+        for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect(groupby='GW_ID'): #this looks for the different types of gateway referred to in gw Earth_coord
+            gw.extend(dbLinkBudget(dbLinkBudget.Gateway.GW_ID == row['GW_ID']).select(field).as_list())
+
+    #d=OrderedDict({})
+    for curr_col in range(0, worksheet.ncols):
+        liste_elts = worksheet.col_values(curr_col)
+
+        d[worksheet.cell_value(0,curr_col)] = np.array(liste_elts[1:len(liste_elts)])
+
+    return d
 
 def json_serial(obj):
     """
@@ -265,26 +299,147 @@ def create_download():
     This is called in update.html under options
 
     """
-    rowt = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect("PAYLOAD_ID",
-                                                                                            "AVAILABILITY_DN",
-                                                                                            "TRSP_ID", "LON", "LAT",
-                                                                                            "AVAILABILITY_UP", "SAT_ID",
-                                                                                            "SAT_EIRP", "ALT",
-                                                                                            "VSAT_ID").first().as_dict()
-    temp = dict.fromkeys(rowt["_extra"])
-    for key in temp.keys():
-        temp[key] = []
-    for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect("PAYLOAD_ID",
-                                                                                                "AVAILABILITY_DN",
-                                                                                                "TRSP_ID", "LON", "LAT",
-                                                                                                "AVAILABILITY_UP",
-                                                                                                "SAT_ID", "SAT_EIRP",
-                                                                                                "ALT", "VSAT_ID"):
-        for key in temp.keys():
-            temp[key].append(row["_extra"][key])
-    filename = request.args(0) + ".xlsx"
+    #VSAT
+    rowt = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect("LON",
+"LAT",
+"COUNTRY",
+"SEA_LAND",
+"VSAT_ID",
+"ALT",
+"AVAILABILITY_UP",
+"AVAILABILITY_DN",
+"USER_NEED",
+"SAT_ID",
+"TRSP_ID",
+"PAYLOAD_ID",
+"POS_X_ECEF",
+"POS_Y_ECEF",
+"POS_Z_ECEF",
+"SAT_POS_X_ECEF",
+"SAT_POS_Y_ECEF",
+"SAT_POS_Z_ECEF",
+"DIST",
+"ELEVATION",
+"NADIR_X_ECEF",
+"NADIR_Y_ECEF",
+"NADIR_Z_ECEF",
+"NORMAL_VECT_X",
+"NORMAL_VECT_Y",
+"NORMAL_VECT_Z",
+"ROLL",
+"PITCH",
+"YAW",
+"AZ_SC",
+"ELEV_SC",
+"CENTRAL_FQ_DN",
+"FSL_DN",
+"POLAR",
+"DIAMETER",
+"EFFICIENCY",
+"POLAR_TILT_ANGLE",
+"PROPAG_DN",
+"BEAM_TX_CENTER_AZ_ANT",
+"BEAM_TX_CENTER_EL_ANT",
+"BEAM_TX_ANT_DIAM",
+"BEAM_TX_TYPE",
+"MAX_GAIN_TX",
+"BEAM_TX_THETA_3DB",
+"SAT_GAIN_TX",
+"IBO",
+"AMP_SAT",
+"OBO",
+"SAT_EIRP").first().as_dict()
+
+    vsat = OrderedDict.fromkeys(rowt["_extra"])
+    for key in vsat.keys():
+        vsat[key] = []
+    for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect("LON",
+"LAT",
+"COUNTRY",
+"SEA_LAND",
+"VSAT_ID",
+"ALT",
+"AVAILABILITY_UP",
+"AVAILABILITY_DN",
+"USER_NEED",
+"SAT_ID",
+"TRSP_ID",
+"PAYLOAD_ID",
+"POS_X_ECEF",
+"POS_Y_ECEF",
+"POS_Z_ECEF",
+"SAT_POS_X_ECEF",
+"SAT_POS_Y_ECEF",
+"SAT_POS_Z_ECEF",
+"DIST",
+"ELEVATION",
+"NADIR_X_ECEF",
+"NADIR_Y_ECEF",
+"NADIR_Z_ECEF",
+"NORMAL_VECT_X",
+"NORMAL_VECT_Y",
+"NORMAL_VECT_Z",
+"ROLL",
+"PITCH",
+"YAW",
+"AZ_SC",
+"ELEV_SC",
+"CENTRAL_FQ_DN",
+"FSL_DN",
+"POLAR",
+"DIAMETER",
+"EFFICIENCY",
+"POLAR_TILT_ANGLE",
+"PROPAG_DN",
+"BEAM_TX_CENTER_AZ_ANT",
+"BEAM_TX_CENTER_EL_ANT",
+"BEAM_TX_ANT_DIAM",
+"BEAM_TX_TYPE",
+"MAX_GAIN_TX",
+"BEAM_TX_THETA_3DB",
+"SAT_GAIN_TX",
+"IBO",
+"AMP_SAT",
+"OBO",
+"SAT_EIRP"):
+        for key in vsat.keys():
+            vsat[key].append(row["_extra"][key])
+    #SAT
+    for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect(groupby='SAT_ID'): #this looks for the different types of Satellite referred to in gateway Earth_coord
+        rowt = dbLinkBudget(dbLinkBudget.SAT.SAT_ID == row['SAT_ID']).iterselect("SAT_ID", "NADIR_LON", "NADIR_LAT", "DISTANCE", "INCLINATION_ANGLE", "FOV_RADIUS", "FLAG_ASC_DESC", "INTERF_FLAG", "ROLL",
+                                                                                              "PITCH", "YAW", "PAYLOAD_ID", "NADIR_X_ECEF", "NADIR_Y_ECEF", "NADIR_Z_ECEF", "SAT_POS_X_ECEF", "SAT_POS_Y_ECEF", "SAT_POS_Z_ECEF",
+                                                                                              "NORMAL_VECT_X", "NORMAL_VECT_Y", "NORMAL_VECT_Z").first().as_dict()
+
+        sat = OrderedDict.fromkeys(rowt["_extra"])
+        for key in sat.keys():
+            sat[key] = []
+        for row in dbLinkBudget(dbLinkBudget.SAT.SAT_ID == row['SAT_ID']).iterselect("SAT_ID", "NADIR_LON", "NADIR_LAT", "DISTANCE", "INCLINATION_ANGLE", "FOV_RADIUS", "FLAG_ASC_DESC", "INTERF_FLAG", "ROLL",
+                                                                                              "PITCH", "YAW", "PAYLOAD_ID", "NADIR_X_ECEF", "NADIR_Y_ECEF", "NADIR_Z_ECEF", "SAT_POS_X_ECEF", "SAT_POS_Y_ECEF", "SAT_POS_Z_ECEF",
+                                                                                              "NORMAL_VECT_X", "NORMAL_VECT_Y", "NORMAL_VECT_Z"):
+            for key in sat.keys():
+                sat[key].append(row["_extra"][key])
+    #TRSP
+    for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect(groupby='PAYLOAD_ID'): #this looks for the different types of Satellite referred to in gateway Earth_coord
+        rowt = dbLinkBudget(dbLinkBudget.TRSP.PAYLOAD_ID == row['PAYLOAD_ID']).iterselect("FWD_RTN_FLAG", "PAYLOAD_ID", "TRSP_ID", "SYS_TEMP", "CENTRAL_FQ_UP", "BANDWIDTH", "CENTRAL_FQ_DN","AMP_SAT", "IBO", "BEAM_RX_ID",
+                                                                                 "BEAM_RX_TYPE", "BEAM_RX_CENTER_AZ_ANT", "BEAM_RX_CENTER_EL_ANT", "BEAM_RX_ANT_DIAM", "BEAM_RX_THETA_3DB", "BEAM_RX_EFF", "BEAM_RX_RADIUS",
+                                                                                 "BEAM_TX_ID", "BEAM_TX_TYPE", "BEAM_TX_CENTER_AZ_ANT", "BEAM_TX_CENTER_EL_ANT", "BEAM_TX_ANT_DIAM", "BEAM_TX_THETA_3DB",
+                                                                                 "BEAM_TX_EFF", "BEAM_TX_RADIUS", "MAX_GAIN_TX").first().as_dict()
+
+        trsp = OrderedDict.fromkeys(rowt["_extra"])
+        for key in trsp.keys():
+            trsp[key] = []
+        for row in dbLinkBudget(dbLinkBudget.TRSP.PAYLOAD_ID == row['PAYLOAD_ID']).iterselect("FWD_RTN_FLAG", "PAYLOAD_ID", "TRSP_ID", "SYS_TEMP", "CENTRAL_FQ_UP",
+                                                                                     "BANDWIDTH", "CENTRAL_FQ_DN","AMP_SAT", "IBO", "BEAM_RX_ID", "BEAM_RX_TYPE",
+                                                                                     "BEAM_RX_CENTER_AZ_ANT", "BEAM_RX_CENTER_EL_ANT", "BEAM_RX_ANT_DIAM",
+                                                                                     "BEAM_RX_THETA_3DB", "BEAM_RX_EFF", "BEAM_RX_RADIUS", "BEAM_TX_ID", "BEAM_TX_TYPE",
+                                                                                     "BEAM_TX_CENTER_AZ_ANT", "BEAM_TX_CENTER_EL_ANT", "BEAM_TX_ANT_DIAM", "BEAM_TX_THETA_3DB",
+                                                                                     "BEAM_TX_EFF", "BEAM_TX_RADIUS", "MAX_GAIN_TX"):
+            for key in trsp.keys():
+                trsp[key].append(row["_extra"][key])
+
+    filename = "Output file " + request.args(0) + ".xlsx"
     filepath = os.path.join(request.folder, 'uploads', filename) # TODO: look at maybe use .retrieve() here
-    create_saving_worksheet(filepath, temp, "Output")
+    create_saving_worksheet(filepath, sat, "SAT", trsp, "TRSP", vsat, "EARTH_coord_VSAT")
     stream = open(filepath, 'rb')
     dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(
         processed_file=dbLinkBudget.Job.processed_file.store(stream, filepath))
