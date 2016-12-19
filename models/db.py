@@ -228,6 +228,11 @@ dbLinkBudget.define_table('Job',
                           Field('sat_up_perf','boolean',label='8) Compute satellite uplink performances (e.g. G/T)'),
                           Field('sat_dwn_perf','boolean',label='9) Compute satellite downlink performances (e.g. EIRP)'),
                           Field('comp_link_budget','boolean',label='10) Compute link budget'),
+                          Field('csn0_up_flag','string', requires=IS_IN_SET(('To Compute', 'From File','Disregard')),default='Disregard',label='a) C/N0up'),
+                          Field('csi0_up_flag','string', requires=IS_IN_SET(('To Compute', 'From File','Disregard')),default='Disregard',label='b) C/N0dn'),
+                          Field('csim0_flag','string', requires=IS_IN_SET(('To Compute', 'From File','Disregard')),default='Disregard',label='c) C/I0up'),
+                          Field('csn0_dn_flag','string', requires=IS_IN_SET(('To Compute', 'From File','Disregard')),default='Disregard',label='d) C/I0dn'),
+                          Field('csi0_dn_flag','string', requires=IS_IN_SET(('To Compute', 'From File','Disregard')),default='Disregard',label='e) C/Im0'),
                           Field('processed','boolean', default=False,label='Processed? Leave this unchecked and it becomes checked when you press the Run button'),
                           )
 #dbLinkBudget.Job.file_up.requires=IS_UPLOAD_FILENAME(extension=['xlsx','xls','xml'])
