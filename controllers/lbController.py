@@ -155,6 +155,21 @@ def update():
     dbLinkBudget.Job.comp_link_budget.writable = False
     dbLinkBudget.Job.processed.readable = False
     dbLinkBudget.Job.processed.writable = False
+    
+    dbLinkBudget.Job.csn0_up_flag.readable = False
+    dbLinkBudget.Job.csn0_up_flag.writable = False
+    dbLinkBudget.Job.csim0_flag.readable = False
+    dbLinkBudget.Job.csim0_flag.writable = False
+    dbLinkBudget.Job.csn0_dn_flag.readable = False
+    dbLinkBudget.Job.csn0_dn_flag.writable = False
+    dbLinkBudget.Job.csi0_dn_flag.readable = False
+    dbLinkBudget.Job.csi0_dn_flag.writable = False
+    dbLinkBudget.Job.csi0_dn_flag.readable = False
+    dbLinkBudget.Job.csi0_dn_flag.writable = False
+    dbLinkBudget.Job.csi0_up_flag.readable = False
+    dbLinkBudget.Job.csi0_up_flag.writable = False
+    dbLinkBudget.Job.csn0_dn_flag.readable = False
+    dbLinkBudget.Job.csn0_dn_flag.writable = False
 
 #    dbLinkBudget.Job.processed.readable = False # enable these when in use. Having it off is good for debugging
 #    dbLinkBudget.Job.processed.writable = False
@@ -186,7 +201,7 @@ def launch():
     dbLinkBudget.Job.propa_user_link.show_if = (dbLinkBudget.Job.comp_point_cover==True)
     dbLinkBudget.Job.sat_up_perf.show_if = (dbLinkBudget.Job.sat_geo_params==True)
     dbLinkBudget.Job.sat_dwn_perf.show_if = (dbLinkBudget.Job.sat_geo_params==True)
-    dbLinkBudget.Job.comp_link_budget.show_if = (dbLinkBudget.Job.propa_feeder_link==True)
+    #dbLinkBudget.Job.comp_link_budget.show_if = (dbLinkBudget.Job.propa_feeder_link==True)
     
     dbLinkBudget.Job.csn0_up_flag.show_if = (dbLinkBudget.Job.comp_link_budget==True)
     dbLinkBudget.Job.csi0_up_flag.show_if = (dbLinkBudget.Job.comp_link_budget==True)
@@ -381,7 +396,7 @@ def create_download():
 "IBO",
 "AMP_SAT",
 "OBO",
-"SAT_EIRP").first().as_dict()
+"SAT_EIRP","CSIM0","CSN0_DN","CSI0_DN","GPT").first().as_dict()
 
     vsat = OrderedDict.fromkeys(rowt["_extra"])
     for key in vsat.keys():
@@ -434,7 +449,7 @@ def create_download():
 "IBO",
 "AMP_SAT",
 "OBO",
-"SAT_EIRP"):
+"SAT_EIRP","CSIM0","CSN0_DN","CSI0_DN","GPT"):
         for key in vsat.keys():
             vsat[key].append(row["_extra"][key])
     #SAT
@@ -534,9 +549,10 @@ def run():
         EARTH_COORD_VSAT_dict = compute_satellite_perfos(EARTH_COORD_VSAT_dict, TRSP_dict, 'UP')
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).sat_dwn_perf == True:
         EARTH_COORD_VSAT_dict = compute_satellite_perfos(EARTH_COORD_VSAT_dict, TRSP_dict, 'DN')
-    #if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).comp_link_budget == True:
-    #    pass
-    #   #### something### = compute_lkb_perfos(EARTH_COORD_TX_dict,EARTH_COORD_RX_dict, TX_TERMINAL_dict, RX_terminal_dict, fwd_rtn_flag, csn0_up_flag, \
+    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).comp_link_budget == True:
+        if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).simulator_mode == 'FWD':
+            EARTH_COORD_VSAT_dict = compute_lkb_perfos(EARTH_COORD_GW_dict,EARTH_COORD_VSAT_dict, GW_dict, VSAT_dict, 'FWD', 'disregard', 'disregard', 'disregard', 'compute', 'disregard')
+    #       EARTH_COORD_VSAT_dict = compute_lkb_perfos(EARTH_COORD_GW_dict,EARTH_COORD_VSAT_dict, GW_dict, VSAT_dict, 'FWD', csn0_up_flag, \
     #                                                                           csi0_up_flag, \
     #                                                                           csim0_flag, \
     #                                                                           csn0_dn_flag, \

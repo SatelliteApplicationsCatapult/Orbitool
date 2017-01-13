@@ -299,6 +299,10 @@ dbLinkBudget.define_table('EARTH_coord_VSAT',
                           Field('IBO','double'),
                           Field('AMP_SAT','double'),
                           Field('OBO','double'),
-                          Field('SAT_EIRP','double'),)
+                          Field('SAT_EIRP','double'),
+                          Field('CSIM0','double'),
+                         Field('CSN0_DN','double'),
+                         Field('CSI0_DN','double'),
+                         Field('GPT','double'))
 dbLinkBudget.executesql('CREATE INDEX IF NOT EXISTS VSAT_index ON EARTH_coord_VSAT (Job_ID);')
 dbLinkBudget.executesql('CREATE INDEX IF NOT EXISTS GW_index ON Earth_coord_GW (Job_ID);')
