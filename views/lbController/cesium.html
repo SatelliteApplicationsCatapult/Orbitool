@@ -38,17 +38,67 @@
     <div id="loadingOverlay"><h1>Loading...</h1></div>
     <div id="target"></div>
     <div id="toolbar">
-        <button onclick="alert('You clicked!');">Click me!</button>
-        <button type="button" class="btn btn-default">Toggle</button>
+        <!--<button onclick="alert('You clicked!');">Click me!</button>
+        <button type="button" class="button1 clickable">Toggle</button>
         <table>
             <tbody><tr>
-                <td><font color="white">Adjust Colour</font></td>
+                <td><font color="white" face="verdana" size="2">Adjust Colour</font></td>
                 <td>
                     <input type="range" min="270" max="290" step="0.02" data-bind="value: , valueUpdate: 'input'">
                     <input type="text" size="5" data-bind="value: brightness">
                 </td>
             </tr>
-        </tbody></table>
+        </tbody></table>-->
+        <table><tbody data-bind="foreach: layers">
+                    <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
+        <td><input type="checkbox"  id="showSATCheckbox"></td>
+        <td> <font color="white" face="verdana" size="3">Satellites              </font>
+            <!--<span data-bind="text: name, visible: !$parent.isSelectableLayer($data)"></span>
+            <select data-bind="visible: $parent.isSelectableLayer($data), options: $parent.baseLayers, optionsText: 'name', value: $parent.selectedLayer"></select>-->
+        </td>
+        <td>
+            <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
+        </td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">▲</button></td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">▼</button></td>
+    </tr>
+     <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
+        <td><input type="checkbox" id="showGWCheckbox"></td>
+        <td> <font color="white" face="verdana" size="3">Gateways              </font>
+            <!--<span data-bind="text: name, visible: !$parent.isSelectableLayer($data)"></span>
+            <select data-bind="visible: $parent.isSelectableLayer($data), options: $parent.baseLayers, optionsText: 'name', value: $parent.selectedLayer"></select>-->
+        </td>
+        <td>
+            <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
+        </td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">▲</button></td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">▼</button></td>
+    </tr>        
+    <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
+        <td><input type="checkbox" id="showVSATCheckbox"></td>
+        <td> <font color="white" face="verdana" size="3">EIRP              </font>
+            <!--<span data-bind="text: name, visible: !$parent.isSelectableLayer($data)"></span>
+            <select data-bind="visible: $parent.isSelectableLayer($data), options: $parent.baseLayers, optionsText: 'name', value: $parent.selectedLayer"></select>-->
+        </td>
+        <td>
+            <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
+        </td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">▲</button></td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">▼</button></td>
+    </tr>
+                <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
+        <td><input type="checkbox" id="showELEVATIONCheckbox"></td>
+        <td> <font color="white" face="verdana" size="3">Elevation  </font>
+            <!--<span data-bind="text: name, visible: !$parent.isSelectableLayer($data)"></span>
+            <select data-bind="visible: $parent.isSelectableLayer($data), options: $parent.baseLayers, optionsText: 'name', value: $parent.selectedLayer"></select>-->
+        </td>
+        <td>
+            <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
+        </td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">▲</button></td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">▼</button></td>
+    </tr>
+</tbody></table>
     </div>
 
         <script>
@@ -58,6 +108,7 @@
             });
             var viewModel = {
                 EIRPmin: 31.1984391831,
+                ELEVATIONmin: 57,
                 Tmin: 282,  //need to write a function to determin minimum temperature
             };
             //ajax('{{=URL('lbController', 'test')}},[],'target')
@@ -78,6 +129,19 @@
                     })
                 };
             });
+            var ELEVATION = new Cesium.GeoJsonDataSource();
+            ELEVATION.load('{{=URL('lbController', 'get_geojson',args=[request.args(0)])}}').then(function(){
+                var entities = ELEVATION.entities.values;
+                for (var i = 0; i < entities.length; i++) {
+                    var entity = entities[i];
+                    entity.billboard = undefined;
+                    entity.point = new Cesium.PointGraphics({
+                        color: Cesium.Color.fromBytes((((entity.properties.ELEVATION-viewModel.ELEVATIONmin)))*5.875,0,(1/(entity.properties.ELEVATION-viewModel.ELEVATIONmin))*3020.875,210),
+                        pixelSize: 8,
+                        scaleByDistance : Cesium.NearFarScalar(3.2e5, 90.0, 1.2e6, 0.01)
+                    })
+                };
+            });             
            var GW = new Cesium.GeoJsonDataSource();
            GW.load('{{=URL('lbController', 'get_geojson_gw',args=[request.args(0)])}}').then(function(){
                 var entities = GW.entities.values;
@@ -103,10 +167,78 @@
                     })
                 };
             });
+            //Sandcastle.addToolbarButton('Toggle VSAT', function(){
+            //    VSAT.show = !VSAT.show;
+            //});
+            var checkbox = document.getElementById('showVSATCheckbox');
+            checkbox.addEventListener('change', function() {
+                // Checkbox state changed.
+                if (checkbox.checked) {
+                    // Show if not shown.
+                    if (!viewer.dataSources.contains(VSAT)) {
+                        viewer.dataSources.add(VSAT);
+                        viewer.zoomTo(VSAT, new Cesium.HeadingPitchRange(40,-90,9000000));
+                    }
+                } else {
+                    // Hide if currently shown.
+                    if (viewer.dataSources.contains(VSAT)) {
+                        viewer.dataSources.remove(VSAT);
+                    }
+                }
+            }, false);
+            var checkbox1 = document.getElementById('showSATCheckbox');
+            checkbox1.addEventListener('change', function() {
+                // Checkbox state changed.
+                if (checkbox1.checked) {
+                    // Show if not shown.
+                    if (!viewer.dataSources.contains(SAT)) {
+                        viewer.dataSources.add(SAT);
+                        viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40,-90,9000000));
+                    }
+                } else {
+                    // Hide if currently shown.
+                    if (viewer.dataSources.contains(SAT)) {
+                        viewer.dataSources.remove(SAT);
+                    }
+                }
+            }, false);   
+            var checkbox2 = document.getElementById('showGWCheckbox');
+            checkbox2.addEventListener('change', function() {
+                // Checkbox state changed.
+                if (checkbox2.checked) {
+                    // Show if not shown.
+                    if (!viewer.dataSources.contains(GW)) {
+                        viewer.dataSources.add(GW);
+                        viewer.zoomTo(GW, new Cesium.HeadingPitchRange(40,-90,9000000));
+                    }
+                } else {
+                    // Hide if currently shown.
+                    if (viewer.dataSources.contains(GW)) {
+                        viewer.dataSources.remove(GW);
+                    }
+                }
+            }, false);  
+            var checkbox3 = document.getElementById('showELEVATIONCheckbox');
+            checkbox3.addEventListener('change', function() {
+                // Checkbox state changed.
+                if (checkbox3.checked) {
+                    // Show if not shown.
+                    if (!viewer.dataSources.contains(ELEVATION)) {
+                        viewer.dataSources.add(ELEVATION);
+                        viewer.zoomTo(ELEVATION, new Cesium.HeadingPitchRange(40,-90,9000000));
+                    }
+                } else {
+                    // Hide if currently shown.
+                    if (viewer.dataSources.contains(ELEVATION)) {
+                        viewer.dataSources.remove(ELEVATION);
+                    }
+                }
+            }, false);   
+                         
             
-            viewer.dataSources.add(VSAT);
-            viewer.dataSources.add(GW);
-            viewer.dataSources.add(SAT);
+            //viewer.dataSources.add(VSAT);
+            //viewer.dataSources.add(GW);
+            //viewer.dataSources.add(SAT);
             viewer.zoomTo(VSAT, new Cesium.HeadingPitchRange(40,-90,9000000));
         </script>
 </body>

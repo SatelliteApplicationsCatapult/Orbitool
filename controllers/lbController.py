@@ -666,6 +666,7 @@ def get_geojson():
                      "title": [str(r[dbLinkBudget.EARTH_coord_VSAT.VSAT_ID])],
                      "Job ID": r[dbLinkBudget.EARTH_coord_VSAT.Job_ID],
                      "EIRP": r[dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP],
+                     "ELEVATION": r[dbLinkBudget.EARTH_coord_VSAT.ELEVATION],
                      "Lat": r[dbLinkBudget.EARTH_coord_VSAT.LAT],
                      "Lon": r[dbLinkBudget.EARTH_coord_VSAT.LON],
                  }
