@@ -38,7 +38,7 @@
     <div id="loadingOverlay"><h1>Loading...</h1></div>
     <div id="target"></div>
     <div id="toolbar">
-        <h1><font color="white" size="5">Link Budget Visualiser</font></h1>
+        <h1><font color="white" size="5">  Link Budget Visualiser</font></h1>
         <!--<button onclick="alert('You clicked!');">Click me!</button>
         <button type="button" class="button1 clickable">Toggle</button>
         <table>
@@ -54,6 +54,18 @@
                     <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
         <td><input type="checkbox"  id="showSATCheckbox"></td>
         <td> <font color="white" size="3">Satellites              </font>
+            <!--<span data-bind="text: name, visible: !$parent.isSelectableLayer($data)"></span>
+            <select data-bind="visible: $parent.isSelectableLayer($data), options: $parent.baseLayers, optionsText: 'name', value: $parent.selectedLayer"></select>-->
+        </td>
+        <td>
+            <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
+        </td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">▲</button></td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">▼</button></td>
+    </tr>
+     <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
+        <td><input type="checkbox" id="showFOVCheckbox"></td>
+         <td> <font color="white" size="3">FOV              </font>
             <!--<span data-bind="text: name, visible: !$parent.isSelectableLayer($data)"></span>
             <select data-bind="visible: $parent.isSelectableLayer($data), options: $parent.baseLayers, optionsText: 'name', value: $parent.selectedLayer"></select>-->
         </td>
@@ -90,6 +102,18 @@
                 <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
         <td><input type="checkbox" id="showELEVATIONCheckbox"></td>
         <td> <font color="white" size="3">Elevation  </font>
+            <!--<span data-bind="text: name, visible: !$parent.isSelectableLayer($data)"></span>
+            <select data-bind="visible: $parent.isSelectableLayer($data), options: $parent.baseLayers, optionsText: 'name', value: $parent.selectedLayer"></select>-->
+        </td>
+        <td>
+            <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
+        </td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">▲</button></td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">▼</button></td>
+    </tr>
+                            <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
+        <td><input type="checkbox" id="centreCheckbox"></td>
+        <td> <font color="white" size="3">Centre on SATs (dev)  </font>
             <!--<span data-bind="text: name, visible: !$parent.isSelectableLayer($data)"></span>
             <select data-bind="visible: $parent.isSelectableLayer($data), options: $parent.baseLayers, optionsText: 'name', value: $parent.selectedLayer"></select>-->
         </td>
@@ -167,18 +191,18 @@
                 };
             });
            var FOV = new Cesium.GeoJsonDataSource();
-           FOV.load('{{=URL('lbController', 'get_geojson_sat',args=[request.args(0)])}}').then(function(){
+           FOV.load('{{=URL('lbController', 'get_geojson_FOV',args=[request.args(0)])}}').then(function(){
                 var entities = FOV.entities.values;
                 for (var i = 0; i < entities.length; i++) {
                     var entity = entities[i];
                     entity.cylinder = new Cesium.CylinderGraphics({
                         length: entity.properties.Height*1000,
                         topRadius: 0,
-                        bottomRadius: 250000,
-                        outlineWidth : 8,
-                        material : Cesium.Color.fromRandom({alpha : 0.5}),
-                        //bottomRadius: 'entity.properties.FOV Radius',
-//                        color: Cesium.Color.fromBytes(255,0,0,210),
+                        bottomRadius: entity.properties.FOVBottomRadius,
+                        outlineWidth : 2,
+                        outline: true,
+                        numberOfVerticalLines: 0,
+                        material : Cesium.Color.fromRandom({alpha : 0.25}),
                    })     
                 };
             });            
@@ -192,7 +216,7 @@
                     // Show if not shown.
                     if (!viewer.dataSources.contains(VSAT)) {
                         viewer.dataSources.add(VSAT);
-                        viewer.zoomTo(VSAT, new Cesium.HeadingPitchRange(40,-90,9000000));
+                        //viewer.zoomTo(VSAT, new Cesium.HeadingPitchRange(40,-90,9000000));
                     }
                 } else {
                     // Hide if currently shown.
@@ -208,7 +232,7 @@
                     // Show if not shown.
                     if (!viewer.dataSources.contains(SAT)) {
                         viewer.dataSources.add(SAT);
-                        viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40,-90,9000000));
+                       // viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40,-90,9000000));
                     }
                 } else {
                     // Hide if currently shown.
@@ -224,7 +248,7 @@
                     // Show if not shown.
                     if (!viewer.dataSources.contains(GW)) {
                         viewer.dataSources.add(GW);
-                        viewer.zoomTo(GW, new Cesium.HeadingPitchRange(40,-90,9000000));
+                        //viewer.zoomTo(GW, new Cesium.HeadingPitchRange(40,-90,9000000));
                     }
                 } else {
                     // Hide if currently shown.
@@ -240,7 +264,7 @@
                     // Show if not shown.
                     if (!viewer.dataSources.contains(ELEVATION)) {
                         viewer.dataSources.add(ELEVATION);
-                        viewer.zoomTo(ELEVATION, new Cesium.HeadingPitchRange(40,-90,9000000));
+                       // viewer.zoomTo(ELEVATION, new Cesium.HeadingPitchRange(40,-90,9000000));
                     }
                 } else {
                     // Hide if currently shown.
@@ -249,11 +273,32 @@
                     }
                 }
             }, false);   
+            var checkbox4 = document.getElementById('showFOVCheckbox');
+            checkbox4.addEventListener('change', function() {
+                // Checkbox state changed.
+                if (checkbox4.checked) {
+                    // Show if not shown.
+                    if (!viewer.dataSources.contains(FOV)) {
+                        viewer.dataSources.add(FOV);
+                    }
+                } else {
+                    // Hide if currently shown.
+                    if (viewer.dataSources.contains(FOV)) {
+                        viewer.dataSources.remove(FOV);
+                    }
+                }
+            }, false);   
                          
-            
+            var checkbox5 = document.getElementById('centreCheckbox');
+            checkbox5.addEventListener('change', function() {
+                // Checkbox state changed.
+                if (checkbox5.checked) {
+                        viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40,-90,9000000));
+                    }
+            }, false);  
             //viewer.dataSources.add(VSAT);
             //viewer.dataSources.add(GW);
-            viewer.dataSources.add(FOV);
+            //viewer.dataSources.add(FOV);
             viewer.zoomTo(VSAT, new Cesium.HeadingPitchRange(40,-90,9000000));
             var credit = new Cesium.Credit('Catapult', '../static/images/saWhite26.png', 'http://sa.catapult.org.uk');
             viewer.scene.frameState.creditDisplay.addDefaultCredit(credit)

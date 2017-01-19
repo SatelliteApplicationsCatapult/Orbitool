@@ -739,6 +739,40 @@ def get_geojson_sat():
                  }
                  } for r in rows]
     return response.json({"type": "FeatureCollection", 'features': features})
+
+def get_geojson_FOV():
+    """
+    Function to get the coordinates into a GeoJSON format
+    This adds the lat and longitudes for the SAT
+    Called in cesium.html
+
+    Returns:
+        object: GeoJSON
+    """
+    rows = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect()
+
+    features = [{"type": "Feature",
+                 "geometry": {
+                     "type": "Point",
+                     "coordinates": [dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON, dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT, (dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE)*1000/2]
+                 },
+                 "properties": {
+                     "title": "SAT",
+                     "Height": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE,
+                     "SAT ID": r[dbLinkBudget.Earth_coord_GW.SAT_ID],
+                     "Job ID": r[dbLinkBudget.Earth_coord_GW.Job_ID],
+                     "FOVBottomRadius": (dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE)*1000*np.tan((np.pi/180)*(dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).FOV_RADIUS)),
+                     "Payload ID": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).PAYLOAD_ID,
+                     "Lat": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT,
+                     "Lon": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON,
+#                     "NADIR_LON": dbLinkBudget.Gateway(dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).EIRP_MAX,
+#                     "Bandwidth": dbLinkBudget.Gateway(
+#                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).BANDWIDTH,
+#                     "Diameter": dbLinkBudget.Gateway(
+#                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).DIAMETER
+                 }
+                 } for r in rows]
+    return response.json({"type": "FeatureCollection", 'features': features})
 #
 # @request.restful()
 # def api():
