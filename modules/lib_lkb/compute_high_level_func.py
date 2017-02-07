@@ -14,7 +14,6 @@ from lib_lkb.geometric_func import *
 
 
 
-
 ############################################################################################################################
 def compute_sat_params(SAT_dict, flag_intermediate_params=False):
     ''' This function computes main satellite characteristics, needed for other
@@ -196,9 +195,9 @@ def compute_coverage_points_geo_params(SAT_dict, EARTH_COORD_dict):
                                                 nadir_ecef_per_cov_point, \
                                                 sat_pos_ecef_per_cov_point, \
                                                 normal_vect_ecef_per_cov_point, \
-                                                roll = SAT_dict['ROLL'], \
-                                                pitch = SAT_dict['PITCH'], \
-                                                yaw = SAT_dict['YAW']) 
+                                                roll = EARTH_COORD_dict['ROLL'], \
+                                                pitch = EARTH_COORD_dict['PITCH'], \
+                                                yaw = EARTH_COORD_dict['YAW']) 
 #                                                roll = EARTH_COORD_dict['ROLL'], \
 #                                                pitch = EARTH_COORD_dict['PITCH'], \
 #                                                yaw = EARTH_COORD_dict['YAW'])    
@@ -245,13 +244,13 @@ def compute_lkb_propag_params(EARTH_COORD_dict, SAT_dict, TRSP_dict, TERMINAL_di
         
 
     if (flag_propag == True):
-        if ((flag_fwd_rtn == 'FWD' and flag_uplink_downlink == 'DN') or (flag_fwd_rtn == 'RTN' and flag_uplink_downlink == 'UP')): # this implies that VSAT is always Rx for RTN...
+        if ((flag_fwd_rtn == 'FWD' and flag_uplink_downlink == 'DN') or (flag_fwd_rtn == 'RTN' and flag_uplink_downlink == 'UP')): # this implies that VSAT is always Tx for RTN...
             EARTH_COORD_dict['POLAR']                 =   db_join(EARTH_COORD_dict, TERMINAL_dict, 'POLAR', 'VSAT_ID') # @!!! BUG
             EARTH_COORD_dict['DIAMETER']              =   db_join(EARTH_COORD_dict, TERMINAL_dict, 'DIAMETER', 'VSAT_ID') # @!!! BUG
             EARTH_COORD_dict['EFFICIENCY']            =   db_join(EARTH_COORD_dict, TERMINAL_dict, 'EFFICIENCY', 'VSAT_ID') # @!!! BUG
             EARTH_COORD_dict['POLAR_TILT_ANGLE']      =   compute_polar_tilt_angle(EARTH_COORD_dict['POLAR'])
             
-        else: # this implies that GW is always Tx for RTN // Rx for FWD...
+        else: # this implies that GW is always Rx for RTN // Tx for FWD...
             EARTH_COORD_dict['POLAR']                 =   db_join(EARTH_COORD_dict, TERMINAL_dict, 'POLAR', 'GW_ID') # @!!! BUG
             EARTH_COORD_dict['DIAMETER']              =   db_join(EARTH_COORD_dict, TERMINAL_dict, 'DIAMETER', 'GW_ID') # @!!! BUG
             EARTH_COORD_dict['EFFICIENCY']            =   db_join(EARTH_COORD_dict, TERMINAL_dict, 'EFFICIENCY', 'GW_ID') # @!!! BUG
@@ -446,4 +445,4 @@ def compute_lkb_perfos(EARTH_COORD_TX_dict,EARTH_COORD_RX_dict, TX_TERMINAL_dict
 #                                                                    EARTH_COORD_TX_dict['CSIM0'], \
 #                                                                    EARTH_COORD_TX_dict['CSN0_DN'], \
 #                                                                    EARTH_COORD_TX_dict['CSI0_DN'])
-#############################################################################################################################   
+#############################################################################################################################
