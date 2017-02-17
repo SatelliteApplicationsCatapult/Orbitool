@@ -111,6 +111,20 @@
         <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">▲</button></td>
         <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">▼</button></td>
     </tr>
+            
+    <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
+        <td><input type="checkbox" id="showTRSPCheckbox"></td>
+        <td> <font color="white" size="3">Transponders              </font>
+            <!--<span data-bind="text: name, visible: !$parent.isSelectableLayer($data)"></span>
+            <select data-bind="visible: $parent.isSelectableLayer($data), options: $parent.baseLayers, optionsText: 'name', value: $parent.selectedLayer"></select>-->
+        </td>
+        <td>
+            <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
+        </td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">▲</button></td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">▼</button></td>
+    </tr>              
+            
                             <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
         <td><input type="checkbox" id="centreCheckbox"></td>
         <td> <font color="white" size="3">Centre on SATs (dev)  </font>
@@ -205,7 +219,35 @@
                         material : Cesium.Color.fromRandom({alpha : 0.25}),
                    })     
                 };
-            });            
+            });   
+           //var FOV_CIRCLE = new Cesium.GeoJsonDataSource();
+           //FOV_CIRCLE.load('{{=URL('lbController', 'get_geojson_FOV_CIRCLE',args=[request.args(0)])}}').then(function(){
+            //    var entities = FOV_CIRCLE.entities.values;
+            //    for (var i = 0; i < entities.length; i++) {
+            //        var entity = entities[i];
+            //        entity.circle = new Cesium.CircleGeometry({
+            //            center : Cesium.Cartesian3.fromDegrees(entity.properties.Lat,entity.properties.Lon),
+            //            radius: entity.properties.FOVBottomRadius,
+                        //material : Cesium.Color.fromRandom({alpha : 0.25}),
+            //       })     
+            //    };
+            //});get_geojson_TRSP  
+            var TRSP = new Cesium.GeoJsonDataSource();
+            TRSP.load('{{=URL('lbController', 'get_geojson_TRSP',args=[request.args(0)])}}').then(function(){
+                var entities = TRSP.entities.values;
+                for (var i = 0; i < entities.length; i++) {
+                    var entity = entities[i];
+                    entity.cylinder = new Cesium.CylinderGraphics({
+                        length: entity.properties.Height*1000,
+                        topRadius: 0,
+                        bottomRadius: entity.properties.ThreeDB,
+                        outlineWidth : 2,
+                        outline: true,
+                        numberOfVerticalLines: 0,
+                        material : Cesium.Color.fromRandom({alpha : 0.01}),
+                   })     
+                };
+            });
             //Sandcastle.addToolbarButton('Toggle VSAT', function(){
             //    VSAT.show = !VSAT.show;
             //});
@@ -296,7 +338,21 @@
                         viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40,-90,9000000));
                     }
             }, false);  
-            //viewer.dataSources.add(VSAT);
+            var checkbox6 = document.getElementById('showTRSPCheckbox');
+            checkbox6.addEventListener('change', function() {
+                // Checkbox state changed.
+                if (checkbox6.checked) {
+                    // Show if not shown.
+                    if (!viewer.dataSources.contains(TRSP)) {
+                        viewer.dataSources.add(TRSP);
+                    }
+                } else {
+                    // Hide if currently shown.
+                    if (viewer.dataSources.contains(TRSP)) {
+                        viewer.dataSources.remove(TRSP);
+                    }
+                }
+            }, false);               
             //viewer.dataSources.add(GW);
             //viewer.dataSources.add(FOV);
             viewer.zoomTo(VSAT, new Cesium.HeadingPitchRange(40,-90,9000000));

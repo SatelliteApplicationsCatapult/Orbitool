@@ -16,6 +16,11 @@ import subprocess
 from collections import OrderedDict
 
 
+import logging
+logger = logging.getLogger("web2py.app.linkbudgetweb")
+logger.setLevel(logging.DEBUG)
+
+
 response.title = 'Link Budget Calculator'
 
 
@@ -82,6 +87,8 @@ def input():
         session.flash = "%s - %s has been accepted" % (form.vars.id, form.vars.job_name)
         session.job = form.vars.job_name
         add_excel_2_db()
+    else:
+        session.flash = "%s - %s has FAILED" % (form.vars.id, form.vars.job_name)
     return dict(form=form)
 
 
@@ -155,7 +162,7 @@ def update():
     dbLinkBudget.Job.comp_link_budget.writable = False
     dbLinkBudget.Job.processed.readable = False
     dbLinkBudget.Job.processed.writable = False
-    
+
     dbLinkBudget.Job.csn0_up_flag.readable = False
     dbLinkBudget.Job.csn0_up_flag.writable = False
     dbLinkBudget.Job.csim0_flag.readable = False
@@ -202,7 +209,7 @@ def launch():
     dbLinkBudget.Job.sat_up_perf.show_if = (dbLinkBudget.Job.sat_geo_params==True)
     dbLinkBudget.Job.sat_dwn_perf.show_if = (dbLinkBudget.Job.sat_geo_params==True)
     #dbLinkBudget.Job.comp_link_budget.show_if = (dbLinkBudget.Job.propa_feeder_link==True)
-    
+
     dbLinkBudget.Job.csn0_up_flag.show_if = (dbLinkBudget.Job.comp_link_budget==True)
     dbLinkBudget.Job.csi0_up_flag.show_if = (dbLinkBudget.Job.comp_link_budget==True)
     dbLinkBudget.Job.csim0_flag.show_if = (dbLinkBudget.Job.comp_link_budget==True)
@@ -236,7 +243,7 @@ def add_excel_2_db():
     #filename = 'applications/linkbudgetweb/arrays/propa_input_array-'+timestr+'.txt'
     #np.savetxt(filename, np.column_stack((EARTH_COORD_VSAT_dict['LON'], \
     #                                                                      EARTH_COORD_VSAT_dict['LAT'],\
-    #                                                                      )))    
+    #                                                                      )))
     ##-----------------  1/ Compute SAT geometric params ------------------
     #SAT_dict = compute_sat_params(SAT_dict)
     ##----------------- 2/ Assign sat to each point of coverage -----------
@@ -280,7 +287,7 @@ def read_array_to_db(db, ordDict, job_id=0):
     for i in range(ordDict.values()[0].size):
         for j in range(len(ordDict.keys())):
             temp[ordDict.keys()[j]] = ordDict.values()[j][i]
-        db.update_or_insert(**temp)  # Update/Insert state used to create new database records. Checks if all the fields are filled in + updates, else inserts.
+        db.update_or_insert(**temp)  # Update/Insert state used to create new database records. Checks if all the fields are filled in + updates, else inserts. Might just change this to update
 
 def read_db_to_array(db, job_id=0):
     """
@@ -520,7 +527,7 @@ def run():
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).sat_geo_params == True:
     #-----------------  1/ Compute SAT geometric params ------------------
         SAT_dict = compute_sat_params(SAT_dict)
-    #----------------- 2/ Assign sat to each point of coverage -----------    
+    #----------------- 2/ Assign sat to each point of coverage -----------
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).points2trsp == True:
         if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).simulator_mode == 'FWD':
             EARTH_COORD_VSAT_dict = compute_transponder_assignment(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, 'FWD', 'DN')
@@ -779,7 +786,7 @@ def get_geojson_FOV():
     return response.json({"type": "FeatureCollection", 'features': features})
 
 
-def get_geojson_TRSP():
+def get_geojson_FOV_CIRCLE():
     """
     Function to get the coordinates into a GeoJSON format
     This adds the lat and longitudes for the SAT
@@ -789,15 +796,11 @@ def get_geojson_TRSP():
         object: GeoJSON
     """
     rows = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect()
-    #transponder = dbLinkBudget.TRSP(dbLinkBudget.TRSP.TRSP_ID == r[dbLinkBudget.Earth_coord_GW.TRSP_ID])
-    #az = transponder.BEAM_TX_CENTER_AZ_ANT * np.pi / 180
-    #elev = transponder.BEAM_TX_CENTER_EL_ANT * np.pi / 180
-    #beam_radius = transponder.BEAM_TX_RADIUS * np.pi / 180
 
     features = [{"type": "Feature",
                  "geometry": {
                      "type": "Point",
-                     "coordinates": [dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON, dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT,0]
+                     "coordinates": [dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON, dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT]
                  },
                  "properties": {
                      "title": "SAT",
@@ -808,62 +811,108 @@ def get_geojson_TRSP():
                      "Payload ID": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).PAYLOAD_ID,
                      "Lat": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT,
                      "Lon": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON,
-                     #"AZ": dbLinkBudget.TRSP(dbLinkBudget.TRSP.TRSP_ID == r[dbLinkBudget.Earth_coord_GW.TRSP_ID]).BEAM_TX_CENTER_AZ_ANT * np.pi / 180,
-                     #"Elev": dbLinkBudget.TRSP(dbLinkBudget.TRSP.TRSP_ID == r[dbLinkBudget.Earth_coord_GW.TRSP_ID]).BEAM_TX_CENTER_EL_ANT * np.pi / 180,
-                     "Nadi x":dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_X_ECEF,
-                     #"Sat pos":,
-                     #"normal vector":,
-                     #"beam radius":dbLinkBudget.TRSP(dbLinkBudget.TRSP.TRSP_ID == r[dbLinkBudget.Earth_coord_GW.TRSP_ID]).BEAM_TX_CENTER_EL_ANT * np.pi / 180,
-                    
-                     #"Beam centres lat": display_2D_sat_and_beams()[0][1],
+#                     "NADIR_LON": dbLinkBudget.Gateway(dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).EIRP_MAX,
+#                     "Bandwidth": dbLinkBudget.Gateway(
+#                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).BANDWIDTH,
+#                     "Diameter": dbLinkBudget.Gateway(
+#                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).DIAMETER
                  }
                  } for r in rows]
+    return response.json({"type": "FeatureCollection", 'features': features})
+
+def get_geojson_TRSP():
+    """
+    Function to get the coordinates into a GeoJSON format
+    This adds the lat and longitudes for the transponder field of views
+    Need to do some data processing using display_2D_sat_and_beams
+    Called in cesium.html
+
+    Returns:
+        object: GeoJSON
+    """
+    #logger.debug("You ought to know that %s" % "debugger is working")
+    #need to find a way to say is not None for satellite computed values
+    rows = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect()
+    features = []
+    azprint = []
+    for r in rows:
+        az = dbLinkBudget.TRSP(dbLinkBudget.TRSP.TRSP_ID == r[dbLinkBudget.Earth_coord_GW.TRSP_ID]).BEAM_TX_CENTER_AZ_ANT * np.pi / 180
+        azprint.append(az)
+        elev = dbLinkBudget.TRSP(dbLinkBudget.TRSP.TRSP_ID == r[dbLinkBudget.Earth_coord_GW.TRSP_ID]).BEAM_TX_CENTER_EL_ANT * np.pi / 180
+        #nadir_to_disp = np.array([dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_X_ECEF,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_Y_ECEF,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_Z_ECEF])
+        #pos_to_disp = np.array([dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).POS_X_ECEF,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).POS_Y_ECEF,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).POS_Z_ECEF])
+        #normal_vector_to_disp = np.array([dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NORMAL_VECT_X,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NORMAL_VECT_Y,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NORMAL_VECT_Z])
+        #beam_radius = dbLinkBudget.TRSP(dbLinkBudget.TRSP.TRSP_ID == r[dbLinkBudget.Earth_coord_GW.TRSP_ID]).BEAM_TX_RADIUS * np.pi / 180
+        #beam_centers_lonlat, beam_contour_ll = display_2D_sat_and_beams(az, elev, nadir_to_disp, pos_to_disp, normal_vector_to_disp, beam_radius)
+        a=1
+        #if len(beam_centers_lonlat)>1 and len(beam_contour_ll)>1:
+        if a==1:
+            features.append({"type": "Feature",
+                         "geometry": {
+                             "type": "Point",
+                             "coordinates": [dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON, dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT, (dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE)*1000/2]
+                         },
+                         "properties": {
+                             "title": "SAT",
+                             "Height": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE,
+                             "SAT ID": r[dbLinkBudget.Earth_coord_GW.SAT_ID],
+                             "Job ID": r[dbLinkBudget.Earth_coord_GW.Job_ID],
+                             "FOVBottomRadius": (dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE)*1000*np.tan((np.pi/180)*(dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).FOV_RADIUS)),
+                             "Payload ID": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).PAYLOAD_ID,
+                             "Lat": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT,
+                             "Lon": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON,
+                             "ThreeDB": (dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE)*1000*np.tan((np.pi/180)*dbLinkBudget.TRSP(dbLinkBudget.TRSP.TRSP_ID == r[dbLinkBudget.Earth_coord_GW.TRSP_ID]).BEAM_TX_THETA_3DB),
+                         }
+                         })
+        #else:
+            #logger.warning("You ought to know that %s" % "the transponder calculation has failed")
+    np.savetxt('az.out', azprint, delimiter=',')
     return response.json({"type": "FeatureCollection", 'features': features})
 
 
 def display_2D_sat_and_beams(az_beam_centers, elev_beam_centers, nadir_ecef, sat_pos_ecef, normal_vector, beam_radius):
     '''
     display nadir and beam centers and contours of ONE satellite
-    
+
     '''
-    # duplicate nadir as many times as number of beams (to allow for vectorized calculations)    
+    # duplicate nadir as many times as number of beams (to allow for vectorized calculations)
     nadir_ecef_disp = np.outer(nadir_ecef, np.ones(np.size(az_beam_centers)))
     pos_disp = np.outer(sat_pos_ecef, np.ones(np.size(az_beam_centers)))
     normal_vector_disp = np.outer(normal_vector, np.ones(np.size(az_beam_centers)))
-    
+
     # compute ecef coord of beam centers
     points_ecef = compute_az_elev_to_ecef(np.array([az_beam_centers,elev_beam_centers]), \
                                 nadir_ecef_disp, \
                                 pos_disp, \
                                 normal_vector_disp \
                                 )
-    
+
     # convert to lonlat
     beam_centers_lonlat = ecef2ll_geod(points_ecef)
-        
+
 
     # for each beam
     beam_contour_ll = np.array([[np.nan,np.nan]]).T
     for i in np.arange(0, np.size(az_beam_centers)):
         #compute contour
         mv = compute_beam_contour(np.array([az_beam_centers,elev_beam_centers])[:,i], beam_radius[i]) #6.7
-        
+
         # convert contour in ecef and then lonlat coord
         nadir_ecef_disp = np.outer(nadir_ecef, np.ones(np.size(mv,1)))
         pos_disp = np.outer(sat_pos_ecef, np.ones(np.size(mv,1)))
         normal_vector_disp = np.outer(normal_vector, np.ones(np.size(mv,1)))
-        
+
         points_ecef = compute_az_elev_to_ecef(mv, \
                                 nadir_ecef_disp, \
                                 pos_disp, \
                                 normal_vector_disp \
                                 )
         mv_ll = ecef2ll_geod(points_ecef)
-        
+
         #save contour with putting a "nan" between each contour
         beam_contour_ll = np.append(beam_contour_ll, np.array([[np.nan,np.nan]]).T, axis=1)
         beam_contour_ll = np.append(beam_contour_ll, mv_ll, axis=1)
-    
+
 
     return beam_centers_lonlat, beam_contour_ll
 
