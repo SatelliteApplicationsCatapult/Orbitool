@@ -833,40 +833,42 @@ def get_geojson_TRSP():
     #logger.debug("You ought to know that %s" % "debugger is working")
     #need to find a way to say is not None for satellite computed values
     rows = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect()
+    transponders = dbLinkBudget(dbLinkBudget.TRSP.PAYLOAD_ID == 1.0).iterselect()
     features = []
     azprint = []
     for r in rows:
-        az = dbLinkBudget.TRSP(dbLinkBudget.TRSP.TRSP_ID == r[dbLinkBudget.Earth_coord_GW.TRSP_ID]).BEAM_TX_CENTER_AZ_ANT * np.pi / 180
-        azprint.append(az)
-        elev = dbLinkBudget.TRSP(dbLinkBudget.TRSP.TRSP_ID == r[dbLinkBudget.Earth_coord_GW.TRSP_ID]).BEAM_TX_CENTER_EL_ANT * np.pi / 180
-        #nadir_to_disp = np.array([dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_X_ECEF,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_Y_ECEF,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_Z_ECEF])
-        #pos_to_disp = np.array([dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).POS_X_ECEF,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).POS_Y_ECEF,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).POS_Z_ECEF])
-        #normal_vector_to_disp = np.array([dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NORMAL_VECT_X,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NORMAL_VECT_Y,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NORMAL_VECT_Z])
-        #beam_radius = dbLinkBudget.TRSP(dbLinkBudget.TRSP.TRSP_ID == r[dbLinkBudget.Earth_coord_GW.TRSP_ID]).BEAM_TX_RADIUS * np.pi / 180
-        #beam_centers_lonlat, beam_contour_ll = display_2D_sat_and_beams(az, elev, nadir_to_disp, pos_to_disp, normal_vector_to_disp, beam_radius)
-        a=1
-        #if len(beam_centers_lonlat)>1 and len(beam_contour_ll)>1:
-        if a==1:
-            features.append({"type": "Feature",
-                         "geometry": {
-                             "type": "Point",
-                             "coordinates": [dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON, dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT, (dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE)*1000/2]
-                         },
-                         "properties": {
-                             "title": "SAT",
-                             "Height": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE,
-                             "SAT ID": r[dbLinkBudget.Earth_coord_GW.SAT_ID],
-                             "Job ID": r[dbLinkBudget.Earth_coord_GW.Job_ID],
-                             "FOVBottomRadius": (dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE)*1000*np.tan((np.pi/180)*(dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).FOV_RADIUS)),
-                             "Payload ID": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).PAYLOAD_ID,
-                             "Lat": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT,
-                             "Lon": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON,
-                             "ThreeDB": (dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE)*1000*np.tan((np.pi/180)*dbLinkBudget.TRSP(dbLinkBudget.TRSP.TRSP_ID == r[dbLinkBudget.Earth_coord_GW.TRSP_ID]).BEAM_TX_THETA_3DB),
-                         }
-                         })
-        #else:
-            #logger.warning("You ought to know that %s" % "the transponder calculation has failed")
-    np.savetxt('az.out', azprint, delimiter=',')
+        for t in transponders:
+            az = t[dbLinkBudget.TRSP.BEAM_TX_CENTER_AZ_ANT] * np.pi / 180
+            azprint.append(az)
+            elev = t[dbLinkBudget.TRSP.BEAM_TX_CENTER_EL_ANT] * np.pi / 180
+            #nadir_to_disp = np.array([dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_X_ECEF,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_Y_ECEF,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_Z_ECEF])
+            #pos_to_disp = np.array([dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).POS_X_ECEF,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).POS_Y_ECEF,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).POS_Z_ECEF])
+            #normal_vector_to_disp = np.array([dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NORMAL_VECT_X,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NORMAL_VECT_Y,dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NORMAL_VECT_Z])
+            #beam_radius = dbLinkBudget.TRSP(dbLinkBudget.TRSP.TRSP_ID == r[dbLinkBudget.Earth_coord_GW.TRSP_ID]).BEAM_TX_RADIUS * np.pi / 180
+            #beam_centers_lonlat, beam_contour_ll = display_2D_sat_and_beams(az, elev, nadir_to_disp, pos_to_disp, normal_vector_to_disp, beam_radius)
+            a=1
+            #if len(beam_centers_lonlat)>1 and len(beam_contour_ll)>1:
+            if a==1:
+                features.append({"type": "Feature",
+                             "geometry": {
+                                 "type": "Point",
+                                 "coordinates": [dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON, dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT, (dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE)*1000/2]
+                             },
+                             "properties": {
+                                 "title": "SAT",
+                                 "Height": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE,
+                                 "SAT ID": r[dbLinkBudget.Earth_coord_GW.SAT_ID],
+                                 "Job ID": r[dbLinkBudget.Earth_coord_GW.Job_ID],
+                                 "Payload ID": r[dbLinkBudget.Earth_coord_GW.PAYLOAD_ID],
+                                 "Lat": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT,
+                                 "Lon": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON,
+                                 "ThreeDB": (dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE)*1000*np.tan((np.pi/180)*t[dbLinkBudget.TRSP.BEAM_TX_THETA_3DB]),
+                                 "Nadir ecef": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_X_ECEF,
+                                 "TRSP ID": t[dbLinkBudget.TRSP.TRSP_ID],
+                                 "az": t[dbLinkBudget.TRSP.BEAM_TX_CENTER_AZ_ANT] * np.pi / 180,
+                                 "elev": t[dbLinkBudget.TRSP.BEAM_TX_CENTER_EL_ANT] * np.pi / 180,
+                             }
+                             })
     return response.json({"type": "FeatureCollection", 'features': features})
 
 
