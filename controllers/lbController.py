@@ -680,10 +680,11 @@ def get_geojson():
                      "Job ID": r[dbLinkBudget.EARTH_coord_VSAT.Job_ID],
                      "EIRP": r[dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP],
                      "ELEVATION": r[dbLinkBudget.EARTH_coord_VSAT.ELEVATION],
+                     "SAT_GPT": r[dbLinkBudget.EARTH_coord_VSAT.SAT_GPT],
                      "Lat": r[dbLinkBudget.EARTH_coord_VSAT.LAT],
                      "Lon": r[dbLinkBudget.EARTH_coord_VSAT.LON],
                  }
-                 } for r in rows if r[dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP] is not None]  # TODO : Extend to include more information form database #hacky way to ignore NONEs
+                 } for r in rows if r[dbLinkBudget.EARTH_coord_VSAT.ELEVATION] is not None]  # TODO : Extend to include more information form database #hacky way to ignore NONEs
     return response.json({"type": "FeatureCollection", 'features': features})
 
 

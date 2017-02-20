@@ -112,6 +112,19 @@
         <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">▼</button></td>
     </tr>
 
+               <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
+        <td><input type="checkbox" id="showSAT_GPTCheckbox"></td>
+        <td> <font color="white" size="3">SAT_GPT  </font>
+            <!--<span data-bind="text: name, visible: !$parent.isSelectableLayer($data)"></span>
+            <select data-bind="visible: $parent.isSelectableLayer($data), options: $parent.baseLayers, optionsText: 'name', value: $parent.selectedLayer"></select>-->
+        </td>
+        <td>
+            <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
+        </td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">▲</button></td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">▼</button></td>
+    </tr>       
+            
     <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
         <td><input type="checkbox" id="showTRSPCheckbox"></td>
         <td> <font color="white" size="3">Transponders              </font>
@@ -148,6 +161,7 @@
             var viewModel = {
                 EIRPmin: 31.1984391831,
                 ELEVATIONmin: 57,
+                SAT_GPTmin: 1.6,
                 Tmin: 282,  //need to write a function to determin minimum temperature
             };
             //ajax('{{=URL('lbController', 'test')}},[],'target')
@@ -179,6 +193,19 @@
                     entity.billboard = undefined;
                     entity.point = new Cesium.PointGraphics({
                         color: Cesium.Color.fromBytes((((entity.properties.ELEVATION-viewModel.ELEVATIONmin)))*5.875,0,(1/(entity.properties.ELEVATION-viewModel.ELEVATIONmin))*3020.875,210),
+                        pixelSize: 8,
+                        scaleByDistance : new Cesium.NearFarScalar(.3e7, 1,3.5e7, 0.01),
+                    })
+                };
+            });
+            var SAT_GPT = new Cesium.GeoJsonDataSource();
+            SAT_GPT.load('{{=URL('lbController', 'get_geojson',args=[request.args(0)])}}').then(function(){
+                var entities = SAT_GPT.entities.values;
+                for (var i = 0; i < entities.length; i++) {
+                    var entity = entities[i];
+                    entity.billboard = undefined;
+                    entity.point = new Cesium.PointGraphics({
+                        color: Cesium.Color.fromBytes(0,((entity.properties.SAT_GPT-viewModel.SAT_GPTmin))*220.875,0,210),
                         pixelSize: 8,
                         scaleByDistance : new Cesium.NearFarScalar(.3e7, 1,3.5e7, 0.01),
                     })
@@ -317,6 +344,24 @@
                     }
                 }
             }, false);
+            
+            var checkbox7 = document.getElementById('showSAT_GPTCheckbox');
+            checkbox7.addEventListener('change', function() {
+                // Checkbox state changed.
+                if (checkbox7.checked) {
+                    // Show if not shown.
+                    if (!viewer.dataSources.contains(SAT_GPT)) {
+                        viewer.dataSources.add(SAT_GPT);
+                       // viewer.zoomTo(ELEVATION, new Cesium.HeadingPitchRange(40,-90,9000000));
+                    }
+                } else {
+                    // Hide if currently shown.
+                    if (viewer.dataSources.contains(SAT_GPT)) {
+                        viewer.dataSources.remove(SAT_GPT);
+                    }
+                }
+            }, false);
+            
             var checkbox4 = document.getElementById('showFOVCheckbox');
             checkbox4.addEventListener('change', function() {
                 // Checkbox state changed.
