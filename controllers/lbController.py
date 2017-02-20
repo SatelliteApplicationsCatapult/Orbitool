@@ -353,6 +353,8 @@ def create_download():
     Creates downloadable file.
     This is called in update.html under options
 
+    TODO: consider using lists instead of dicionaries so that the download excel is ordered.
+    TODO: at RX fields
     """
     #VSAT
     rowt = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect("LON",
