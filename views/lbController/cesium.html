@@ -237,6 +237,7 @@
                 var entities = TRSP.entities.values;
                 for (var i = 0; i < entities.length; i++) {
                     var entity = entities[i];
+                    entity.billboard = undefined;
                     entity.cylinder = new Cesium.CylinderGraphics({
                         length: entity.properties.Height*1000,
                         topRadius: 0,
@@ -245,7 +246,7 @@
                         outline: true,
                         numberOfVerticalLines: 0,
                         material : Cesium.Color.fromRandom({alpha : 0.01}),
-                   })     
+                   })
                 };
             });
             //Sandcastle.addToolbarButton('Toggle VSAT', function(){
