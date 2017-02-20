@@ -535,7 +535,7 @@ def run():
             EARTH_COORD_VSAT_dict = compute_transponder_assignment(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, 'RTN', 'UP')
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).gw2trsp == True:
         if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).simulator_mode == 'FWD':
-            EARTH_COORD_GW_dict = compute_transponder_assignment(EARTH_COORD_GW_dict, SAT_dict, TRSP_dict, 'FWD', 'DN') #BUG this should be EARTH_COORD_GW_dict
+            EARTH_COORD_GW_dict = compute_transponder_assignment(EARTH_COORD_GW_dict, SAT_dict, TRSP_dict, 'FWD', 'UP') #BUG this should be EARTH_COORD_GW_dict
         elif dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).simulator_mode == 'RTN':
             EARTH_COORD_GW_dict = compute_transponder_assignment(EARTH_COORD_GW_dict, SAT_dict, TRSP_dict, 'RTN', 'DN') #BUG this should be EARTH_COORD_GW_dict
     #----------------- 3/ Compute RX/TX COV geometric params -------------------
@@ -558,7 +558,7 @@ def run():
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).sat_up_perf == True:
         EARTH_COORD_VSAT_dict = compute_satellite_perfos(EARTH_COORD_VSAT_dict, TRSP_dict, 'UP')
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).sat_dwn_perf == True:
-        EARTH_COORD_VSAT_dict = compute_satellite_perfos(EARTH_COORD_VSAT_dict, TRSP_dict, 'DN')
+        EARTH_COORD_GW_dict = compute_satellite_perfos(EARTH_COORD_GW_dict, TRSP_dict, 'DN')
     #if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).comp_link_budget == True: #  NOT YET IMPLEMENTED IN THE LIBRARY
     #    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).simulator_mode == 'FWD':
     #        EARTH_COORD_VSAT_dict = compute_lkb_perfos(EARTH_COORD_GW_dict,EARTH_COORD_VSAT_dict, GW_dict, VSAT_dict, 'FWD', 'disregard', 'disregard', 'disregard', 'compute', 'disregard')

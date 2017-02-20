@@ -183,7 +183,8 @@ dbLinkBudget.define_table('TRSP',
                           Field('BEAM_TX_THETA_3DB','double',requires=IS_NOT_EMPTY()),
                           Field('BEAM_TX_EFF','double',requires=IS_NOT_EMPTY()),
                           Field('BEAM_TX_RADIUS','double',requires=IS_NOT_EMPTY()),
-                          Field('MAX_GAIN_TX','double'))
+                          Field('MAX_GAIN_TX','double'),
+                          Field('MAX_GAIN_RX','double'))
 dbLinkBudget.define_table('SAT',
                           Field('SAT_ID','string',requires=IS_NOT_EMPTY()),#,unique = True),
                           Field('NADIR_LON','double',requires=IS_NOT_EMPTY()),
@@ -340,6 +341,18 @@ dbLinkBudget.define_table('EARTH_coord_VSAT',
                           Field('CSIM0','double'),
                          Field('CSN0_DN','double'),
                          Field('CSI0_DN','double'),
-                         Field('GPT','double'))
+                         Field('GPT','double'),
+                         Field('SAT_GAIN_RX', 'double'),
+                         Field('BEAM_RX_CENTER_EL_ANT','double'),
+                         Field('CENTRAL_FQ_UP','double'),
+                         Field('BEAM_RX_CENTER_AZ_ANT','double'),
+                         Field('BEAM_RX_THETA_3DB','double'),
+                         Field('PROPAG_UP','double'),
+                         Field('SAT_GPT','double'),
+                         Field('BEAM_RX_TYPE','string'),
+                         Field('FSL_UP','double'),
+                         Field('SYS_TEMP','double'),
+                         Field('BEAM_RX_ANT_DIAM','double'),
+                         Field('MAX_GAIN_RX','double'))
 dbLinkBudget.executesql('CREATE INDEX IF NOT EXISTS VSAT_index ON EARTH_coord_VSAT (Job_ID);')
 dbLinkBudget.executesql('CREATE INDEX IF NOT EXISTS GW_index ON Earth_coord_GW (Job_ID);')
