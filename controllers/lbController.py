@@ -12,6 +12,7 @@ from lib_lkb.propa_func import *
 from lib_lkb.functions_to_use import *
 from lib_lkb.xl_func import *
 from lib_lkb.compute_high_level_func import *
+from lib_lkb.display_func import *
 import subprocess
 from collections import OrderedDict
 
@@ -45,6 +46,12 @@ def input():
     dbLinkBudget.Job.simulator_mode.writable = False
     dbLinkBudget.Job.sat_geo_params.readable = False
     dbLinkBudget.Job.sat_geo_params.writable = False
+    dbLinkBudget.Job.points2trsp.readable = False
+    dbLinkBudget.Job.points2trsp.writable = False
+    dbLinkBudget.Job.sat_fov.writable = False
+    dbLinkBudget.Job.sat_fov.readable = False
+    dbLinkBudget.Job.trsp_fov.writable = False
+    dbLinkBudget.Job.trsp_fov.writable = False
     dbLinkBudget.Job.points2trsp.readable = False
     dbLinkBudget.Job.points2trsp.writable = False
     dbLinkBudget.Job.gw2trsp.readable = False
@@ -204,6 +211,8 @@ def launch():
     dbLinkBudget.Job.file_up.readable = False
     dbLinkBudget.Job.job_name.writable = False
     dbLinkBudget.Job.description.writable = False
+    dbLinkBudget.Job.sat_fov.show_if = (dbLinkBudget.Job.sat_geo_params==True)
+    dbLinkBudget.Job.trsp_fov.show_if = (dbLinkBudget.Job.sat_geo_params==True)
     dbLinkBudget.Job.propa_feeder_link.show_if = (dbLinkBudget.Job.comp_gw_cover==True)
     dbLinkBudget.Job.propa_user_link.show_if = (dbLinkBudget.Job.comp_point_cover==True)
     dbLinkBudget.Job.sat_up_perf.show_if = (dbLinkBudget.Job.sat_geo_params==True)
@@ -515,20 +524,37 @@ def run():
         Refreshes the update page
 
     """
-    # TODO : extend to use input checklist and chose certain jobs, Damien Code required
-    #if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'CNES':
-    #    cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
-    #elif dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propaLib == 'OTHER1':
-    #    cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
-    #else:
-    #    cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
+
     file = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).file_up  # Find uploaded file
     job_id = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).id
     [SAT_dict, TRSP_dict, VSAT_dict, EARTH_COORD_GW_dict, GW_dict, EARTH_COORD_VSAT_dict,
      display_dict_VSAT] = load_objects_from_xl(os.path.join(request.folder, 'uploads', file))
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).sat_geo_params == True:
     #-----------------  1/ Compute SAT geometric params ------------------
-        SAT_dict = compute_sat_params(SAT_dict)
+        SAT_dict, nadir_ecef, pos_ecef, normal_vector = compute_sat_params(SAT_dict, True)
+    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).sat_fov == True:
+        values =  display_sat_field_of_views_for_cesium(nadir_ecef, pos_ecef, normal_vector, \
+                                                     SAT_dict['FOV_RADIUS']*np.pi/180, \
+                                                     SAT_dict['ROLL']*np.pi/180, \
+                                                     SAT_dict['PITCH']*np.pi/180, \
+                                                     SAT_dict['YAW']*np.pi/180)
+        lat = np.array([])
+        lon = np.array([])
+        count = np.array([])
+        for i in np.arange(0,np.size(values,0)/2):
+            lon = np.append(lon, values[2*i,:])
+            lat = np.append(lat, values[2*i+1,:])
+            count = np.append(count, np.full(63, i))
+            np.savetxt('lat1.txt',lat)
+            np.savetxt('lon1.txt',lon)
+            np.savetxt('count.txt',count)
+            sat_fov_dict = {'SAT_ID':count, 'LON':lon, 'LAT':lat}
+            read_array_to_db(dbLinkBudget.SAT_FOV, sat_fov_dict, job_id)
+        #np.savetxt('vals.txt',values)
+        #np.savetxt('lat.txt',lat)
+        #sat_fov_dict = {'LON':lon, 'LAT':lat}
+        #np.savetxt('sat_fov_dict.txt',sat_fov_dict)
+        #read_array_to_db(dbLinkBudget.SAT_FOV, sat_fov_dict, job_id)
     #----------------- 2/ Assign sat to each point of coverage -----------
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).points2trsp == True:
         if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).simulator_mode == 'FWD':
@@ -560,7 +586,7 @@ def run():
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).sat_up_perf == True:
         EARTH_COORD_VSAT_dict = compute_satellite_perfos(EARTH_COORD_VSAT_dict, TRSP_dict, 'UP')
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).sat_dwn_perf == True:
-        EARTH_COORD_GW_dict = compute_satellite_perfos(EARTH_COORD_GW_dict, TRSP_dict, 'DN')
+        EARTH_COORD_VSAT_dict = compute_satellite_perfos(EARTH_COORD_VSAT_dict, TRSP_dict, 'DN')
     #if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).comp_link_budget == True: #  NOT YET IMPLEMENTED IN THE LIBRARY
     #    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).simulator_mode == 'FWD':
     #        EARTH_COORD_VSAT_dict = compute_lkb_perfos(EARTH_COORD_GW_dict,EARTH_COORD_VSAT_dict, GW_dict, VSAT_dict, 'FWD', 'disregard', 'disregard', 'disregard', 'compute', 'disregard')
@@ -569,6 +595,22 @@ def run():
     #                                                                           csim0_flag, \
     #                                                                           csn0_dn_flag, \
     #                                                                           csi0_dn_flag):
+
+    #### This is get transponder FOV
+    SAT_ID = 1 # this just for the example
+    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).trsp_fov == True:
+        beam_centers_lonlat, beam_contour_ll = display_2D_sat_and_beams_for_cesium(SAT_ID, SAT_dict['SAT_ID'], SAT_dict['PAYLOAD_ID'], nadir_ecef, pos_ecef, normal_vector, \
+                            TRSP_dict['PAYLOAD_ID'], TRSP_dict['BEAM_TX_CENTER_AZ_ANT'], TRSP_dict['BEAM_TX_CENTER_EL_ANT'], TRSP_dict['BEAM_TX_RADIUS'])
+        np.savetxt('transponder.txt',beam_contour_ll)
+        lat = np.array([])
+        lon = np.array([])
+        count = np.array([])
+        for i in np.arange(0,np.size( beam_contour_ll,0)/2):
+            lon = np.append(lon, beam_contour_ll[2*i,:])
+            lat = np.append(lat, beam_contour_ll[2*i+1,:])
+            count = np.append(count, np.full(63, i))
+            trsp_fov_dict = {'TRSP_ID':count,'LON':lon, 'LAT':lat}
+            read_array_to_db(dbLinkBudget.TRSP_FOV, trsp_fov_dict, job_id)
     read_array_to_db(dbLinkBudget.TRSP, TRSP_dict) #at the moment these write to new lines
     read_array_to_db(dbLinkBudget.SAT, SAT_dict)
     read_array_to_db(dbLinkBudget.EARTH_coord_VSAT, EARTH_COORD_VSAT_dict, job_id)
@@ -798,29 +840,55 @@ def get_geojson_FOV_CIRCLE():
     Returns:
         object: GeoJSON
     """
-    rows = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect()
+    rows = dbLinkBudget((dbLinkBudget.SAT_FOV.Job_ID == request.args(0))&(dbLinkBudget.SAT_FOV.SAT_ID >= 0)).iterselect()
+    coordinates = {}
+    coord = []
+    
+    for row in rows: 
+        if row[dbLinkBudget.SAT_FOV.SAT_ID] not in coordinates.keys() :
+              coordinates[row[dbLinkBudget.SAT_FOV.SAT_ID]] = []
+        coordinates[row[dbLinkBudget.SAT_FOV.SAT_ID]].append([row[dbLinkBudget.SAT_FOV.LON], row[dbLinkBudget.SAT_FOV.LAT]])
 
     features = [{"type": "Feature",
-                 "geometry": {
-                     "type": "Point",
-                     "coordinates": [dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON, dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT]
-                 },
+                  "geometry": {
+                  "type": "LineString",
+                   "coordinates": coordinates[i]
+                  },
                  "properties": {
-                     "title": "SAT",
-                     "Height": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE,
-                     "SAT ID": r[dbLinkBudget.Earth_coord_GW.SAT_ID],
-                     "Job ID": r[dbLinkBudget.Earth_coord_GW.Job_ID],
-                     "FOVBottomRadius": (dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE)*1000*np.tan((np.pi/180)*(dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).FOV_RADIUS)),
-                     "Payload ID": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).PAYLOAD_ID,
-                     "Lat": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT,
-                     "Lon": dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON,
-#                     "NADIR_LON": dbLinkBudget.Gateway(dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).EIRP_MAX,
-#                     "Bandwidth": dbLinkBudget.Gateway(
-#                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).BANDWIDTH,
-#                     "Diameter": dbLinkBudget.Gateway(
-#                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).DIAMETER
-                 }
-                 } for r in rows]
+                 "title": "SAT",
+                 "SAT ID": i}
+               } for i in coordinates.keys()]
+    
+    return response.json({"type": "FeatureCollection", 'features': features})
+
+def get_geojson_TRSP_FOV_CIRCLE():
+    """
+    Function to get the coordinates into a GeoJSON format
+    This adds the lat and longitudes for the SAT
+    Called in cesium.html
+
+    Returns:
+        object: GeoJSON
+    """
+    rows = dbLinkBudget((dbLinkBudget.TRSP_FOV.Job_ID == request.args(0))&(dbLinkBudget.TRSP_FOV.TRSP_ID >= 0)).iterselect()
+    coordinates = {}
+    coord = []
+    
+    for row in rows: 
+        if row[dbLinkBudget.TRSP_FOV.TRSP_ID] not in coordinates.keys() :
+              coordinates[row[dbLinkBudget.TRSP_FOV.TRSP_ID]] = []
+        coordinates[row[dbLinkBudget.TRSP_FOV.TRSP_ID]].append([row[dbLinkBudget.TRSP_FOV.LON], row[dbLinkBudget.TRSP_FOV.LAT]])
+
+    features = [{"type": "Feature",
+                  "geometry": {
+                  "type": "LineString",
+                   "coordinates": coordinates[i]
+                  },
+                 "properties": {
+                 "title": "TRSP",
+                 "SAT ID": i}
+               } for i in coordinates.keys()]
+    
     return response.json({"type": "FeatureCollection", 'features': features})
 
 def get_geojson_TRSP():

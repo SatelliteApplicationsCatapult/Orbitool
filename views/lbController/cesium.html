@@ -123,8 +123,8 @@
         </td>
         <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">▲</button></td>
         <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">▼</button></td>
-    </tr>       
-            
+    </tr>
+
     <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
         <td><input type="checkbox" id="showTRSPCheckbox"></td>
         <td> <font color="white" size="3">Transponders              </font>
@@ -167,6 +167,15 @@
             //ajax('{{=URL('lbController', 'test')}},[],'target')
             //var toolbar = document.getElementById('toolbar');
             //Cesium.knockout.applyBindings(viewModel, toolbar);
+
+            viewer.entities.add({
+                position : Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883),
+                point : {
+                    color : Cesium.Color.RED,
+                    pixelSize : 8
+                }
+            });
+
             var VSAT = new Cesium.GeoJsonDataSource();
             VSAT.load('{{=URL('lbController', 'get_geojson',args=[request.args(0)])}}').then(function(){
                 var entities = VSAT.entities.values;
@@ -248,18 +257,6 @@
                    })
                 };
             });
-           //var FOV_CIRCLE = new Cesium.GeoJsonDataSource();
-           //FOV_CIRCLE.load('{{=URL('lbController', 'get_geojson_FOV_CIRCLE',args=[request.args(0)])}}').then(function(){
-            //    var entities = FOV_CIRCLE.entities.values;
-            //    for (var i = 0; i < entities.length; i++) {
-            //        var entity = entities[i];
-            //        entity.circle = new Cesium.CircleGeometry({
-            //            center : Cesium.Cartesian3.fromDegrees(entity.properties.Lat,entity.properties.Lon),
-            //            radius: entity.properties.FOVBottomRadius,
-                        //material : Cesium.Color.fromRandom({alpha : 0.25}),
-            //       })
-            //    };
-            //});get_geojson_TRSP
             var TRSP = new Cesium.GeoJsonDataSource();
             TRSP.load('{{=URL('lbController', 'get_geojson_TRSP',args=[request.args(0)])}}').then(function(){
                 var entities = TRSP.entities.values;
@@ -277,9 +274,31 @@
                    })
                 };
             });
-            //Sandcastle.addToolbarButton('Toggle VSAT', function(){
-            //    VSAT.show = !VSAT.show;
-            //});
+            var FOV_CIRCLE = new Cesium.GeoJsonDataSource();
+            FOV_CIRCLE.load('{{=URL('lbController', 'get_geojson_FOV_CIRCLE',args=[request.args(0)])}}').then(function(dataSource) {
+                viewer.dataSources.add(dataSource);
+                var entities = dataSource.entities.values;
+                for (var i = 0; i < entities.length; i++) {
+            //For each entity, create a random color based on the state name.
+            //Some states have multiple entities, so we store the color in a
+            //hash so that we use the same color for the entire state.
+                    var entity = entities[i];
+                    entity.polyline.material = Cesium.Color.RED; // lines get displayed properly with red strok
+                }
+            });
+            var TRSP_FOV_CIRCLE = new Cesium.GeoJsonDataSource();
+            TRSP_FOV_CIRCLE.load('{{=URL('lbController', 'get_geojson_TRSP_FOV_CIRCLE',args=[request.args(0)])}}').then(function(dataSource) {
+                viewer.dataSources.add(dataSource);
+                var entities = dataSource.entities.values;
+                for (var i = 0; i < entities.length; i++) {
+            //For each entity, create a random color based on the state name.
+            //Some states have multiple entities, so we store the color in a
+            //hash so that we use the same color for the entire state.
+                    var entity = entities[i];
+                    entity.polyline.material = Cesium.Color.RED; // lines get displayed properly with red strok
+                }
+            });
+
             var checkbox = document.getElementById('showVSATCheckbox');
             checkbox.addEventListener('change', function() {
                 // Checkbox state changed.
@@ -344,7 +363,7 @@
                     }
                 }
             }, false);
-            
+
             var checkbox7 = document.getElementById('showSAT_GPTCheckbox');
             checkbox7.addEventListener('change', function() {
                 // Checkbox state changed.
@@ -361,7 +380,7 @@
                     }
                 }
             }, false);
-            
+
             var checkbox4 = document.getElementById('showFOVCheckbox');
             checkbox4.addEventListener('change', function() {
                 // Checkbox state changed.
@@ -400,8 +419,7 @@
                     }
                 }
             }, false);
-            //viewer.dataSources.add(GW);
-            //viewer.dataSources.add(FOV);
+            viewer.dataSources.add(FOV_CIRCLE);
             viewer.zoomTo(VSAT, new Cesium.HeadingPitchRange(40,-90,9000000));
             var credit = new Cesium.Credit('Catapult', '../static/images/saWhite26.png', 'http://sa.catapult.org.uk');
             viewer.scene.frameState.creditDisplay.addDefaultCredit(credit)
