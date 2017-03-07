@@ -147,6 +147,7 @@ dbLinkBudget.define_table('SAT_FOV',
                           Field('LAT','double',requires=IS_NOT_EMPTY()),)
 dbLinkBudget.define_table('TRSP_FOV',
                           Field('Job_ID',requires=IS_IN_DB(dbLinkBudget,'Job.id')),
+                          Field('SAT_ID','double',requires=IS_NOT_EMPTY()),
                           Field('TRSP_ID','double',requires=IS_NOT_EMPTY()),
                           Field('LON','double',requires=IS_NOT_EMPTY()),
                           Field('LAT','double',requires=IS_NOT_EMPTY()),)
