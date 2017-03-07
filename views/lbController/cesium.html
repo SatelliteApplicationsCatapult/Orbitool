@@ -65,7 +65,7 @@
     </tr>
      <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
         <td><input type="checkbox" id="showFOVCheckbox"></td>
-         <td> <font color="white" size="3">FOV              </font>
+         <td> <font color="white" size="3">Satellite Cone       </font>
             <!--<span data-bind="text: name, visible: !$parent.isSelectableLayer($data)"></span>
             <select data-bind="visible: $parent.isSelectableLayer($data), options: $parent.baseLayers, optionsText: 'name', value: $parent.selectedLayer"></select>-->
         </td>
@@ -75,6 +75,34 @@
         <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">▲</button></td>
         <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">▼</button></td>
     </tr>
+
+     <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
+        <td><input type="checkbox" id="showFOVCIRCLECheckbox"></td>
+         <td> <font color="white" size="3">Satellite FOV Circles        </font>
+            <!--<span data-bind="text: name, visible: !$parent.isSelectableLayer($data)"></span>
+            <select data-bind="visible: $parent.isSelectableLayer($data), options: $parent.baseLayers, optionsText: 'name', value: $parent.selectedLayer"></select>-->
+        </td>
+        <td>
+            <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
+        </td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">▲</button></td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">▼</button></td>
+    </tr>
+
+
+    <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
+        <td><input type="checkbox" id="showTRSPCheckbox"></td>
+        <td> <font color="white" size="3">Transponder FOV             </font>
+            <!--<span data-bind="text: name, visible: !$parent.isSelectableLayer($data)"></span>
+            <select data-bind="visible: $parent.isSelectableLayer($data), options: $parent.baseLayers, optionsText: 'name', value: $parent.selectedLayer"></select>-->
+        </td>
+        <td>
+            <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
+        </td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">▲</button></td>
+        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">▼</button></td>
+    </tr>
+
      <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
         <td><input type="checkbox" id="showGWCheckbox"></td>
         <td> <font color="white" size="3">Gateways              </font>
@@ -125,19 +153,6 @@
         <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">▼</button></td>
     </tr>
 
-    <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
-        <td><input type="checkbox" id="showTRSPCheckbox"></td>
-        <td> <font color="white" size="3">Transponders              </font>
-            <!--<span data-bind="text: name, visible: !$parent.isSelectableLayer($data)"></span>
-            <select data-bind="visible: $parent.isSelectableLayer($data), options: $parent.baseLayers, optionsText: 'name', value: $parent.selectedLayer"></select>-->
-        </td>
-        <td>
-            <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
-        </td>
-        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">▲</button></td>
-        <td><button type="button" class="cesium-button" data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">▼</button></td>
-    </tr>
-
                             <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
         <td><input type="checkbox" id="centreCheckbox"></td>
         <td> <font color="white" size="3">Centre on SATs (dev)  </font>
@@ -164,17 +179,6 @@
                 SAT_GPTmin: 1.6,
                 Tmin: 282,  //need to write a function to determin minimum temperature
             };
-            //ajax('{{=URL('lbController', 'test')}},[],'target')
-            //var toolbar = document.getElementById('toolbar');
-            //Cesium.knockout.applyBindings(viewModel, toolbar);
-
-            viewer.entities.add({
-                position : Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883),
-                point : {
-                    color : Cesium.Color.RED,
-                    pixelSize : 8
-                }
-            });
 
             var VSAT = new Cesium.GeoJsonDataSource();
             VSAT.load('{{=URL('lbController', 'get_geojson',args=[request.args(0)])}}').then(function(){
@@ -257,45 +261,24 @@
                    })
                 };
             });
-            var TRSP = new Cesium.GeoJsonDataSource();
-            TRSP.load('{{=URL('lbController', 'get_geojson_TRSP',args=[request.args(0)])}}').then(function(){
-                var entities = TRSP.entities.values;
-                for (var i = 0; i < entities.length; i++) {
-                    var entity = entities[i];
-                    entity.billboard = undefined;
-                    entity.cylinder = new Cesium.CylinderGraphics({
-                        length: entity.properties.Height*1000,
-                        topRadius: 0,
-                        bottomRadius: entity.properties.ThreeDB,
-                        outlineWidth : 2,
-                        outline: true,
-                        numberOfVerticalLines: 0,
-                        material : Cesium.Color.fromRandom({alpha : 0.01}),
-                   })
-                };
-            });
             var FOV_CIRCLE = new Cesium.GeoJsonDataSource();
-            FOV_CIRCLE.load('{{=URL('lbController', 'get_geojson_FOV_CIRCLE',args=[request.args(0)])}}').then(function(dataSource) {
-                viewer.dataSources.add(dataSource);
-                var entities = dataSource.entities.values;
+            FOV_CIRCLE.load('{{=URL('lbController', 'get_geojson_FOV_CIRCLE',args=[request.args(0)])}}').then(function() {
+                var entities = FOV_CIRCLE.entities.values;
                 for (var i = 0; i < entities.length; i++) {
-            //For each entity, create a random color based on the state name.
-            //Some states have multiple entities, so we store the color in a
-            //hash so that we use the same color for the entire state.
                     var entity = entities[i];
-                    entity.polyline.material = Cesium.Color.RED; // lines get displayed properly with red strok
+                    entity.polyline.material = Cesium.Color.BLACK;
+                    entity.polyline.width = .8;
+                    entity.polyline.loop = true;// lines get displayed properly with red strok
                 }
             });
             var TRSP_FOV_CIRCLE = new Cesium.GeoJsonDataSource();
-            TRSP_FOV_CIRCLE.load('{{=URL('lbController', 'get_geojson_TRSP_FOV_CIRCLE',args=[request.args(0)])}}').then(function(dataSource) {
-                viewer.dataSources.add(dataSource);
-                var entities = dataSource.entities.values;
+            TRSP_FOV_CIRCLE.load('{{=URL('lbController', 'get_geojson_TRSP_FOV_CIRCLE',args=[request.args(0)])}}').then(function() {
+                var entities = TRSP_FOV_CIRCLE.entities.values;
                 for (var i = 0; i < entities.length; i++) {
-            //For each entity, create a random color based on the state name.
-            //Some states have multiple entities, so we store the color in a
-            //hash so that we use the same color for the entire state.
                     var entity = entities[i];
-                    entity.polyline.material = Cesium.Color.RED; // lines get displayed properly with red strok
+                    entity.polyline.material = Cesium.Color.LIGHTGREY;
+                    entity.polyline.width = .8;
+                    entity.polyline.loop = true;
                 }
             });
 
@@ -409,17 +392,33 @@
                 // Checkbox state changed.
                 if (checkbox6.checked) {
                     // Show if not shown.
-                    if (!viewer.dataSources.contains(TRSP)) {
-                        viewer.dataSources.add(TRSP);
+                    if (!viewer.dataSources.contains(TRSP_FOV_CIRCLE)) {
+                        viewer.dataSources.add(TRSP_FOV_CIRCLE);
                     }
                 } else {
                     // Hide if currently shown.
-                    if (viewer.dataSources.contains(TRSP)) {
-                        viewer.dataSources.remove(TRSP);
+                    if (viewer.dataSources.contains(TRSP_FOV_CIRCLE)) {
+                        viewer.dataSources.remove(TRSP_FOV_CIRCLE);
                     }
                 }
             }, false);
-            viewer.dataSources.add(FOV_CIRCLE);
+
+            var checkbox8 = document.getElementById('showFOVCIRCLECheckbox');
+            checkbox8.addEventListener('change', function() {
+                // Checkbox state changed.
+                if (checkbox8.checked) {
+                    // Show if not shown.
+                    if (!viewer.dataSources.contains(FOV_CIRCLE)) {
+                        viewer.dataSources.add(FOV_CIRCLE);
+                       // viewer.zoomTo(ELEVATION, new Cesium.HeadingPitchRange(40,-90,9000000));
+                    }
+                } else {
+                    // Hide if currently shown.
+                    if (viewer.dataSources.contains(FOV_CIRCLE)) {
+                        viewer.dataSources.remove(FOV_CIRCLE);
+                    }
+                }
+            }, false);
             viewer.zoomTo(VSAT, new Cesium.HeadingPitchRange(40,-90,9000000));
             var credit = new Cesium.Credit('Catapult', '../static/images/saWhite26.png', 'http://sa.catapult.org.uk');
             viewer.scene.frameState.creditDisplay.addDefaultCredit(credit)

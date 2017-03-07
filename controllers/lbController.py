@@ -588,10 +588,9 @@ def run():
     #                                                                           csn0_dn_flag, \
     #                                                                           csi0_dn_flag):
 
-    #### This is get transponder FOV
-    #SAT_ID = 2 # this just for the example
+    #### This is get transponder FOV circles
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).trsp_fov == True:
-        for SAT_ID in SAT_dict['SAT_ID']:
+        for SAT_ID in map(int,SAT_dict['SAT_ID']):
             beam_centers_lonlat, beam_contour_ll = display_2D_sat_and_beams_for_cesium(SAT_ID, SAT_dict['SAT_ID'], SAT_dict['PAYLOAD_ID'], nadir_ecef, pos_ecef, normal_vector, \
                                 TRSP_dict['PAYLOAD_ID'], TRSP_dict['BEAM_TX_CENTER_AZ_ANT'], TRSP_dict['BEAM_TX_CENTER_EL_ANT'], TRSP_dict['BEAM_TX_RADIUS'])
             lat = np.array([])
@@ -604,7 +603,6 @@ def run():
                 count = np.append(count, np.full(63, i+1))
                 SAT_IDs = np.append(SAT_IDs, np.full(63, SAT_ID))
                 trsp_fov_dict = {'SAT_ID': SAT_IDs,'TRSP_ID':count,'LON':lon, 'LAT':lat}
-                np.savetxt('satids.txt',trsp_fov_dict)
                 read_array_to_db(dbLinkBudget.TRSP_FOV, trsp_fov_dict, job_id)
     read_array_to_db(dbLinkBudget.TRSP, TRSP_dict) #at the moment these write to new lines
     read_array_to_db(dbLinkBudget.SAT, SAT_dict)
