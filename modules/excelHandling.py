@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from gluon import *
-import xlrd 
+import xlrd
 import numpy as np
 from collections import OrderedDict
+import xlsxwriter
 
 def mult2(number):
     inter = number * 2
@@ -11,6 +11,15 @@ def mult2(number):
 
 def load_objects_from_xl(file_name):
 
+    """
+    Loads the excel file worksheets into dictionaries
+
+    Args:
+        object: excel file names
+
+    Returns:
+        object: dictionaries
+    """
     SAT_dict={}
     TRSP_dict={}
     VSAT_dict={}
@@ -75,16 +84,18 @@ def load_objects_from_xl(file_name):
 
 
     return SAT_dict, TRSP_dict, VSAT_dict, EARTH_COORD_GW_dict,  GW_dict, EARTH_COORD_VSAT_dict, display_dict_VSAT
-####################################################################################################
 
-#def load_objects(file_name, wksheet_name):
+
 def load_object(worksheet):
+    """
+    Converts worksheet to dictionary
+    Args:
+        object: worksheet
+
+    Returns:
+        object: dictionary
+    """
     d=OrderedDict({})
-#    #
-#    workbook = xlrd.open_workbook(file_name)
-#    worksheet = workbook.sheet_by_name(wksheet_name)
-#    #
-#
     for curr_col in range(0, worksheet.ncols):
         liste_elts = worksheet.col_values(curr_col)
 
@@ -92,51 +103,46 @@ def load_object(worksheet):
 
     return d
 
-def compute_sat_params(SAT_dict, flag_intermediate_params=False):
-    ''' This function computes main satellite characteristics, needed for other
-    calculation :
-    - nadir in ECEF coordinates
-    - satellite position in ECEF coordinates
-    '''
+def create_saving_worksheet(filename, my_dict, wksht_name, my_dict2, wksht_name2, my_dict3, wksht_name3):
+    """
+    Creates an excel worksheet.
+    Used in create_download() in lbController.py
 
-    nadir                    =   np.array([SAT_dict['NADIR_LON'],SAT_dict['NADIR_LAT']])
+    Args:
+        filename:
+        my_dict:
+        wksht_name:
 
+    Returns:
 
-    nadir_ecef               =   ll_geod2ecef(nadir) # switch to ecef set of coordinates
-    SAT_dict['NADIR_X_ECEF'] =   nadir_ecef[0]   
-    SAT_dict['NADIR_Y_ECEF'] =   nadir_ecef[1]   
-    SAT_dict['NADIR_Z_ECEF'] =   nadir_ecef[2]   
-
-
-    pos                      =   compute_sat_position(nadir_ecef, SAT_dict['DISTANCE'])
-    SAT_dict['SAT_POS_X_ECEF']   =   pos[0]
-    SAT_dict['SAT_POS_Y_ECEF']   =   pos[1]
-    SAT_dict['SAT_POS_Z_ECEF']   =   pos[2]
-
-
-    normal_vector              =   compute_normal_vector(SAT_dict['INCLINATION_ANGLE']*np.pi/180, nadir_ecef, SAT_dict['FLAG_ASC_DESC'])
-    SAT_dict['NORMAL_VECT_X']   =   normal_vector[0]
-    SAT_dict['NORMAL_VECT_Y']   =   normal_vector[1]
-    SAT_dict['NORMAL_VECT_Z']   =   normal_vector[2]
-
-
-
-    if flag_intermediate_params:
-        return SAT_dict, nadir_ecef, pos, normal_vector
-    else:
-        return SAT_dict
-
-def create_saving_worksheet(filename, my_dict, wksht_name):
-    import xlsxwriter
+    """
 
     workbook = xlsxwriter.Workbook(filename)
-    wksht = workbook.add_worksheet(wksht_name)
 
+    wksht = workbook.add_worksheet(wksht_name)
     #write_keys
     wksht.write_row(0,0,my_dict.keys())
     # write values
     counter = 0
     for key in my_dict.keys():
         wksht.write_column(1,counter,my_dict[key]) #Needs to be of list format, not a single variable
+        counter += 1
+
+    wksht2 = workbook.add_worksheet(wksht_name2)
+    #write_keys
+    wksht2.write_row(0,0,my_dict2.keys())
+    # write values
+    counter = 0
+    for key in my_dict2.keys():
+        wksht2.write_column(1,counter,my_dict2[key]) #Needs to be of list format, not a single variable
+        counter += 1
+
+    wksht3 = workbook.add_worksheet(wksht_name3)
+    #write_keys
+    wksht3.write_row(0,0,my_dict3.keys())
+    # write values
+    counter = 0
+    for key in my_dict3.keys():
+        wksht3.write_column(1,counter,my_dict3[key]) #Needs to be of list format, not a single variable
         counter += 1
     workbook.close()

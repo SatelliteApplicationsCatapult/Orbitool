@@ -24,7 +24,7 @@
 $(document).ready(function(){
     var jsonObj;
     var jsonArray =[];
-    $.get('{{=URL('default','get_geojson',args=44)}}', function(json) {
+    $.get('{{=URL('lbController','get_geojson',args=44)}}', function(json) {
         jsonObj = json;
         console.log(jsonObj.features[1]);
         console.log(jsonObj.features.length);

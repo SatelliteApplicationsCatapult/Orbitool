@@ -1,3 +1,4 @@
+{{response.title='Select'}}
 {{extend 'layout.html'}}
 <head>
     <script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.12.3.js">
@@ -13,31 +14,42 @@
     <table id="job_table" class="table table-striped hover display" cellspacing="0" width="100%">
         <thead>
              <tr>
-                <th>Job Nme </th>
+                <th>ID</th>
+                <th>Name </th>
                 <th>Sim Mode</th>
                 <th>Date</th>
+                <th>Links</th>
             </tr>
         </thead>
     </table>
     {{include}}
 </body>
-<script>
+<script type="text/javascript">
 $(document).ready(function(){
     var job_table = $("#job_table").DataTable({
-        select:true,
+        select:false,
         data:  {{=job}},
         columns: [
+            { data: 'id' },
             { data: 'job_name' },
             { data: 'simulator_mode' },
-            { data: 'Date'},
-            // 'id' omitted to show that you can
-            // use only the fields you choose
+            { data: 'Date'}, 
+            {width: '190px', "defaultContent": '<button class="btn-update" type="button">Update Page</button> <button class="btn-launch" type="button">Launch Page</button>'}
         ],
-        order: [[2,'desc']]
+        order: [[3,'desc']]
     });
-    job_table.on('click','tr',function(){
-        var data = job_table.row(this).data();
-        window.location = 'view_db/' +data['id'];
-    });
+    //Button links to the ID of the row
+    $('#job_table tbody').on( 'click', '.btn-update',  function (e) {
+        var data = job_table.row( $(this).parents('tr') ).data();
+        window.location = 'update/' +data['id'];
+    } );
+    $('#job_table tbody').on( 'click', '.btn-launch', function (e) {
+        var data = job_table.row( $(this).parents('tr') ).data();
+        window.location = 'launch/' +data['id'];
+    } );
+//    job_table.on('click','tr',function(){
+//        var data = job_table.row(this).data();
+//        window.location = 'update/' +data['id'];
+//    });
 });
 </script>

@@ -1,0 +1,55 @@
+{{response.title='Launch page'}}
+{{extend 'layout.html'}}
+<head>
+    <script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.12.3.js">
+	</script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js">
+	</script>
+    <script  type="text/javascript" src="https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js">
+    </script>
+</head>
+<body>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+    <div style="float:left; width:50%;padding:10px;height:750px;overflow: auto">
+        <h1>
+            Launch page
+        </h1>
+        {{=form}}
+    </div>
+    <div class = "Bwidget">
+        <h1>Actions</h1>
+        <button id="run" class="btn">Launch calculation</button>
+        <button class="btn" id="processed">
+            Out to Spreadsheet
+        </button>
+        
+        <button class="btn" id="cesium">
+            Plot in Cesium
+        </button>
+        {{if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).processed == True:}}
+        {{pass}}
+        <button id="copy" class="btn">Copy</button>
+        </div>
+    <div id="selected"  style="float:right; width:50%;padding:30px;height:700px;overflow: auto">
+        
+        
+    </div>
+</body>
+<script type="text/javascript" >
+
+$(document).ready(function(){
+    $("#run").click(function(){
+        window.location="{{=URL('run',args = request.args(0))}}";
+    });
+    $("#copy").click(function(){
+        window.location="{{=URL('copy',args = request.args(0))}}";
+    });
+    $("#processed").click(function(){
+        //window.location="{{=URL('download',args = dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).processed_file)}}";
+        window.location="{{=URL('create_download',args = request.args(0))}}";
+    });
+    $("#cesium").click(function(){
+        window.open("{{=URL('cesium',args = request.args(0))}}");
+    });
+});
+</script>
