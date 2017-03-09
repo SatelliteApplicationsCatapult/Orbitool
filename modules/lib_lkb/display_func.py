@@ -182,4 +182,148 @@ def display_sat_field_of_views(nadir_ecef, sat_pos_ecef, normal_vector, sat_fov_
         sat_fov_contour_ll = np.append(sat_fov_contour_ll, mv_ll, axis=1)
 
     return sat_fov_contour_ll
-#------------------------------------------------------------------------------        
+#------------------------------------------------------------------------------    
+
+
+#------------------------------------------------------------------------------
+def display_sat_field_of_views_for_cesium(nadir_ecef, sat_pos_ecef, normal_vector, sat_fov_radius, roll, pitch, yaw):
+    ''' 
+    display field of views of one or many satellites
+    warning : sat_fov_radius is in radian already !!! (not in degrees)
+    '''
+     # for each beam
+    counter = 0
+    
+    nadir_ecef = np.atleast_2d(nadir_ecef)
+    sat_pos_ecef = np.atleast_2d(sat_pos_ecef)
+    normal_vector = np.atleast_2d(normal_vector)
+    
+    for i in np.arange(0, np.size(nadir_ecef)/3):
+        #compute contour
+        mv = compute_beam_contour(np.array([0,0]), sat_fov_radius[i]) #6.7
+        
+        # convert contour in ecef and then lonlat coord
+        nadir_ecef_disp = np.outer(nadir_ecef[:,i], np.ones(np.size(mv,1)))
+        pos_disp = np.outer(sat_pos_ecef[:,i], np.ones(np.size(mv,1)))
+        roll_disp  = np.ones(np.size(mv,1))   * roll[i]
+        pitch_disp = np.ones(np.size(mv,1))   * pitch[i]
+        yaw_disp   = np.ones(np.size(mv,1))   * yaw[i]
+        normal_vector_disp = np.outer(normal_vector[:,i], np.ones(np.size(mv,1)))
+        points_ecef = compute_az_elev_to_ecef(mv, \
+                                nadir_ecef_disp, \
+                                pos_disp, \
+                                normal_vector_disp, \
+                                roll = roll_disp, \
+                                pitch = pitch_disp, \
+                                yaw = yaw_disp)
+                                
+        mv_ll = ecef2ll_geod(points_ecef)
+        
+        #save contour
+        if counter == 0:
+            sat_fov_contour_ll = mv_ll
+        else:
+            sat_fov_contour_ll = np.vstack((sat_fov_contour_ll, mv_ll))
+            
+        counter += 1
+
+    return sat_fov_contour_ll
+#------------------------------------------------------------------------------     
+
+    
+#------------------------------------------------------------------------------
+def display_2D_sat_and_beams_for_cesium(SAT_ID, sat_ids, sat_pl_ids, nadir_ecef, sat_pos_ecef, normal_vector, \
+                                        trsp_pl_ids, trsp_beam_centers_az, trsp_beam_centers_el, trsp_beams_radius):
+    '''
+    display nadir and beam centers and contours of ONE satellite
+    
+    CAREFUL : SAT_ID is a string !!!    
+    
+    '''
+    
+    #first convert to string if not already done the various IDs
+    if not(sat_ids.dtype.char == 'S') :
+        sat_ids = sat_ids.astype('int').astype('string')
+        
+    if not(type(SAT_ID)== np.ndarray):
+        SAT_ID = str(SAT_ID)
+    else:
+        if not(SAT_ID.dtype.char == 'S') :
+            SAT_ID = SAT_ID.astype('int').astype('string')
+    
+    
+    # find right satellite and right parameters of the SAT_dict to use
+    index_satellite               =   np.flatnonzero(sat_ids == SAT_ID)
+    
+    # if no satellite found break
+    if np.size(index_satellite) == 0:
+        print('NO SAT FOUND')
+        return np.array([]), np.array([])
+    
+    nadir_ecef                    =   nadir_ecef[:,index_satellite]
+    sat_pos_ecef                  =   sat_pos_ecef[:,index_satellite]
+    normal_vector                 =   normal_vector[:,index_satellite]
+    
+    # extract from TRSP_dict the parameters corresponding to this transponder
+    payload_id_of_sat             =   sat_pl_ids[index_satellite]
+    az_beam_centers               =   trsp_beam_centers_az[trsp_pl_ids == payload_id_of_sat] * np.pi/180
+    elev_beam_centers             =   trsp_beam_centers_el[trsp_pl_ids == payload_id_of_sat] * np.pi/180
+    beam_radius                   =   trsp_beams_radius[trsp_pl_ids == payload_id_of_sat] * np.pi/180
+    
+    az_beam_centers = az_beam_centers.flatten()
+    elev_beam_centers= elev_beam_centers.flatten() 
+    
+    
+    # duplicate nadir as many times as number of beams (to allow for vectorized calculations)    
+    nadir_ecef_disp = np.outer(nadir_ecef, np.ones(np.size(az_beam_centers)))
+    pos_disp = np.outer(sat_pos_ecef, np.ones(np.size(az_beam_centers)))
+    normal_vector_disp = np.outer(normal_vector, np.ones(np.size(az_beam_centers)))
+    
+    # compute ecef coord of beam centers
+    points_ecef = compute_az_elev_to_ecef(np.array([az_beam_centers,elev_beam_centers]), \
+                                nadir_ecef_disp, \
+                                pos_disp, \
+                                normal_vector_disp \
+                                )
+    
+    # convert to lonlat
+    beam_centers_lonlat = ecef2ll_geod(points_ecef)
+        
+
+    # for each beam
+#    beam_contour_ll = np.array([[np.nan,np.nan]]).T
+    
+    counter = 0    
+    
+    
+    for i in np.arange(0, np.size(az_beam_centers)):
+        #compute contour
+        mv = compute_beam_contour(np.array([az_beam_centers,elev_beam_centers])[:,i], beam_radius[i]) #6.7
+        
+        # convert contour in ecef and then lonlat coord
+        nadir_ecef_disp = np.outer(nadir_ecef, np.ones(np.size(mv,1)))
+        pos_disp = np.outer(sat_pos_ecef, np.ones(np.size(mv,1)))
+        normal_vector_disp = np.outer(normal_vector, np.ones(np.size(mv,1)))
+        
+        points_ecef = compute_az_elev_to_ecef(mv, \
+                                nadir_ecef_disp, \
+                                pos_disp, \
+                                normal_vector_disp \
+                                )
+        mv_ll = ecef2ll_geod(points_ecef)
+        
+        
+        #save contour
+        if counter == 0:
+            beam_contour_ll = mv_ll
+        else:
+            beam_contour_ll = np.vstack((beam_contour_ll, mv_ll))
+            
+        counter += 1
+#        #save contour with putting a "nan" between each contour
+#        beam_contour_ll = np.append(beam_contour_ll, np.array([[np.nan,np.nan]]).T, axis=1)
+#        beam_contour_ll = np.append(beam_contour_ll, mv_ll, axis=1)
+    
+
+    return beam_centers_lonlat, beam_contour_ll
+#------------------------------------------------------------------------------

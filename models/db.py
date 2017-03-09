@@ -140,7 +140,17 @@ dbTest.define_table('testUpXcel',
 
 #Test definition for future database
 dbLinkBudget = DAL('sqlite://storage.sqlite')
-
+dbLinkBudget.define_table('SAT_FOV',
+                          Field('Job_ID',requires=IS_IN_DB(dbLinkBudget,'Job.id')),
+                          Field('SAT_ID','double',requires=IS_NOT_EMPTY()),
+                          Field('LON','double',requires=IS_NOT_EMPTY()),
+                          Field('LAT','double',requires=IS_NOT_EMPTY()),)
+dbLinkBudget.define_table('TRSP_FOV',
+                          Field('Job_ID',requires=IS_IN_DB(dbLinkBudget,'Job.id')),
+                          Field('SAT_ID','double',requires=IS_NOT_EMPTY()),
+                          Field('TRSP_ID','double',requires=IS_NOT_EMPTY()),
+                          Field('LON','double',requires=IS_NOT_EMPTY()),
+                          Field('LAT','double',requires=IS_NOT_EMPTY()),)
 dbLinkBudget.define_table('VSAT',
                           Field('VSAT_ID','string'),#,unique=True),
                           Field('GPT','double'),
@@ -220,6 +230,8 @@ dbLinkBudget.define_table('Job',
                           Field('simulator_mode','string',requires=IS_IN_SET(('FWD','RTN')),default='FWD',label='Simulation Mode (FWD or RTN)'),
                           
                           Field('sat_geo_params','boolean',label='1) Compute Satellite Geometric Parameters'),
+                          Field('sat_fov','boolean',label='1a) Compute Satellite FOV'),
+                          Field('trsp_fov','boolean',label='1b) Compute Transponder FOV'),
                           Field('points2trsp','boolean',label='2) Assign Earth points coverage to transponder(VSAT)'),
                           Field('gw2trsp','boolean',label='3) Assign Earth gateways to transponder (Gateway)'),
                           Field('comp_point_cover','boolean',label='4) Compute geometric parameters for Earth points coverage (VSAT)'),
