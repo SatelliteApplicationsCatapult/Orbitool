@@ -543,7 +543,7 @@ def run():
         for i in np.arange(0,np.size(values,0)/2):
             lon = np.append(lon, values[2*i,:])
             lat = np.append(lat, values[2*i+1,:])
-            count = np.append(count, np.full(63, i+1))
+            count = np.append(count, np.full(len(values[2*i,:]), i+1))
             sat_fov_dict = {'SAT_ID':count, 'LON':lon, 'LAT':lat}
             read_array_to_db(dbLinkBudget.SAT_FOV, sat_fov_dict, job_id)
 
@@ -600,8 +600,8 @@ def run():
             for i in np.arange(0,np.size( beam_contour_ll,0)/2):
                 lon = np.append(lon, beam_contour_ll[2*i,:])
                 lat = np.append(lat, beam_contour_ll[2*i+1,:])
-                count = np.append(count, np.full(63, i+1))
-                SAT_IDs = np.append(SAT_IDs, np.full(63, SAT_ID))
+                count = np.append(count, np.full(len(beam_contour_ll[2*i,:]), i+1))
+                SAT_IDs = np.append(SAT_IDs, np.full(len(beam_contour_ll[2*i,:]), SAT_ID))
                 trsp_fov_dict = {'SAT_ID': SAT_IDs,'TRSP_ID':count,'LON':lon, 'LAT':lat}
                 read_array_to_db(dbLinkBudget.TRSP_FOV, trsp_fov_dict, job_id)
     read_array_to_db(dbLinkBudget.TRSP, TRSP_dict) #at the moment these write to new lines
@@ -719,7 +719,7 @@ def get_geojson():
                      "Lat": r[dbLinkBudget.EARTH_coord_VSAT.LAT],
                      "Lon": r[dbLinkBudget.EARTH_coord_VSAT.LON],
                  }
-                 } for r in rows if r[dbLinkBudget.EARTH_coord_VSAT.ELEVATION] is not None]  # TODO : Extend to include more information form database #hacky way to ignore NONEs
+                 } for r in rows if r[dbLinkBudget.EARTH_coord_VSAT.ELEVATION]]  # TODO : Extend to include more information form database #hacky way to ignore NONEs
     return response.json({"type": "FeatureCollection", 'features': features})
 
 
@@ -828,9 +828,8 @@ def get_geojson_FOV_CIRCLE():
     Returns:
         object: GeoJSON
     """
-    rows = dbLinkBudget((dbLinkBudget.SAT_FOV.Job_ID == request.args(0))&(dbLinkBudget.SAT_FOV.SAT_ID > 0)).iterselect()
+    rows = dbLinkBudget((dbLinkBudget.SAT_FOV.Job_ID == request.args(0))).iterselect()
     coordinates = {}
-    coord = []
 
     for row in rows:
         if row[dbLinkBudget.SAT_FOV.SAT_ID] not in coordinates.keys() :
@@ -858,7 +857,7 @@ def get_geojson_TRSP_FOV_CIRCLE():
     Returns:
         object: GeoJSON
     """
-    rows = dbLinkBudget((dbLinkBudget.TRSP_FOV.Job_ID == request.args(0))&(dbLinkBudget.TRSP_FOV.TRSP_ID > 0)&(dbLinkBudget.TRSP_FOV.SAT_ID > 0)).iterselect()
+    rows = dbLinkBudget((dbLinkBudget.TRSP_FOV.Job_ID == request.args(0))&(dbLinkBudget.TRSP_FOV.TRSP_ID > 0)).iterselect()
     coordinates = {}
 
     for row in rows:
