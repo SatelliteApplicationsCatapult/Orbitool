@@ -4,20 +4,23 @@
 # -------------------------------------------------------------------------
 # This is the Link Budget Controller
 # -------------------------------------------------------------------------
-from excelHandling import *
 import numpy as np
-from gluon import *
 import os
+from collections import OrderedDict
+import logging
+from time import time
+from gluon import *
+
 from lib_lkb.propa_func import *
 from lib_lkb.functions_to_use import *
 from lib_lkb.xl_func import *
 from lib_lkb.compute_high_level_func import *
 from lib_lkb.display_func import *
-import subprocess
-from collections import OrderedDict
 
 
-import logging
+from excelHandling import *
+
+
 logger = logging.getLogger("web2py.app.linkbudgetweb")
 logger.setLevel(logging.DEBUG)
 
@@ -523,20 +526,29 @@ def run():
         Refreshes the update page
 
     """
-
-    file = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).file_up  # Find uploaded file
+    first = time.time()
+    filename = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).file_up  # Find uploaded file
+    logger.error("testing error message! Error:")
+    second = time.time()
+    logger.error('afterFileNameDuration %i' %(second - first))
     job_id = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).id
     [SAT_dict, TRSP_dict, VSAT_dict, EARTH_COORD_GW_dict, GW_dict, EARTH_COORD_VSAT_dict,
-     display_dict_VSAT] = load_objects_from_xl(os.path.join(request.folder, 'uploads', file))
+     display_dict_VSAT] = load_objects_from_xl(os.path.join(request.folder, 'uploads', filename))
+    third = time.time()
+    logger.error('after_load_xl_Duration %i' %(third - second))
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).sat_geo_params == True:
     #-----------------  1/ Compute SAT geometric params ------------------
         SAT_dict, nadir_ecef, pos_ecef, normal_vector = compute_sat_params(SAT_dict, True)
+        fourth = time.time()
+        logger.error('after_load_xl_Duration %i' %(fourth - third))
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).sat_fov == True:
         values =  display_sat_field_of_views_for_cesium(nadir_ecef, pos_ecef, normal_vector, \
                                                      SAT_dict['FOV_RADIUS']*np.pi/180, \
                                                      SAT_dict['ROLL']*np.pi/180, \
                                                      SAT_dict['PITCH']*np.pi/180, \
                                                      SAT_dict['YAW']*np.pi/180)
+        fifth = time.time()
+        logger.error('after_sat_field_of_views_Duration %i' %(fifth -fourth))
         lat = np.array([])
         lon = np.array([])
         count = np.array([])
@@ -545,7 +557,9 @@ def run():
             lat = np.append(lat, values[2*i+1,:])
             count = np.append(count, np.full(len(values[2*i,:]), i+1))
             sat_fov_dict = {'SAT_ID':count, 'LON':lon, 'LAT':lat}
-            read_array_to_db(dbLinkBudget.SAT_FOV, sat_fov_dict, job_id)
+        read_array_to_db(dbLinkBudget.SAT_FOV, sat_fov_dict, job_id)
+        sixth = time.time()
+        logger.error('after_write_to_db_Duration %i' %(sixth - fifth))
 
     #----------------- 2/ Assign sat to each point of coverage -----------
     if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).points2trsp == True:
@@ -603,12 +617,16 @@ def run():
                 count = np.append(count, np.full(len(beam_contour_ll[2*i,:]), i+1))
                 SAT_IDs = np.append(SAT_IDs, np.full(len(beam_contour_ll[2*i,:]), SAT_ID))
                 trsp_fov_dict = {'SAT_ID': SAT_IDs,'TRSP_ID':count,'LON':lon, 'LAT':lat}
-                read_array_to_db(dbLinkBudget.TRSP_FOV, trsp_fov_dict, job_id)
+            read_array_to_db(dbLinkBudget.TRSP_FOV, trsp_fov_dict, job_id)
     read_array_to_db(dbLinkBudget.TRSP, TRSP_dict) #at the moment these write to new lines
     read_array_to_db(dbLinkBudget.SAT, SAT_dict)
     read_array_to_db(dbLinkBudget.EARTH_coord_VSAT, EARTH_COORD_VSAT_dict, job_id)
     read_array_to_db(dbLinkBudget.Earth_coord_GW, EARTH_COORD_GW_dict, job_id)
+    seventh = time.time()
+    logger.error('after_write_torest_of_db_Duration %i' % (seventh - sixth))
     dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(processed=True)
+    eigth = time.time()
+    logger.error('total_duration %i' % (eigth - first))
     redirect(URL('launch', args=request.args(0)))
 
 
@@ -960,3 +978,5 @@ def api():
     # def DELETE(table_name,record_id):
     #     return dbLinkBudget(dbLinkBudget[Job]._id==record_id).delete()
     return dict(GET=GET)
+
+
