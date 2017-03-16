@@ -8,13 +8,12 @@ Created on Wed Dec 10 09:12:39 2014
 MODULE
 """
 
-import numpy as np
 from .geometric_func import  *
 from .propa_func import *
 from scipy.special import j1
 import os
 import subprocess
-import time
+from lbConfiguration import pathtopropa
 
 k_dB = -228.6 # Boltzmann's constant
 
@@ -187,7 +186,7 @@ def compute_propag(lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, e
     timestr = time.strftime("%Y%m%d-%H%M%S")
     filename = 'applications/linkbudgetweb/arrays/propa_input_array-'+timestr+'.txt'
     np.savetxt(filename, np.column_stack((lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, efficiency, availability)))
-    cfile = os.path.join('/home/simon', 'newpropa/propa/', "propaattenuation")
+    cfile = pathtopropa
     Atot = []
     proc = subprocess.Popen([cfile, filename],stdout=subprocess.PIPE) # runs propa
     (out, err) = proc.communicate()

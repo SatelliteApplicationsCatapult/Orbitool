@@ -20,6 +20,7 @@ def load_objects_from_xl(file_name):
     Returns:
         object: dictionaries
     """
+    global excel_info
     SAT_dict={}
     TRSP_dict={}
     VSAT_dict={}
@@ -75,9 +76,8 @@ def load_objects_from_xl(file_name):
                           np.all(np.abs(display_dict_VSAT['yy'].flatten() - EARTH_COORD_VSAT_dict['LAT'])<1e-10)):
 
             display_dict_VSAT['FLAG_CONSISTENCY'] = True
-
-    return {'SAT': SAT_dict, 'TRSP': TRSP_dict,  'VSAT': VSAT_dict, 'EARTH_COORD' : EARTH_COORD_GW_dict,  'GW' : GW_dict,
-              'EARTH_COORD_VSAT' : EARTH_COORD_VSAT_dict, 'diplay_VSAT' : display_dict_VSAT}
+    return dict(SAT=SAT_dict, TRSP=TRSP_dict, VSAT=VSAT_dict, EARTH_COORD_GW=EARTH_COORD_GW_dict, GW=GW_dict,
+                EARTH_COORD_VSAT=EARTH_COORD_VSAT_dict, diplay_VSAT=display_dict_VSAT)
 
 
 def load_object(worksheet):
