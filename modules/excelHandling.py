@@ -36,31 +36,28 @@ def load_objects_from_xl(file_name):
     for wksht_name in wksheets_names_list:
         worksheet = workbook.sheet_by_name(wksht_name)
 
-        if wksht_name    ==   'SAT':
-            SAT_dict                              =   load_object(worksheet)
+        if wksht_name is 'SAT':
+            SAT_dict = load_object(worksheet)
 
-        if wksht_name    ==   'TRSP':
-            TRSP_dict                              =   load_object(worksheet)
+        elif wksht_name is 'TRSP':
+            TRSP_dict = load_object(worksheet)
 
-        elif wksht_name  ==   'VSAT':
-            VSAT_dict                             =   load_object(worksheet)
+        elif wksht_name is 'VSAT':
+            VSAT_dict = load_object(worksheet)
 
-        elif wksht_name ==   'GATEWAY':
-            GW_dict                               =   load_object(worksheet)
+        elif wksht_name is 'GATEWAY':
+            GW_dict = load_object(worksheet)
 
-        elif wksht_name ==   'EARTH_coord_GW':
-            EARTH_COORD_GW_dict                   =   load_object(worksheet)
+        elif wksht_name is 'EARTH_coord_GW':
+            EARTH_COORD_GW_dict = load_object(worksheet)
 
-        elif wksht_name ==   'EARTH_coord_VSAT':
-            EARTH_COORD_VSAT_dict                 =   load_object(worksheet)
-
-#        elif wksht_name == 'EARTH_coord_VSAT_rect':
-#            EARTH_COORD_VSAT_dict, display_dict   =   load_and_create_earth_coord_object(worksheet)
+        elif wksht_name is 'EARTH_coord_VSAT':
+            EARTH_COORD_VSAT_dict = load_object(worksheet)
 
     # build display dict vsat
     display_dict_VSAT['FLAG_CONSISTENCY'] = False
 
-    if (np.size(EARTH_COORD_VSAT_dict['LON']) > 1):
+    if np.size(EARTH_COORD_VSAT_dict['LON']) > 1:
         lon_min = np.min(EARTH_COORD_VSAT_dict['LON'])
         lon_max = np.max(EARTH_COORD_VSAT_dict['LON'])
         lat_min = np.min(EARTH_COORD_VSAT_dict['LAT'])
@@ -79,11 +76,8 @@ def load_objects_from_xl(file_name):
 
             display_dict_VSAT['FLAG_CONSISTENCY'] = True
 
-
-    # TODO : build display dict GW
-
-
-    return SAT_dict, TRSP_dict, VSAT_dict, EARTH_COORD_GW_dict,  GW_dict, EARTH_COORD_VSAT_dict, display_dict_VSAT
+    return {'SAT': SAT_dict, 'TRSP': TRSP_dict,  'VSAT': VSAT_dict, 'EARTH_COORD' : EARTH_COORD_GW_dict,  'GW' : GW_dict,
+              'EARTH_COORD_VSAT' : EARTH_COORD_VSAT_dict, 'diplay_VSAT' : display_dict_VSAT}
 
 
 def load_object(worksheet):
@@ -95,11 +89,11 @@ def load_object(worksheet):
     Returns:
         object: dictionary
     """
-    d=OrderedDict({})
+    d = OrderedDict()
     for curr_col in range(0, worksheet.ncols):
         liste_elts = worksheet.col_values(curr_col)
 
-        d[worksheet.cell_value(0,curr_col)] = np.array(liste_elts[1:len(liste_elts)])
+        d[worksheet.cell_value(0, curr_col)] = np.array(liste_elts[1:len(liste_elts)])
 
     return d
 
@@ -134,7 +128,7 @@ def create_saving_worksheet(filename, my_dict, wksht_name, my_dict2, wksht_name2
     # write values
     counter = 0
     for key in my_dict2.keys():
-        wksht2.write_column(1,counter,my_dict2[key]) #Needs to be of list format, not a single variable
+        wksht2.write_column(1, counter, my_dict2[key]) #Needs to be of list format, not a single variable
         counter += 1
 
     wksht3 = workbook.add_worksheet(wksht_name3)

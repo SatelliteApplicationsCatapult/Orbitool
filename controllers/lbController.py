@@ -5,11 +5,13 @@
 # This is the Link Budget Controller
 # -------------------------------------------------------------------------
 import numpy as np
-import os
+from os import path
+import json
+from datetime import datetime
 from collections import OrderedDict
-import logging
-from time import time
+
 from gluon import *
+from excelHandling import *
 
 from lib_lkb.propa_func import *
 from lib_lkb.functions_to_use import *
@@ -17,10 +19,10 @@ from lib_lkb.xl_func import *
 from lib_lkb.compute_high_level_func import *
 from lib_lkb.display_func import *
 
+import lbConfiguration as lbconf
 
-from excelHandling import *
 
-
+import logging
 logger = logging.getLogger("web2py.app.linkbudgetweb")
 logger.setLevel(logging.DEBUG)
 
@@ -39,6 +41,7 @@ def about():
 
 def input():
     """ Input form """ #TODO: Think about adding drag and drop plugin
+    #TODO : separate the form
     session.job = ""
     record = dbLinkBudget.Job(request.args(0))
 
@@ -51,36 +54,53 @@ def input():
     dbLinkBudget.Job.sat_geo_params.writable = False
     dbLinkBudget.Job.points2trsp.readable = False
     dbLinkBudget.Job.points2trsp.writable = False
+
     dbLinkBudget.Job.sat_fov.writable = False
     dbLinkBudget.Job.sat_fov.readable = False
+
     dbLinkBudget.Job.trsp_fov.writable = False
     dbLinkBudget.Job.trsp_fov.readable = False
+
     dbLinkBudget.Job.points2trsp.readable = False
     dbLinkBudget.Job.points2trsp.writable = False
+
     dbLinkBudget.Job.gw2trsp.readable = False
     dbLinkBudget.Job.gw2trsp.writable = False
+
     dbLinkBudget.Job.comp_point_cover.readable = False
     dbLinkBudget.Job.comp_point_cover.writable = False
+
     dbLinkBudget.Job.comp_gw_cover.readable = False
     dbLinkBudget.Job.comp_gw_cover.writable = False
+
     dbLinkBudget.Job.propa_feeder_link.readable = False
     dbLinkBudget.Job.propa_feeder_link.writable = False
+
     dbLinkBudget.Job.propa_user_link.readable = False
     dbLinkBudget.Job.propa_user_link.writable = False
+
     dbLinkBudget.Job.sat_up_perf.readable = False
     dbLinkBudget.Job.sat_up_perf.writable = False
+
     dbLinkBudget.Job.sat_dwn_perf.readable = False
     dbLinkBudget.Job.sat_dwn_perf.writable = False
+
     dbLinkBudget.Job.comp_link_budget.readable = False
     dbLinkBudget.Job.comp_link_budget.writable = False
+
     dbLinkBudget.Job.processed.readable = False
     dbLinkBudget.Job.processed.writable = False
+
     dbLinkBudget.Job.csn0_up_flag.readable = False
     dbLinkBudget.Job.csn0_up_flag.writable = False
+
     dbLinkBudget.Job.csim0_flag.readable = False
     dbLinkBudget.Job.csim0_flag.writable = False
+
     dbLinkBudget.Job.csn0_dn_flag.readable = False
     dbLinkBudget.Job.csn0_dn_flag.writable = False
+
+
     dbLinkBudget.Job.csi0_dn_flag.readable = False
     dbLinkBudget.Job.csi0_dn_flag.writable = False
     dbLinkBudget.Job.csi0_dn_flag.readable = False
@@ -101,16 +121,13 @@ def input():
     return dict(form=form)
 
 
-def test_crud():
-    """ Test Function used to test code before major use """
-    return dict(a=0)
 
 
 def select():
     """  Page which renders a JQuery Datatable to let you select entries  """
-    import json
     job = json.dumps(dbLinkBudget(dbLinkBudget.Job).select().as_list(),
                      default=json_serial)  # Formatting need to interface with JQuery Datatables
+    #TODO: why xml ??
     return dict(job=XML(job))
 
 def update():
@@ -122,7 +139,6 @@ def update():
         JSON formatted stream
 
     """
-    import json
     job = json.dumps(dbLinkBudget(dbLinkBudget.Job).select().as_list(),
                      default=json_serial)  # default json.dumps specificed
     gw = []
@@ -200,6 +216,9 @@ def update():
             session.job = form.vars.job_name
     return dict(job=XML(job), vsat=XML(json.dumps(vsat)), gw=XML(json.dumps(gw)), sat=XML(json.dumps(sat)), trsp=XML(json.dumps(trsp)), form=form)
 
+
+
+
 def launch():
     """
     Run page
@@ -207,12 +226,17 @@ def launch():
 
     """
     record = dbLinkBudget.Job(request.args(0))
+
+    #todo - to remove
     dbLinkBudget.Job.Date.readable = False
 
     dbLinkBudget.Job.file_up.writable = False
     dbLinkBudget.Job.file_up.readable = False
     dbLinkBudget.Job.job_name.writable = False
     dbLinkBudget.Job.description.writable = False
+
+    #todo : to re-write
+
     dbLinkBudget.Job.sat_fov.show_if = (dbLinkBudget.Job.sat_geo_params==True)
     dbLinkBudget.Job.trsp_fov.show_if = (dbLinkBudget.Job.sat_geo_params==True)
     dbLinkBudget.Job.propa_feeder_link.show_if = (dbLinkBudget.Job.comp_gw_cover==True)
@@ -244,40 +268,17 @@ def add_excel_2_db():
     Function used to insert excel dictionary into database
 
     """
-    file = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).file_up  # Find uploaded file
+    fileName = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).file_up  # Find uploaded file
     job_id = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).id
-    [SAT_dict, TRSP_dict, VSAT_dict, EARTH_COORD_GW_dict, GW_dict, EARTH_COORD_VSAT_dict,
-     display_dict_VSAT] = load_objects_from_xl(os.path.join(request.folder, 'uploads', file))
-    #----save csv test
-    #import time
-    #timestr = time.strftime("%Y%m%d-%H%M%S")
-    #filename = 'applications/linkbudgetweb/arrays/propa_input_array-'+timestr+'.txt'
-    #np.savetxt(filename, np.column_stack((EARTH_COORD_VSAT_dict['LON'], \
-    #                                                                      EARTH_COORD_VSAT_dict['LAT'],\
-    #                                                                      )))
-    ##-----------------  1/ Compute SAT geometric params ------------------
-    #SAT_dict = compute_sat_params(SAT_dict)
-    ##----------------- 2/ Assign sat to each point of coverage -----------
-    #dbLinkBudget.Job.simulator_mode == 'FWD'
-    #EARTH_COORD_VSAT_dict = compute_transponder_assignment(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, 'FWD', 'DN')
-    ##----------------- 3/ Compute RX/TX COV geometric params -------------------
-    #EARTH_COORD_VSAT_dict = compute_coverage_points_geo_params(SAT_dict, EARTH_COORD_VSAT_dict)
-    ##----------------- 4/ Compute propag params -------------------
-    #EARTH_COORD_VSAT_dict = compute_lkb_propag_params(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, VSAT_dict, 'DN', True, 'FWD')
-    ##----------------- 5/ Compute satellite perfos -------------------
-    #EARTH_COORD_VSAT_dict = compute_satellite_perfos(EARTH_COORD_VSAT_dict, TRSP_dict, 'DN')
-    #read_array_to_db(dbLinkBudget.VSAT, VSAT_dict)
-    read_array_to_db(dbLinkBudget.Gateway, GW_dict)
-    read_array_to_db(dbLinkBudget.TRSP, TRSP_dict)
-    read_array_to_db(dbLinkBudget.SAT, SAT_dict)
-    read_array_to_db(dbLinkBudget.Earth_coord_GW, EARTH_COORD_GW_dict, job_id)
-    read_array_to_db(dbLinkBudget.EARTH_coord_VSAT, EARTH_COORD_VSAT_dict, job_id)
-    #TODO: could add a table for display_dict_VSAT
-    #EXTRACT THE DICTS TO HAVE A LOOK AT THEM
-#    np.save('/tmp/picklefile',EARTH_COORD_VSAT_dict.keys())
-#    import pickle
-#    with open('/tmp/picklefile1', 'wb') as handle:
-#      pickle.dump(EARTH_COORD_VSAT_dict.keys(), handle)
+
+    excel_info = load_objects_from_xl(path.join(request.folder, 'uploads', fileName))
+
+    read_array_to_db(dbLinkBudget.Gateway, excel_info['GW'])
+    read_array_to_db(dbLinkBudget.TRSP,  excel_info['TRSP'])
+    read_array_to_db(dbLinkBudget.SAT, excel_info['SAT'])
+    read_array_to_db(dbLinkBudget.Earth_coord_GW, excel_info['EARTH_COORD'], job_id)
+    read_array_to_db(dbLinkBudget.EARTH_coord_VSAT, excel_info['EARTH_COORD_VSAT'], job_id)
+
     redirect(URL('update', args=job_id))
 
 
@@ -311,13 +312,13 @@ def read_db_to_array(db, job_id=0):
         job_id:
 
     """
-    SAT_dict=OrderedDict({})
-    TRSP_dict=OrderedDict({})
-    VSAT_dict=OrderedDict({})
-    EARTH_COORD_GW_dict=OrderedDict({})
-    GW_dict=OrderedDict({})
-    EARTH_COORD_VSAT_dict=OrderedDict({})
-    display_dict_VSAT==OrderedDict({})
+    SAT_dict=OrderedDict()
+    TRSP_dict=OrderedDict()
+    VSAT_dict=OrderedDict()
+    EARTH_COORD_GW_dict=OrderedDict()
+    GW_dict=OrderedDict()
+    EARTH_COORD_VSAT_dict = OrderedDict()
+    display_dict_VSAT = OrderedDict()
 
     gw=[]
     for field in dbLinkBudget.Gateway:
@@ -328,7 +329,7 @@ def read_db_to_array(db, job_id=0):
     for curr_col in range(0, worksheet.ncols):
         liste_elts = worksheet.col_values(curr_col)
 
-        d[worksheet.cell_value(0,curr_col)] = np.array(liste_elts[1:len(liste_elts)])
+        d[worksheet.cell_value(0, curr_col)] = np.array(liste_elts[1:len(liste_elts)])
 
     return d
 
@@ -341,7 +342,6 @@ def json_serial(obj):
 
 
     """
-    from datetime import datetime
     if isinstance(obj, datetime):
         serial = obj.strftime("%d-%m-%Y  %H:%M")
         return serial
@@ -368,108 +368,14 @@ def create_download():
     TODO: at RX fields
     """
     #VSAT
-    rowt = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect("LON",
-"LAT",
-"COUNTRY",
-"SEA_LAND",
-"VSAT_ID",
-"ALT",
-"AVAILABILITY_UP",
-"AVAILABILITY_DN",
-"USER_NEED",
-"SAT_ID",
-"TRSP_ID",
-"PAYLOAD_ID",
-"POS_X_ECEF",
-"POS_Y_ECEF",
-"POS_Z_ECEF",
-"SAT_POS_X_ECEF",
-"SAT_POS_Y_ECEF",
-"SAT_POS_Z_ECEF",
-"DIST",
-"ELEVATION",
-"NADIR_X_ECEF",
-"NADIR_Y_ECEF",
-"NADIR_Z_ECEF",
-"NORMAL_VECT_X",
-"NORMAL_VECT_Y",
-"NORMAL_VECT_Z",
-"ROLL",
-"PITCH",
-"YAW",
-"AZ_SC",
-"ELEV_SC",
-"CENTRAL_FQ_DN",
-"FSL_DN",
-"POLAR",
-"DIAMETER",
-"EFFICIENCY",
-"POLAR_TILT_ANGLE",
-"PROPAG_DN",
-"BEAM_TX_CENTER_AZ_ANT",
-"BEAM_TX_CENTER_EL_ANT",
-"BEAM_TX_ANT_DIAM",
-"BEAM_TX_TYPE",
-"MAX_GAIN_TX",
-"BEAM_TX_THETA_3DB",
-"SAT_GAIN_TX",
-"IBO",
-"AMP_SAT",
-"OBO",
-"SAT_EIRP","CSIM0","CSN0_DN","CSI0_DN","GPT").first().as_dict()
+
+    #todo : insteand of use interselect if you can extrac all
+    rowt = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect().first().as_dict()
 
     vsat = OrderedDict.fromkeys(rowt["_extra"])
     for key in vsat.keys():
         vsat[key] = []
-    for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect("LON",
-"LAT",
-"COUNTRY",
-"SEA_LAND",
-"VSAT_ID",
-"ALT",
-"AVAILABILITY_UP",
-"AVAILABILITY_DN",
-"USER_NEED",
-"SAT_ID",
-"TRSP_ID",
-"PAYLOAD_ID",
-"POS_X_ECEF",
-"POS_Y_ECEF",
-"POS_Z_ECEF",
-"SAT_POS_X_ECEF",
-"SAT_POS_Y_ECEF",
-"SAT_POS_Z_ECEF",
-"DIST",
-"ELEVATION",
-"NADIR_X_ECEF",
-"NADIR_Y_ECEF",
-"NADIR_Z_ECEF",
-"NORMAL_VECT_X",
-"NORMAL_VECT_Y",
-"NORMAL_VECT_Z",
-"ROLL",
-"PITCH",
-"YAW",
-"AZ_SC",
-"ELEV_SC",
-"CENTRAL_FQ_DN",
-"FSL_DN",
-"POLAR",
-"DIAMETER",
-"EFFICIENCY",
-"POLAR_TILT_ANGLE",
-"PROPAG_DN",
-"BEAM_TX_CENTER_AZ_ANT",
-"BEAM_TX_CENTER_EL_ANT",
-"BEAM_TX_ANT_DIAM",
-"BEAM_TX_TYPE",
-"MAX_GAIN_TX",
-"BEAM_TX_THETA_3DB",
-"SAT_GAIN_TX",
-"IBO",
-"AMP_SAT",
-"OBO",
-"SAT_EIRP","CSIM0","CSN0_DN","CSI0_DN","GPT"):
+    for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect(vsat_fieldNames):
         for key in vsat.keys():
             vsat[key].append(row["_extra"][key])
     #SAT
@@ -487,7 +393,8 @@ def create_download():
             for key in sat.keys():
                 sat[key].append(row["_extra"][key])
     #TRSP
-    for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect(groupby='PAYLOAD_ID'): #this looks for the different types of Satellite referred to in gateway Earth_coord
+    for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect(groupby='PAYLOAD_ID'):
+        #this looks for the different types of Satellite referred to in gateway Earth_coord
         rowt = dbLinkBudget(dbLinkBudget.TRSP.PAYLOAD_ID == row['PAYLOAD_ID']).iterselect("FWD_RTN_FLAG", "PAYLOAD_ID", "TRSP_ID", "SYS_TEMP", "CENTRAL_FQ_UP", "BANDWIDTH", "CENTRAL_FQ_DN","AMP_SAT", "IBO", "BEAM_RX_ID",
                                                                                  "BEAM_RX_TYPE", "BEAM_RX_CENTER_AZ_ANT", "BEAM_RX_CENTER_EL_ANT", "BEAM_RX_ANT_DIAM", "BEAM_RX_THETA_3DB", "BEAM_RX_EFF", "BEAM_RX_RADIUS",
                                                                                  "BEAM_TX_ID", "BEAM_TX_TYPE", "BEAM_TX_CENTER_AZ_ANT", "BEAM_TX_CENTER_EL_ANT", "BEAM_TX_ANT_DIAM", "BEAM_TX_THETA_3DB",
@@ -506,7 +413,7 @@ def create_download():
                 trsp[key].append(row["_extra"][key])
 
     filename = "Output file " + request.args(0) + ".xlsx"
-    filepath = os.path.join(request.folder, 'uploads', filename) # TODO: look at maybe use .retrieve() here
+    filepath = path.join(request.folder, 'uploads', filename) # TODO: look at maybe use .retrieve() here
     create_saving_worksheet(filepath, sat, "SAT", trsp, "TRSP", vsat, "EARTH_coord_VSAT")
     stream = open(filepath, 'rb')
     dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(
@@ -526,84 +433,76 @@ def run():
         Refreshes the update page
 
     """
-    first = time.time()
-    filename = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).file_up  # Find uploaded file
-    logger.error("testing error message! Error:")
-    second = time.time()
-    logger.error('afterFileNameDuration %i' %(second - first))
-    job_id = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).id
-    [SAT_dict, TRSP_dict, VSAT_dict, EARTH_COORD_GW_dict, GW_dict, EARTH_COORD_VSAT_dict,
-     display_dict_VSAT] = load_objects_from_xl(os.path.join(request.folder, 'uploads', filename))
-    third = time.time()
-    logger.error('after_load_xl_Duration %i' %(third - second))
-    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).sat_geo_params == True:
+
+    element = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0))
+
+    file = element.file_up  # Find uploaded file
+    job_id = element.id
+    excel_info = load_objects_from_xl(path.join(request.folder, 'uploads', file))
+    if element.sat_geo_params :
     #-----------------  1/ Compute SAT geometric params ------------------
         SAT_dict, nadir_ecef, pos_ecef, normal_vector = compute_sat_params(SAT_dict, True)
-        fourth = time.time()
-        logger.error('after_load_xl_Duration %i' %(fourth - third))
-    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).sat_fov == True:
+    if element.sat_fov:
         values =  display_sat_field_of_views_for_cesium(nadir_ecef, pos_ecef, normal_vector, \
                                                      SAT_dict['FOV_RADIUS']*np.pi/180, \
                                                      SAT_dict['ROLL']*np.pi/180, \
                                                      SAT_dict['PITCH']*np.pi/180, \
                                                      SAT_dict['YAW']*np.pi/180)
-        fifth = time.time()
-        logger.error('after_sat_field_of_views_Duration %i' %(fifth -fourth))
         lat = np.array([])
         lon = np.array([])
         count = np.array([])
-        for i in np.arange(0,np.size(values,0)/2):
-            lon = np.append(lon, values[2*i,:])
-            lat = np.append(lat, values[2*i+1,:])
-            count = np.append(count, np.full(len(values[2*i,:]), i+1))
-            sat_fov_dict = {'SAT_ID':count, 'LON':lon, 'LAT':lat}
-        read_array_to_db(dbLinkBudget.SAT_FOV, sat_fov_dict, job_id)
-        sixth = time.time()
-        logger.error('after_write_to_db_Duration %i' %(sixth - fifth))
+        for i in np.arange(0, np.size(values, 0)/2):
+            lon = np.append(lon, values[2*i, :])
+            lat = np.append(lat, values[2*i+1, :])
+            count = np.append(count, np.full(len(values[2*i, :]), i+1))
+            sat_fov_dict = {'SAT_ID': count, 'LON': lon, 'LAT': lat}
+            read_array_to_db(dbLinkBudget.SAT_FOV, sat_fov_dict, job_id)
 
     #----------------- 2/ Assign sat to each point of coverage -----------
-    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).points2trsp == True:
-        if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).simulator_mode == 'FWD':
-            EARTH_COORD_VSAT_dict = compute_transponder_assignment(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, 'FWD', 'DN')
-        elif dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).simulator_mode == 'RTN':
-            EARTH_COORD_VSAT_dict = compute_transponder_assignment(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, 'RTN', 'UP')
-    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).gw2trsp == True:
-        if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).simulator_mode == 'FWD':
+    if element.points2trsp:
+        EARTH_COORD_VSAT_dict = compute_transponder_assignment(excel_info['VSAT'],
+                                                               excel_info['SAT'], excel_info['TRSP'], element.simulator_mode,
+                                                               'DN' if element.simulator_mode is 'FWD' else 'UP')
+
+
+    if element.gw2trsp :
+        if element.simulator_mode == 'FWD':
             EARTH_COORD_GW_dict = compute_transponder_assignment(EARTH_COORD_GW_dict, SAT_dict, TRSP_dict, 'FWD', 'UP') #BUG this should be EARTH_COORD_GW_dict
-        elif dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).simulator_mode == 'RTN':
+        elif element.simulator_mode == 'RTN':
             EARTH_COORD_GW_dict = compute_transponder_assignment(EARTH_COORD_GW_dict, SAT_dict, TRSP_dict, 'RTN', 'DN') #BUG this should be EARTH_COORD_GW_dict
+
+
     #----------------- 3/ Compute RX/TX COV geometric params -------------------
-    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).comp_point_cover == True:
+    if element.comp_point_cover :
         EARTH_COORD_VSAT_dict = compute_coverage_points_geo_params(SAT_dict, EARTH_COORD_VSAT_dict)
-    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).comp_gw_cover == True:
+
+    if element.comp_gw_cover:
         EARTH_COORD_GW_dict = compute_coverage_points_geo_params(SAT_dict, EARTH_COORD_GW_dict)
+
+
+
     #----------------- 4/ Compute propag params -------------------
-    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propa_feeder_link == True:
-        if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).simulator_mode == 'FWD':
+    if element.propa_feeder_link:
+        if element.simulator_mode == 'FWD':
             EARTH_COORD_GW_dict = compute_lkb_propag_params(EARTH_COORD_GW_dict, SAT_dict, TRSP_dict, GW_dict, 'UP', True, 'FWD')  #BUG this should be EARTH_COORD_GW_dict
-        if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).simulator_mode == 'RTN':
+        if element.simulator_mode == 'RTN':
              EARTH_COORD_GW_dict = compute_lkb_propag_params(EARTH_COORD_GW_dict, SAT_dict, TRSP_dict, GW_dict, 'DN', True, 'RTN')  #BUG this should be EARTH_COORD_GW_dict
-    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).propa_user_link == True:
-        if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).simulator_mode == 'FWD':
+    if element.propa_user_link:
+        if element.simulator_mode == 'FWD':
             EARTH_COORD_VSAT_dict = compute_lkb_propag_params(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, VSAT_dict, 'DN', True, 'FWD')
-        if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).simulator_mode == 'RTN':
+        if element.simulator_mode == 'RTN':
             EARTH_COORD_VSAT_dict = compute_lkb_propag_params(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, VSAT_dict, 'UP', True, 'RTN')
+
+
     #----------------- 5/ Compute satellite perfos -------------------
-    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).sat_up_perf == True:
+    if element.sat_up_perf :
         EARTH_COORD_VSAT_dict = compute_satellite_perfos(EARTH_COORD_VSAT_dict, TRSP_dict, 'UP')
-    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).sat_dwn_perf == True:
+    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).sat_dwn_perf :
         EARTH_COORD_VSAT_dict = compute_satellite_perfos(EARTH_COORD_VSAT_dict, TRSP_dict, 'DN')
-    #if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).comp_link_budget == True: #  NOT YET IMPLEMENTED IN THE LIBRARY
-    #    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).simulator_mode == 'FWD':
-    #        EARTH_COORD_VSAT_dict = compute_lkb_perfos(EARTH_COORD_GW_dict,EARTH_COORD_VSAT_dict, GW_dict, VSAT_dict, 'FWD', 'disregard', 'disregard', 'disregard', 'compute', 'disregard')
-    #       EARTH_COORD_VSAT_dict = compute_lkb_perfos(EARTH_COORD_GW_dict,EARTH_COORD_VSAT_dict, GW_dict, VSAT_dict, 'FWD', csn0_up_flag, \
-    #                                                                           csi0_up_flag, \
-    #                                                                           csim0_flag, \
-    #                                                                           csn0_dn_flag, \
-    #                                                                           csi0_dn_flag):
+
 
     #### This is get transponder FOV circles
-    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).trsp_fov == True:
+    if dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).trsp_fov :
         for SAT_ID in map(int,SAT_dict['SAT_ID']):
             beam_centers_lonlat, beam_contour_ll = display_2D_sat_and_beams_for_cesium(SAT_ID, SAT_dict['SAT_ID'], SAT_dict['PAYLOAD_ID'], nadir_ecef, pos_ecef, normal_vector, \
                                 TRSP_dict['PAYLOAD_ID'], TRSP_dict['BEAM_TX_CENTER_AZ_ANT'], TRSP_dict['BEAM_TX_CENTER_EL_ANT'], TRSP_dict['BEAM_TX_RADIUS'])
@@ -611,22 +510,18 @@ def run():
             lon = np.array([])
             count = np.array([])
             SAT_IDs = np.array([])
-            for i in np.arange(0,np.size( beam_contour_ll,0)/2):
-                lon = np.append(lon, beam_contour_ll[2*i,:])
-                lat = np.append(lat, beam_contour_ll[2*i+1,:])
-                count = np.append(count, np.full(len(beam_contour_ll[2*i,:]), i+1))
-                SAT_IDs = np.append(SAT_IDs, np.full(len(beam_contour_ll[2*i,:]), SAT_ID))
-                trsp_fov_dict = {'SAT_ID': SAT_IDs,'TRSP_ID':count,'LON':lon, 'LAT':lat}
-            read_array_to_db(dbLinkBudget.TRSP_FOV, trsp_fov_dict, job_id)
+            for i in np.arange(0,np.size( beam_contour_ll, 0)/2):
+                lon = np.append(lon, beam_contour_ll[2*i, :])
+                lat = np.append(lat, beam_contour_ll[2*i+1, :])
+                count = np.append(count, np.full(len(beam_contour_ll[2*i, :]), i+1))
+                SAT_IDs = np.append(SAT_IDs, np.full(len(beam_contour_ll[2*i, :]), SAT_ID))
+                trsp_fov_dict = {'SAT_ID': SAT_IDs, 'TRSP_ID': count,'LON': lon, 'LAT': lat}
+                read_array_to_db(dbLinkBudget.TRSP_FOV, trsp_fov_dict, job_id)
     read_array_to_db(dbLinkBudget.TRSP, TRSP_dict) #at the moment these write to new lines
     read_array_to_db(dbLinkBudget.SAT, SAT_dict)
     read_array_to_db(dbLinkBudget.EARTH_coord_VSAT, EARTH_COORD_VSAT_dict, job_id)
     read_array_to_db(dbLinkBudget.Earth_coord_GW, EARTH_COORD_GW_dict, job_id)
-    seventh = time.time()
-    logger.error('after_write_torest_of_db_Duration %i' % (seventh - sixth))
     dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(processed=True)
-    eigth = time.time()
-    logger.error('total_duration %i' % (eigth - first))
     redirect(URL('launch', args=request.args(0)))
 
 
@@ -978,5 +873,3 @@ def api():
     # def DELETE(table_name,record_id):
     #     return dbLinkBudget(dbLinkBudget[Job]._id==record_id).delete()
     return dict(GET=GET)
-
-
