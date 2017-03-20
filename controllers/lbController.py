@@ -4,16 +4,11 @@
 # -------------------------------------------------------------------------
 # This is the Link Budget Controller
 # -------------------------------------------------------------------------
-from os import path
 import json
 from datetime import datetime
 
 from gluon import *
 from excelHandling import *
-
-from lib_lkb.propa_func import *
-from lib_lkb.functions_to_use import *
-from lib_lkb.xl_func import *
 from lib_lkb.compute_high_level_func import *
 from lib_lkb.display_func import *
 
@@ -134,25 +129,27 @@ def update():
         JSON formatted stream
 
     """
+    gw_element = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0))
+    vsat_element = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0))
     job = json.dumps(dbLinkBudget(dbLinkBudget.Job).select().as_list(),
                      default=json_serial)  # default json.dumps specificed
     gw = []
     vsat = []
     sat = []
     trsp = []
-    for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect(groupby='GW_ID'):  #
+    for row in gw_element.iterselect(groupby='GW_ID'):  #
         # this looks for the different types of gateway referred to in gw Earth_coord
         gw.extend(dbLinkBudget(dbLinkBudget.Gateway.GW_ID == row['GW_ID']).select().as_list())
 
-    for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect(groupby='VSAT_ID'):
+    for row in vsat_element.iterselect(groupby='VSAT_ID'):
         # this looks for the different types of vsat referred to in vsat Earth_coord
         vsat.extend(dbLinkBudget(dbLinkBudget.VSAT.VSAT_ID == row['VSAT_ID']).select().as_list())
 
-    for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect(groupby='SAT_ID'):  #
+    for row in gw_element.iterselect(groupby='SAT_ID'):  #
         # this looks for the different types of Satellite referred to in gateway Earth_coord
         sat.extend(dbLinkBudget(dbLinkBudget.SAT.SAT_ID == row['SAT_ID']).select().as_list())
 
-    for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect(groupby='PAYLOAD_ID'):
+    for row in gw_element.iterselect(groupby='PAYLOAD_ID'):
         # this looks for the different types of payload referred to in gateway Earth_coord and outputs transponder
         # information
         trsp.extend(dbLinkBudget(dbLinkBudget.TRSP.PAYLOAD_ID == row['PAYLOAD_ID']).select().as_list())
@@ -268,10 +265,15 @@ def add_excel_2_db():
     Function used to insert excel dictionary into database
 
     """
+    import logging
+    logger = logging.getLogger("web2py.app.myweb2pyapplication")
+    logger.setLevel(logging.DEBUG)
+
     fileName = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).file_up  # Find uploaded file
     job_id = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).id
 
     excel_info = load_objects_from_xl(os.path.join(request.folder, 'uploads', fileName))
+    logger.error("excel_info " + str(excel_info))
     read_array_to_db(dbLinkBudget.SAT, excel_info[0])
     read_array_to_db(dbLinkBudget.TRSP, excel_info[1])
     read_array_to_db(dbLinkBudget.VSAT, excel_info[2])
@@ -372,44 +374,46 @@ def create_download():
     TODO: consider using lists instead of dicionaries so that the download excel is ordered.
     TODO: at RX fields
     """
-    # VSAT
+
+    vsat_element = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0))
+    gw_element = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0))
 
     # todo : insteand of use interselect if you can extrac all
-    rowt = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect(
-        vsat_fieldNames).first().as_dict()
+    #  VSAT
+    rowt = vsat_element.iterselect(*vsat_fieldNames).first().as_dict()
 
     vsat = OrderedDict.fromkeys(rowt["_extra"])
     for key in vsat.keys():
         vsat[key] = []
-    for row in dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0)).iterselect(vsat_fieldNames):
+    for row in vsat_element.iterselect(*vsat_fieldNames):
         for key in vsat.keys():
             vsat[key].append(row["_extra"][key])
     # SAT
-    for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect(groupby='SAT_ID'):  #
+    for row in gw_element.iterselect(groupby='SAT_ID'):  #
         # this looks for the different types of Satellite referred to in gateway Earth_coord
-        rowt = dbLinkBudget(dbLinkBudget.SAT.SAT_ID == row['SAT_ID']).iterselect(sat_fieldNames).first().as_dict()
+        rowt = dbLinkBudget(dbLinkBudget.SAT.SAT_ID == row['SAT_ID']).iterselect(*sat_fieldNames).first().as_dict()
 
         sat = OrderedDict.fromkeys(rowt["_extra"])
         for key in sat.keys():
             sat[key] = []
-        for row in dbLinkBudget(dbLinkBudget.SAT.SAT_ID == row['SAT_ID']).iterselect(sat_fieldNames):
+        for row in dbLinkBudget(dbLinkBudget.SAT.SAT_ID == row['SAT_ID']).iterselect(*sat_fieldNames):
             for key in sat.keys():
                 sat[key].append(row["_extra"][key])
     # TRSP
-    for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect(groupby='PAYLOAD_ID'):
+    for row in gw_element.iterselect(groupby='PAYLOAD_ID'):
         # this looks for the different types of Satellite referred to in gateway Earth_coord
         rowt = dbLinkBudget(dbLinkBudget.TRSP.PAYLOAD_ID == row['PAYLOAD_ID']).iterselect(
-            trsp_fieldNames).first().as_dict()
+            *trsp_fieldNames).first().as_dict()
 
         trsp = OrderedDict.fromkeys(rowt["_extra"])
         for key in trsp.keys():
             trsp[key] = []
-        for row in dbLinkBudget(dbLinkBudget.TRSP.PAYLOAD_ID == row['PAYLOAD_ID']).iterselect(trsp_fieldNames):
+        for row in dbLinkBudget(dbLinkBudget.TRSP.PAYLOAD_ID == row['PAYLOAD_ID']).iterselect(*trsp_fieldNames):
             for key in trsp.keys():
                 trsp[key].append(row["_extra"][key])
 
-    filename = "Output file " + request.args(0) + ".xlsx"
-    filepath = os.path.join(request.folder, 'uploads', filename)  # TODO: look at maybe use .retrieve() here
+    filename = "Link Budget - Output Scenario " + request.args(0) + ".xlsx"
+    filepath = os.path.join(request.folder, 'uploads', filename)
     create_saving_worksheet(filepath, sat, "SAT", trsp, "TRSP", vsat, "EARTH_coord_VSAT")
     stream = open(filepath, 'rb')
     dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(
@@ -460,7 +464,7 @@ def run():
             lat = np.append(lat, values[2 * i + 1, :])
             count = np.append(count, np.full(len(values[2 * i, :]), i + 1))
             sat_fov_dict = {'SAT_ID': count, 'LON': lon, 'LAT': lat}
-            read_array_to_db(dbLinkBudget.SAT_FOV, sat_fov_dict, job_id)
+        read_array_to_db(dbLinkBudget.SAT_FOV, sat_fov_dict, job_id)
 
     # ----------------- 2/ Assign sat to each point of coverage -----------
     if element.points2trsp:
@@ -520,7 +524,7 @@ def run():
                 count = np.append(count, np.full(len(beam_contour_ll[2 * i, :]), i + 1))
                 SAT_IDs = np.append(SAT_IDs, np.full(len(beam_contour_ll[2 * i, :]), SAT_ID))
                 trsp_fov_dict = {'SAT_ID': SAT_IDs, 'TRSP_ID': count, 'LON': lon, 'LAT': lat}
-                read_array_to_db(dbLinkBudget.TRSP_FOV, trsp_fov_dict, job_id)
+            read_array_to_db(dbLinkBudget.TRSP_FOV, trsp_fov_dict, job_id)
     read_array_to_db(dbLinkBudget.TRSP, TRSP_dict)  # at the moment these write to new lines
     read_array_to_db(dbLinkBudget.SAT, SAT_dict)
     read_array_to_db(dbLinkBudget.EARTH_coord_VSAT, EARTH_COORD_VSAT_dict, job_id)
@@ -700,8 +704,10 @@ def get_geojson_sat():
                      "coordinates": [
                          dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON,
                          dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT, (
-                         dbLinkBudget.SAT(
-                             dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE) * 1000]
+                                                                                                                           dbLinkBudget.SAT(
+                                                                                                                               dbLinkBudget.SAT.SAT_ID ==
+                                                                                                                               r[
+                                                                                                                                   dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE) * 1000]
                  },
                  "properties": {
                      "title": "SAT",
@@ -739,8 +745,10 @@ def get_geojson_FOV():
                      "coordinates": [
                          dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON,
                          dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT, (
-                         dbLinkBudget.SAT(
-                             dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE) * 1000 / 2]
+                                                                                                                           dbLinkBudget.SAT(
+                                                                                                                               dbLinkBudget.SAT.SAT_ID ==
+                                                                                                                               r[
+                                                                                                                                   dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE) * 1000 / 2]
                  },
                  "properties": {
                      "title": "SAT",
