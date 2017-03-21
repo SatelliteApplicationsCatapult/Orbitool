@@ -176,15 +176,11 @@ def read_array_to_db(db, ordDict, job_id=0):
         job_id:
 
     """
-    temp = ordDict.fromkeys(ordDict, 0)
-    if job_id:  # Check for tables which require records to be assigned with job_id number
-        temp['Job_ID'] = job_id
-    for i in range(ordDict.values()[0].size):
-        for j in range(len(ordDict.keys())):
-            temp[ordDict.keys()[j]] = ordDict.values()[j][i]
-        db.update_or_insert(
-            **temp)  # Update/Insert state used to create new database records. Checks if all the fields are filled
-        # in + updates, else inserts. Might just change this to update
+    row = ordDict.fromkeys(ordDict)
+    for v in range(ordDict.values()[0].size):
+        for k in range(len(ordDict.keys())):
+            row[ordDict.keys()[k]] = ordDict.values()[k][v]
+        db.update_or_insert(Job_ID= job_id, **row)  # All fields must be filled in for update to occur
 
 
 def read_db_to_array(db, job_id=0):
