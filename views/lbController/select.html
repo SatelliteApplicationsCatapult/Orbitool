@@ -16,7 +16,6 @@
              <tr>
                 <th>ID</th>
                 <th>Name </th>
-                <th>Sim Mode</th>
                 <th>Date</th>
                 <th>Links</th>
             </tr>
@@ -32,11 +31,10 @@ $(document).ready(function(){
         columns: [
             { data: 'id' },
             { data: 'job_name' },
-            { data: 'simulator_mode' },
             { data: 'Date'}, 
             {width: '190px', "defaultContent": '<button class="btn-update" type="button">Update Page</button> <button class="btn-launch" type="button">Launch Page</button>'}
         ],
-        order: [[3,'desc']]
+        order: [[0,'desc']]
     });
     //Button links to the ID of the row
     $('#job_table tbody').on( 'click', '.btn-update',  function (e) {
@@ -47,9 +45,5 @@ $(document).ready(function(){
         var data = job_table.row( $(this).parents('tr') ).data();
         window.location = 'launch/' +data['id'];
     } );
-//    job_table.on('click','tr',function(){
-//        var data = job_table.row(this).data();
-//        window.location = 'update/' +data['id'];
-//    });
 });
 </script>

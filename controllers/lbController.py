@@ -37,77 +37,14 @@ def input():
     # TODO : separate the form
     session.job = ""
     record = dbLinkBudget.Job(request.args(0))
-
     dbLinkBudget.Job.Date.readable = False
-
-    dbLinkBudget.Job.simulator_mode.readable = False
-    dbLinkBudget.Job.simulator_mode.writable = False
-    dbLinkBudget.Job.sat_geo_params.readable = False
-    dbLinkBudget.Job.sat_geo_params.writable = False
-    dbLinkBudget.Job.points2trsp.readable = False
-    dbLinkBudget.Job.points2trsp.writable = False
-
-    dbLinkBudget.Job.sat_fov.writable = False
-    dbLinkBudget.Job.sat_fov.readable = False
-
-    dbLinkBudget.Job.trsp_fov.writable = False
-    dbLinkBudget.Job.trsp_fov.readable = False
-
-    dbLinkBudget.Job.points2trsp.readable = False
-    dbLinkBudget.Job.points2trsp.writable = False
-
-    dbLinkBudget.Job.gw2trsp.readable = False
-    dbLinkBudget.Job.gw2trsp.writable = False
-
-    dbLinkBudget.Job.comp_point_cover.readable = False
-    dbLinkBudget.Job.comp_point_cover.writable = False
-
-    dbLinkBudget.Job.comp_gw_cover.readable = False
-    dbLinkBudget.Job.comp_gw_cover.writable = False
-
-    dbLinkBudget.Job.propa_feeder_link.readable = False
-    dbLinkBudget.Job.propa_feeder_link.writable = False
-
-    dbLinkBudget.Job.propa_user_link.readable = False
-    dbLinkBudget.Job.propa_user_link.writable = False
-
-    dbLinkBudget.Job.sat_up_perf.readable = False
-    dbLinkBudget.Job.sat_up_perf.writable = False
-
-    dbLinkBudget.Job.sat_dwn_perf.readable = False
-    dbLinkBudget.Job.sat_dwn_perf.writable = False
-
-    dbLinkBudget.Job.comp_link_budget.readable = False
-    dbLinkBudget.Job.comp_link_budget.writable = False
-
-    dbLinkBudget.Job.processed.readable = False
-    dbLinkBudget.Job.processed.writable = False
-
-    dbLinkBudget.Job.csn0_up_flag.readable = False
-    dbLinkBudget.Job.csn0_up_flag.writable = False
-
-    dbLinkBudget.Job.csim0_flag.readable = False
-    dbLinkBudget.Job.csim0_flag.writable = False
-
-    dbLinkBudget.Job.csn0_dn_flag.readable = False
-    dbLinkBudget.Job.csn0_dn_flag.writable = False
-
-    dbLinkBudget.Job.csi0_dn_flag.readable = False
-    dbLinkBudget.Job.csi0_dn_flag.writable = False
-    dbLinkBudget.Job.csi0_dn_flag.readable = False
-    dbLinkBudget.Job.csi0_dn_flag.writable = False
-    dbLinkBudget.Job.csi0_up_flag.readable = False
-    dbLinkBudget.Job.csi0_up_flag.writable = False
-    dbLinkBudget.Job.csn0_dn_flag.readable = False
-    dbLinkBudget.Job.csn0_dn_flag.writable = False
-
     form = SQLFORM(dbLinkBudget.Job, record, deletable=True,
                    upload=URL('download'), formstyle='table3cols')
     if form.process().accepted:
         session.flash = "%s - %s has been accepted" % (form.vars.id, form.vars.job_name)
         session.job = form.vars.job_name
         add_excel_2_db()
-    else:
+    elif form.errors:
         session.flash = "%s - %s has FAILED" % (form.vars.id, form.vars.job_name)
     return dict(form=form)
 
@@ -157,60 +94,17 @@ def update():
     record = dbLinkBudget.Job(request.args(0))
     dbLinkBudget.Job.Date.readable = False
 
-    dbLinkBudget.Job.file_up.writable = False
-    dbLinkBudget.Job.file_up.readable = False
-
-    dbLinkBudget.Job.simulator_mode.readable = False
-    dbLinkBudget.Job.simulator_mode.writable = False
-    dbLinkBudget.Job.sat_geo_params.readable = False
-    dbLinkBudget.Job.sat_geo_params.writable = False
-    dbLinkBudget.Job.points2trsp.readable = False
-    dbLinkBudget.Job.points2trsp.writable = False
-    dbLinkBudget.Job.gw2trsp.readable = False
-    dbLinkBudget.Job.gw2trsp.writable = False
-    dbLinkBudget.Job.comp_point_cover.readable = False
-    dbLinkBudget.Job.comp_point_cover.writable = False
-    dbLinkBudget.Job.comp_gw_cover.readable = False
-    dbLinkBudget.Job.comp_gw_cover.writable = False
-    dbLinkBudget.Job.propa_feeder_link.readable = False
-    dbLinkBudget.Job.propa_feeder_link.writable = False
-    dbLinkBudget.Job.propa_user_link.readable = False
-    dbLinkBudget.Job.propa_user_link.writable = False
-    dbLinkBudget.Job.sat_up_perf.readable = False
-    dbLinkBudget.Job.sat_up_perf.writable = False
-    dbLinkBudget.Job.sat_dwn_perf.readable = False
-    dbLinkBudget.Job.sat_dwn_perf.writable = False
-    dbLinkBudget.Job.comp_link_budget.readable = False
-    dbLinkBudget.Job.comp_link_budget.writable = False
-    dbLinkBudget.Job.processed.readable = False
-    dbLinkBudget.Job.processed.writable = False
-
-    dbLinkBudget.Job.csn0_up_flag.readable = False
-    dbLinkBudget.Job.csn0_up_flag.writable = False
-    dbLinkBudget.Job.csim0_flag.readable = False
-    dbLinkBudget.Job.csim0_flag.writable = False
-    dbLinkBudget.Job.csn0_dn_flag.readable = False
-    dbLinkBudget.Job.csn0_dn_flag.writable = False
-    dbLinkBudget.Job.csi0_dn_flag.readable = False
-    dbLinkBudget.Job.csi0_dn_flag.writable = False
-    dbLinkBudget.Job.csi0_dn_flag.readable = False
-    dbLinkBudget.Job.csi0_dn_flag.writable = False
-    dbLinkBudget.Job.csi0_up_flag.readable = False
-    dbLinkBudget.Job.csi0_up_flag.writable = False
-    dbLinkBudget.Job.csn0_dn_flag.readable = False
-    dbLinkBudget.Job.csn0_dn_flag.writable = False
-
-    #    dbLinkBudget.Job.processed.readable = False # enable these when in use. Having it off is good for debugging
-    #    dbLinkBudget.Job.processed.writable = False
     form = SQLFORM(dbLinkBudget.Job, record, deletable=True, formstyle='table3cols', submit_button='Update')
+
     form.add_button('Next', URL('launch', args=request.args(0)))
     if form.process().accepted:
         session.flash = "%s - %s has been updated" % (form.vars.id, form.vars.job_name)
         if form.deleted:
             session.flash = "%s) %s has been deleted" % (form.vars.id, form.vars.job_name)
             redirect(URL('select'))
-        else:
+        elif form.errors:
             session.job = form.vars.job_name
+            session.flash = "Errors in form"
     return dict(job=XML(job), vsat=XML(json.dumps(vsat)), gw=XML(json.dumps(gw)), sat=XML(json.dumps(sat)),
                 trsp=XML(json.dumps(trsp)), form=form)
 
@@ -221,43 +115,33 @@ def launch():
 
 
     """
-    record = dbLinkBudget.Job(request.args(0))
-
-    # todo - to remove
-    dbLinkBudget.Job.Date.readable = False
-
-    dbLinkBudget.Job.file_up.writable = False
-    dbLinkBudget.Job.file_up.readable = False
-    dbLinkBudget.Job.job_name.writable = False
-    dbLinkBudget.Job.description.writable = False
-
-    # todo : to re-write
-
-    dbLinkBudget.Job.sat_fov.show_if = (dbLinkBudget.Job.sat_geo_params == True)
-    dbLinkBudget.Job.trsp_fov.show_if = (dbLinkBudget.Job.sat_geo_params == True)
-    dbLinkBudget.Job.propa_feeder_link.show_if = (dbLinkBudget.Job.comp_gw_cover == True)
-    dbLinkBudget.Job.propa_user_link.show_if = (dbLinkBudget.Job.comp_point_cover == True)
-    dbLinkBudget.Job.sat_up_perf.show_if = (dbLinkBudget.Job.sat_geo_params == True)
-    dbLinkBudget.Job.sat_dwn_perf.show_if = (dbLinkBudget.Job.sat_geo_params == True)
-    # dbLinkBudget.Job.comp_link_budget.show_if = (dbLinkBudget.Job.propa_feeder_link==True)
-
-    dbLinkBudget.Job.csn0_up_flag.show_if = (dbLinkBudget.Job.comp_link_budget == True)
-    dbLinkBudget.Job.csi0_up_flag.show_if = (dbLinkBudget.Job.comp_link_budget == True)
-    dbLinkBudget.Job.csim0_flag.show_if = (dbLinkBudget.Job.comp_link_budget == True)
-    dbLinkBudget.Job.csn0_dn_flag.show_if = (dbLinkBudget.Job.comp_link_budget == True)
-    dbLinkBudget.Job.csi0_dn_flag.show_if = (dbLinkBudget.Job.comp_link_budget == True)
-    #    dbLinkBudget.Job.processed.readable = False # enable these when in use. Having it off is good for debugging
-    #    dbLinkBudget.Job.processed.writable = False
-    form = SQLFORM(dbLinkBudget.Job, record, deletable=True, formstyle='table3cols', submit_button='Save')
-    form.add_button('Select Page', URL('select'))
-    if form.process().accepted:
-        session.flash = "%s - %s has been updated" % (form.vars.id, form.vars.job_name)
-        if form.deleted:
-            session.flash = "%s) %s has been deleted" % (form.vars.id, form.vars.job_name)
-            redirect(URL('select'))
-        else:
+    session.job = ""
+    arg = request.args(0)
+    #    dbLinkBudget.Calculate.processed.readable = False # enable these when in use. Having it off is good for debugging
+    #    dbLinkBudget.Calculate.processed.writable = False
+    if dbLinkBudget.Job(arg):
+        record = dbLinkBudget.Calculate(arg)
+        form = SQLFORM(dbLinkBudget.Calculate, record, deletable=True, formstyle='table3cols', submit_button='Save')
+        form.add_button('Select Page', URL('select'))
+        if form.process().accepted:
+            session.flash = "%s -  has been updated" % (form.vars.id)
+            if form.deleted:
+                session.flash = "%s)  has been deleted" % (form.vars.id)
+                redirect(URL('select'))
+            elif form.errors:
+                session.job = form.vars.job_name
+        return dict(form=form)
+    else:
+        record = dbLinkBudget.Job(arg)
+        form = SQLFORM(dbLinkBudget.Job, record, deletable=True,
+                       upload=URL('download'), formstyle='table3cols')
+        if form.process().accepted:
+            session.flash = "%s - %s has been accepted" % (form.vars.id, form.vars.job_name)
             session.job = form.vars.job_name
-    return dict(form=form)
+            add_excel_2_db()
+        elif form.errors:
+            session.flash = "%s - %s has FAILED" % (form.vars.id, form.vars.job_name)
+        return dict(form=form)
 
 
 def add_excel_2_db():
@@ -265,15 +149,10 @@ def add_excel_2_db():
     Function used to insert excel dictionary into database
 
     """
-    import logging
-    logger = logging.getLogger("web2py.app.myweb2pyapplication")
-    logger.setLevel(logging.DEBUG)
-
     fileName = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).file_up  # Find uploaded file
     job_id = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).id
-
     excel_info = load_objects_from_xl(os.path.join(request.folder, 'uploads', fileName))
-    logger.error("excel_info " + str(excel_info))
+
     read_array_to_db(dbLinkBudget.SAT, excel_info[0])
     read_array_to_db(dbLinkBudget.TRSP, excel_info[1])
     read_array_to_db(dbLinkBudget.VSAT, excel_info[2])
@@ -416,10 +295,10 @@ def create_download():
     filepath = os.path.join(request.folder, 'uploads', filename)
     create_saving_worksheet(filepath, sat, "SAT", trsp, "TRSP", vsat, "EARTH_coord_VSAT")
     stream = open(filepath, 'rb')
-    dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(
-        processed_file=dbLinkBudget.Job.processed_file.store(stream, filepath))
+    dbLinkBudget(dbLinkBudget.Calculate.id == request.args(0)).update(
+        processed_file=dbLinkBudget.Calculate.processed_file.store(stream, filepath))
     os.remove(filepath)
-    redirect(URL('download', args=dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).processed_file))
+    redirect(URL('download', args=dbLinkBudget.Calculate(dbLinkBudget.Calculate.id == request.args(0)).processed_file))
 
 
 def run():
@@ -434,11 +313,11 @@ def run():
 
     """
 
-    element = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0))
-    file = element.file_up  # Find uploaded file
-    job_id = element.id
+    element = dbLinkBudget.Calculate(dbLinkBudget.Calculate.id == request.args(0))
+    fileName = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).file_up  # Find uploaded file
+    job_id = request.args(0)
 
-    excel_info = load_objects_from_xl(os.path.join(request.folder, 'uploads', file))
+    excel_info = load_objects_from_xl(os.path.join(request.folder, 'uploads', fileName))
 
     SAT_dict = excel_info[0]
     TRSP_dict = excel_info[1]
@@ -525,11 +404,14 @@ def run():
                 SAT_IDs = np.append(SAT_IDs, np.full(len(beam_contour_ll[2 * i, :]), SAT_ID))
                 trsp_fov_dict = {'SAT_ID': SAT_IDs, 'TRSP_ID': count, 'LON': lon, 'LAT': lat}
             read_array_to_db(dbLinkBudget.TRSP_FOV, trsp_fov_dict, job_id)
+    else:
+        session.flash = "You need to choose a calculation to launch"
+        redirect(URL('launch', args=request.args(0)))
     read_array_to_db(dbLinkBudget.TRSP, TRSP_dict)  # at the moment these write to new lines
     read_array_to_db(dbLinkBudget.SAT, SAT_dict)
     read_array_to_db(dbLinkBudget.EARTH_coord_VSAT, EARTH_COORD_VSAT_dict, job_id)
     read_array_to_db(dbLinkBudget.Earth_coord_GW, EARTH_COORD_GW_dict, job_id)
-    dbLinkBudget(dbLinkBudget.Job.id == request.args(0)).update(processed=True)
+    dbLinkBudget(dbLinkBudget.Calculate.id == request.args(0)).update(processed=True)
     redirect(URL('launch', args=request.args(0)))
 
 

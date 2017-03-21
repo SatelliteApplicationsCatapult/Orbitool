@@ -26,7 +26,6 @@
         <button class="btn" id="cesium">
             Plot in Cesium
         </button>
-        {{if dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).processed == True:}}
         {{pass}}
         <button id="copy" class="btn">Copy</button>
         </div>
@@ -45,7 +44,6 @@ $(document).ready(function(){
         window.location="{{=URL('copy',args = request.args(0))}}";
     });
     $("#processed").click(function(){
-        //window.location="{{=URL('download',args = dbLinkBudget.Job(dbLinkBudget.Job.id==request.args(0)).processed_file)}}";
         window.location="{{=URL('create_download',args = request.args(0))}}";
     });
     $("#cesium").click(function(){
