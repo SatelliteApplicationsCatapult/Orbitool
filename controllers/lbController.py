@@ -246,47 +246,23 @@ def create_download():
     TODO: consider using lists instead of dictionaries so that the download excel is ordered.
     TODO: at RX fields
     """
-
-    vsat_element = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0))
-    gw_element = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0))
-    sat_element = dbLinkBudget(dbLinkBudget.SAT.Job_ID == request.args(0))
-    trsp_element = dbLinkBudget(dbLinkBudget.TRSP.Job_ID == request.args(0))
-
-    # todo : insteand of use interselect if you can extrac all
-    #  VSAT
-
-    vsat_keys = dbLinkBudget.EARTH_coord_VSAT.fields
-
-    rowt = vsat_element.iterselect(*vsat_keys).first().as_dict()
-    vsat = OrderedDict.fromkeys(rowt["_extra"])
-    for key in vsat_keys:
-        vsat[key] = []
-    for row in vsat_element.iterselect(*vsat_keys):
-        for key in vsat_keys:
-            vsat[key].append(row["_extra"][key])
-    # SAT
-    rowt = sat_element.iterselect(*sat_fieldNames).first().as_dict()
-
-    sat = OrderedDict.fromkeys(rowt["_extra"])
-    for key in sat.keys():
-        sat[key] = []
-    for row in sat_element.iterselect(*sat_fieldNames):
-        for key in sat.keys():
-            sat[key].append(row["_extra"][key])
-    # TRSP
-    rowt = trsp_element.iterselect(
-        *trsp_fieldNames).first().as_dict()
-
-    trsp = OrderedDict.fromkeys(rowt["_extra"])
-    for key in trsp.keys():
-        trsp[key] = []
-    for row in trsp_element.iterselect(*trsp_fieldNames):
-        for key in trsp.keys():
-            trsp[key].append(row["_extra"][key])
+    sheets = []
+    for table in [dbLinkBudget.VSAT, dbLinkBudget.Gateway, dbLinkBudget.SAT,dbLinkBudget.TRSP,
+                          dbLinkBudget.Earth_coord_GW, dbLinkBudget.EARTH_coord_VSAT]:
+        keys = table.fields
+        keys.remove('id')
+        keys.remove('Job_ID')
+        output = OrderedDict.fromkeys(keys)
+        for key in keys:
+            output[key] = []
+        for row in dbLinkBudget(table.Job_ID == request.args(0)).iterselect(*keys):
+            for key in keys:
+                output[key].append(row["_extra"][key])
+        sheets.append(output)
 
     filename = "Link Budget - Output Scenario " + request.args(0) + ".xlsx"
     filepath = os.path.join(request.folder, 'uploads', filename)
-    create_saving_worksheet(filepath, sat, "SAT", trsp, "TRSP", vsat, "EARTH_coord_VSAT")
+    create_saving_worksheet(filepath, sheets[0], "VSAT", sheets[1], "GW", sheets[2], "SAT", sheets[3], "TRSP", sheets[4], "EARTH_coord_GW",sheets[5], "EARTH_coord_VSAT")
     stream = open(filepath, 'rb')
     dbLinkBudget(dbLinkBudget.Calculate.id == request.args(0)).update(
         processed_file=dbLinkBudget.Calculate.processed_file.store(stream, filepath))

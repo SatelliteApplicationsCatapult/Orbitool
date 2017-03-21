@@ -98,8 +98,8 @@ def load_object(worksheet):
 
     return d
 
-
-def create_saving_worksheet(filename, my_dict, wksht_name, my_dict2, wksht_name2, my_dict3, wksht_name3):
+def create_saving_worksheet(filename, my_dict, wksht_name, my_dict2, wksht_name2, my_dict3, wksht_name3, my_dict4,
+                                wksht_name4, my_dict5, wksht_name5, my_dict6, wksht_name6):
     """
     Creates an excel worksheet.
     Used in create_download() in lbController.py
@@ -140,5 +140,32 @@ def create_saving_worksheet(filename, my_dict, wksht_name, my_dict2, wksht_name2
     counter = 0
     for key in my_dict3.keys():
         wksht3.write_column(1, counter, my_dict3[key])  # Needs to be of list format, not a single variable
+        counter += 1
+
+    wksht4 = workbook.add_worksheet(wksht_name4)
+    # write_keys
+    wksht4.write_row(0, 0, my_dict4.keys())
+    # write values
+    counter = 0
+    for key in my_dict4.keys():
+        wksht4.write_column(1, counter, my_dict4[key])  # Needs to be of list format, not a single variable
+        counter += 1
+
+    wksht5 = workbook.add_worksheet(wksht_name5)
+    # write_keys
+    wksht5.write_row(0, 0, my_dict5.keys())
+    # write values
+    counter = 0
+    for key in my_dict5.keys():
+        wksht5.write_column(1, counter, my_dict5[key])  # Needs to be of list format, not a single variable
+        counter += 1
+
+    wksht6 = workbook.add_worksheet(wksht_name6)
+    # write_keys
+    wksht6.write_row(0, 0, my_dict6.keys())
+    # write values
+    counter = 0
+    for key in my_dict6.keys():
+        wksht6.write_column(1, counter, my_dict6[key])  # Needs to be of list format, not a single variable
         counter += 1
     workbook.close()
