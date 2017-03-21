@@ -27,7 +27,6 @@
             Plot in Cesium
         </button>
         {{pass}}
-        <button id="copy" class="btn">Copy</button>
         </div>
     <div id="selected"  style="float:right; width:50%;padding:30px;height:700px;overflow: auto">
         
@@ -39,9 +38,6 @@
 $(document).ready(function(){
     $("#run").click(function(){
         window.location="{{=URL('run',args = request.args(0))}}";
-    });
-    $("#copy").click(function(){
-        window.location="{{=URL('copy',args = request.args(0))}}";
     });
     $("#processed").click(function(){
         window.location="{{=URL('create_download',args = request.args(0))}}";
