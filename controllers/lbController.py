@@ -16,7 +16,7 @@ from lib_lkb.display_func import *
 import platform
 if platform.system() is 'Windows':
     from lib_lkb.propa_func_windows import *
-elif platform.sysstem() is 'Linux':
+elif platform.system() is 'Linux':
     from lib_lkb.propa_func_linux import *
 
 
