@@ -6,12 +6,13 @@
 # -------------------------------------------------------------------------
 import json
 from datetime import datetime
-
+import numpy as np
 from excelHandling import *
 from gluon import *
 from lbConfiguration import *
 from lib_lkb.compute_high_level_func import *
 from lib_lkb.display_func import *
+
 
 response.title = 'Link Budget Calculator'
 
@@ -176,7 +177,7 @@ def read_array_to_db(db, ordDict, job_id=0):
                 (db.Job_ID == job_id) & (db.LON == row['LON']) & (db.LAT == row['LAT']) & (
                 db.VSAT_ID == row['VSAT_ID']), Job_ID=job_id, **row)
         else:
-            db.update_or_insert((db.Job_ID == job_id), Job_ID=job_id, **row)
+            db.update_or_insert(Job_ID=job_id, **row)
 
 
 def read_db_to_array(db, job_id=0):
@@ -351,7 +352,8 @@ def run():
 
     #### This is get transponder FOV circles
     if element.trsp_fov:
-        for SAT_ID in map(int, SAT_dict['SAT_ID']):
+        SAT_dict['SAT_ID'] = np.array([int(float(ID)) for ID in SAT_dict['SAT_ID']])
+        for SAT_ID in SAT_dict['SAT_ID']:
             beam_centers_lonlat, beam_contour_ll = display_2D_sat_and_beams_for_cesium(SAT_ID, SAT_dict['SAT_ID'],
                                                                                        SAT_dict['PAYLOAD_ID'],
                                                                                        nadir_ecef, pos_ecef,
