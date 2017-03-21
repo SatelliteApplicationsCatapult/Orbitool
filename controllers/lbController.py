@@ -251,7 +251,7 @@ def create_download():
     Creates downloadable file.
     This is called in update.html under options
 
-    TODO: consider using lists instead of dicionaries so that the download excel is ordered.
+    TODO: consider using lists instead of dictionaries so that the download excel is ordered.
     TODO: at RX fields
     """
 
@@ -516,23 +516,23 @@ def get_geojson():
         object: GeoJSON
     """
     earth_vsat = dbLinkBudget.EARTH_coord_VSAT
-    rows = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(
+    earth_vsat_rows = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(
         0)).iterselect()  # TODO : test if iterselect is better than regular select, time and memory resources.
     features = [{"type": "Feature",
                  "geometry": {
                      "type": "Point",
-                     "coordinates": [r[earth_vsat.LON], r[earth_vsat.LAT]]
+                     "coordinates": [row[earth_vsat.LON], row[earth_vsat.LAT]]
                  },
                  "properties": {
-                     "title": [str(r[earth_vsat.VSAT_ID])],
-                     "Job ID": r[earth_vsat.Job_ID],
-                     "EIRP": r[earth_vsat.SAT_EIRP],
-                     "ELEVATION": r[earth_vsat.ELEVATION],
-                     "SAT_GPT": r[earth_vsat.SAT_GPT],
-                     "Lat": r[earth_vsat.LAT],
-                     "Lon": r[earth_vsat.LON],
+                     "title": [str(row[earth_vsat.VSAT_ID])],
+                     "Job ID": row[earth_vsat.Job_ID],
+                     "EIRP": row[earth_vsat.SAT_EIRP],
+                     "ELEVATION": row[earth_vsat.ELEVATION],
+                     "SAT_GPT": row[earth_vsat.SAT_GPT],
+                     "Lat": row[earth_vsat.LAT],
+                     "Lon": row[earth_vsat.LON],
                  }
-                 } for r in rows if r[
+                 } for row in earth_vsat_rows if row[
                     dbLinkBudget.EARTH_coord_VSAT.ELEVATION]]  # TODO : Extend to include more information form
     # database #hacky way to ignore NONEs
     return response.json({"type": "FeatureCollection", 'features': features})
@@ -548,27 +548,27 @@ def get_geojson_gw():
         object: GeoJSON
     """
     earth_gateway = dbLinkBudget.Earth_coord_GW
-    rows = dbLinkBudget(earth_gateway.Job_ID == request.args(0)).iterselect()
+    earth_gateway_rows = dbLinkBudget(earth_gateway.Job_ID == request.args(0)).iterselect()
 
     features = [{"type": "Feature",
                  "geometry": {
                      "type": "Point",
-                     "coordinates": [r[earth_gateway.LON], r[earth_gateway.LAT]]
+                     "coordinates": [row[earth_gateway.LON], row[earth_gateway.LAT]]
                  },
                  "properties": {
                      "title": "Gateway",
-                     "Job ID": r[earth_gateway.Job_ID],
-                     "Gateway ID": r[earth_gateway.GW_ID],
+                     "Job ID": row[earth_gateway.Job_ID],
+                     "Gateway ID": row[earth_gateway.GW_ID],
                      "EIRP Max": dbLinkBudget.Gateway(
-                         dbLinkBudget.Gateway.GW_ID == r[earth_gateway.GW_ID]).EIRP_MAX,
+                         dbLinkBudget.Gateway.GW_ID == row[earth_gateway.GW_ID]).EIRP_MAX,
                      "Bandwidth": dbLinkBudget.Gateway(
-                         dbLinkBudget.Gateway.GW_ID == r[earth_gateway.GW_ID]).BANDWIDTH,
+                         dbLinkBudget.Gateway.GW_ID == row[earth_gateway.GW_ID]).BANDWIDTH,
                      "Diameter": dbLinkBudget.Gateway(
-                         dbLinkBudget.Gateway.GW_ID == r[earth_gateway.GW_ID]).DIAMETER,
-                     "Lat": r[earth_gateway.LAT],
-                     "Lon": r[earth_gateway.LON],
+                         dbLinkBudget.Gateway.GW_ID == row[earth_gateway.GW_ID]).DIAMETER,
+                     "Lat": row[earth_gateway.LAT],
+                     "Lon": row[earth_gateway.LON],
                  }
-                 } for r in rows]
+                 } for row in earth_gateway_rows]
     return response.json({"type": "FeatureCollection", 'features': features})
 
 
@@ -581,27 +581,27 @@ def get_geojson_sat():
     Returns:
         object: GeoJSON
     """
-    rows = dbLinkBudget(dbLinkBudget.SAT.Job_ID == request.args(0)).iterselect()
+    satellite_rows = dbLinkBudget(dbLinkBudget.SAT.Job_ID == request.args(0)).iterselect()
     satellite = dbLinkBudget.SAT
     features = [{"type": "Feature",
                  "geometry": {
                      "type": "Point",
-                     "coordinates": [r[satellite.NADIR_LON],
-                                     r[satellite.NADIR_LAT],
-                                     r[satellite.DISTANCE]*1000
+                     "coordinates": [row[satellite.NADIR_LON],
+                                     row[satellite.NADIR_LAT],
+                                     row[satellite.DISTANCE]*1000 #convert to metres
                                      ]
                  },
                  "properties": {
                      "title": "SAT",
-                     "Height": r[satellite.DISTANCE],
-                     "SAT ID": r[satellite.SAT_ID],
-                     "Job ID": r[satellite.Job_ID],
-                     "FOV Radius": r[satellite.FOV_RADIUS],
-                     "Payload ID": r[satellite.PAYLOAD_ID],
-                     "Lat": r[satellite.NADIR_LAT],
-                     "Lon": r[satellite.NADIR_LON],
+                     "Height": row[satellite.DISTANCE],
+                     "SAT ID": row[satellite.SAT_ID],
+                     "Job ID": row[satellite.Job_ID],
+                     "FOV Radius": row[satellite.FOV_RADIUS],
+                     "Payload ID": row[satellite.PAYLOAD_ID],
+                     "Lat": row[satellite.NADIR_LAT],
+                     "Lon": row[satellite.NADIR_LON],
                  }
-                 } for r in rows]
+                 } for row in satellite_rows]
     return response.json({"type": "FeatureCollection", 'features': features})
 
 
@@ -615,27 +615,27 @@ def get_geojson_FOV():
         object: GeoJSON
     """
     satellite = dbLinkBudget.SAT
-    rows = dbLinkBudget(satellite.Job_ID == request.args(0)).iterselect()
+    satellite_rows = dbLinkBudget(satellite.Job_ID == request.args(0)).iterselect()
 
     features = [{"type": "Feature",
                  "geometry": {
                      "type": "Point",
-                     "coordinates": [r[satellite.NADIR_LON],
-                                     r[satellite.NADIR_LAT],
-                                     r[satellite.DISTANCE]*1000/2
+                     "coordinates": [row[satellite.NADIR_LON],
+                                     row[satellite.NADIR_LAT],
+                                     row[satellite.DISTANCE]*1000/2 #centre of the cone is half way from ground to satellites
                                      ]
                  },
                  "properties": {
                      "title": "SAT",
-                     "Height": r[satellite.DISTANCE],
-                     "SAT ID": r[satellite.SAT_ID],
-                     "Job ID": r[satellite.Job_ID],
-                     "FOVBottomRadius": r[satellite.DISTANCE]*1000*np.tan((np.pi/180)*r[satellite.FOV_RADIUS]),
-                     "Payload ID": r[satellite.PAYLOAD_ID],
-                     "Lat": r[satellite.NADIR_LAT],
-                     "Lon": r[satellite.NADIR_LON],
+                     "Height": row[satellite.DISTANCE],
+                     "SAT ID": row[satellite.SAT_ID],
+                     "Job ID": row[satellite.Job_ID],
+                     "FOVBottomRadius": row[satellite.DISTANCE]*1000*np.tan((np.pi/180)*row[satellite.FOV_RADIUS]), #radius of bottom of cone is D*tan(theta) where theta is the half angle at the top of the cone
+                     "Payload ID": row[satellite.PAYLOAD_ID],
+                     "Lat": row[satellite.NADIR_LAT],
+                     "Lon": row[satellite.NADIR_LON],
                  }
-                 } for r in rows]
+                 } for row in satellite_rows]
     return response.json({"type": "FeatureCollection", 'features': features})
 
 
