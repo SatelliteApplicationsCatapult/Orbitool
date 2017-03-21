@@ -153,11 +153,11 @@ def add_excel_2_db():
     job_id = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).id
     excel_info = load_objects_from_xl(os.path.join(request.folder, 'uploads', fileName))
 
-    read_array_to_db(dbLinkBudget.SAT, excel_info[0])
-    read_array_to_db(dbLinkBudget.TRSP, excel_info[1])
-    read_array_to_db(dbLinkBudget.VSAT, excel_info[2])
+    read_array_to_db(dbLinkBudget.SAT, excel_info[0], job_id)
+    read_array_to_db(dbLinkBudget.TRSP, excel_info[1], job_id)
+    read_array_to_db(dbLinkBudget.VSAT, excel_info[2], job_id)
     read_array_to_db(dbLinkBudget.Earth_coord_GW, excel_info[3], job_id)
-    read_array_to_db(dbLinkBudget.Gateway, excel_info[4])
+    read_array_to_db(dbLinkBudget.Gateway, excel_info[4], job_id)
     read_array_to_db(dbLinkBudget.EARTH_coord_VSAT, excel_info[5], job_id)
 
     redirect(URL('update', args=job_id))
@@ -407,8 +407,8 @@ def run():
     else:
         session.flash = "You need to choose a calculation to launch"
         redirect(URL('launch', args=request.args(0)))
-    read_array_to_db(dbLinkBudget.TRSP, TRSP_dict)  # at the moment these write to new lines
-    read_array_to_db(dbLinkBudget.SAT, SAT_dict)
+    read_array_to_db(dbLinkBudget.TRSP, TRSP_dict, job_id)  # at the moment these write to new lines
+    read_array_to_db(dbLinkBudget.SAT, SAT_dict, job_id)
     read_array_to_db(dbLinkBudget.EARTH_coord_VSAT, EARTH_COORD_VSAT_dict, job_id)
     read_array_to_db(dbLinkBudget.Earth_coord_GW, EARTH_COORD_GW_dict, job_id)
     dbLinkBudget(dbLinkBudget.Calculate.id == request.args(0)).update(processed=True)
