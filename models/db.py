@@ -235,10 +235,10 @@ dbLinkBudget.define_table('Job',
                           )
 
 dbLinkBudget.define_table('Calculate',
+                          Field('Job_ID', label='Job ID',),
                           Field('processed_file', 'upload', writable=False, readable=False, autodelete=True),
                           Field('simulator_mode', 'string', requires=IS_IN_SET(('FWD', 'RTN')), default='FWD',
                                 label='Simulation Mode (FWD or RTN)'),
-
                           Field('sat_geo_params', 'boolean', label='1) Compute Satellite Geometric Parameters'),
                           Field('sat_fov', 'boolean', label='1a) Compute Satellite FOV'),
                           Field('trsp_fov', 'boolean', label='1b) Compute Transponder FOV'),
@@ -269,6 +269,7 @@ dbLinkBudget.define_table('Calculate',
                                 label='Processed? Leave this unchecked and it becomes checked when you press the Run '
                                       'button'),
                           )
+dbLinkBudget.Calculate.Job_ID.default = request.args(0)
 # dbLinkBudget.Job.file_up.requires=IS_UPLOAD_FILENAME(extension=['xlsx','xls','xml'])
 dbLinkBudget.define_table('Earth_coord_GW',
                           Field('Job_ID', requires=IS_IN_DB(dbLinkBudget, 'Job.id')),

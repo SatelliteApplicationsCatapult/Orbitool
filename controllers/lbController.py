@@ -7,17 +7,11 @@
 import json
 from datetime import datetime
 
-from gluon import *
 from excelHandling import *
+from gluon import *
+from lbConfiguration import *
 from lib_lkb.compute_high_level_func import *
 from lib_lkb.display_func import *
-
-from lbConfiguration import *
-
-import logging
-
-logger = logging.getLogger("web2py.app.linkbudgetweb")
-logger.setLevel(logging.DEBUG)
 
 response.title = 'Link Budget Calculator'
 
@@ -66,48 +60,39 @@ def update():
         JSON formatted stream
 
     """
-    gw_element = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0))
-    vsat_element = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0))
-    job = json.dumps(dbLinkBudget(dbLinkBudget.Job).select().as_list(),
-                     default=json_serial)  # default json.dumps specificed
-    gw = []
-    vsat = []
-    sat = []
-    trsp = []
-    for row in gw_element.iterselect(groupby='GW_ID'):  #
-        # this looks for the different types of gateway referred to in gw Earth_coord
-        gw.extend(dbLinkBudget(dbLinkBudget.Gateway.GW_ID == row['GW_ID']).select().as_list())
+    job_id = request.args(0)
+    if dbLinkBudget.Job(job_id):
+        job = json.dumps(dbLinkBudget(dbLinkBudget.Job).select().as_list(),
+                         default=json_serial)  # default json.dumps specificed
+        gw = []
+        vsat = []
+        sat = []
+        trsp = []
 
-    for row in vsat_element.iterselect(groupby='VSAT_ID'):
-        # this looks for the different types of vsat referred to in vsat Earth_coord
-        vsat.extend(dbLinkBudget(dbLinkBudget.VSAT.VSAT_ID == row['VSAT_ID']).select().as_list())
+        gw.extend(dbLinkBudget(dbLinkBudget.Gateway.Job_ID == job_id).select().as_list())
+        vsat.extend(dbLinkBudget(dbLinkBudget.VSAT.Job_ID == job_id).select().as_list())
+        sat.extend(dbLinkBudget(dbLinkBudget.SAT.Job_ID == job_id).select().as_list())
+        trsp.extend(dbLinkBudget(dbLinkBudget.TRSP.Job_ID == job_id).select().as_list())
 
-    for row in gw_element.iterselect(groupby='SAT_ID'):  #
-        # this looks for the different types of Satellite referred to in gateway Earth_coord
-        sat.extend(dbLinkBudget(dbLinkBudget.SAT.SAT_ID == row['SAT_ID']).select().as_list())
+        record = dbLinkBudget.Job(request.args(0))
+        dbLinkBudget.Job.Date.readable = False
+        dbLinkBudget.Job.file_up.readable = False
+        dbLinkBudget.Job.file_up.writable = False
+        form = SQLFORM(dbLinkBudget.Job, record, deletable=True, formstyle='table3cols', submit_button='Update')
 
-    for row in gw_element.iterselect(groupby='PAYLOAD_ID'):
-        # this looks for the different types of payload referred to in gateway Earth_coord and outputs transponder
-        # information
-        trsp.extend(dbLinkBudget(dbLinkBudget.TRSP.PAYLOAD_ID == row['PAYLOAD_ID']).select().as_list())
-
-    record = dbLinkBudget.Job(request.args(0))
-    dbLinkBudget.Job.Date.readable = False
-    dbLinkBudget.Job.file_up.readable = False
-    dbLinkBudget.Job.file_up.writable = False
-    form = SQLFORM(dbLinkBudget.Job, record, deletable=True, formstyle='table3cols', submit_button='Update')
-
-    form.add_button('Next', URL('launch', args=request.args(0)))
-    if form.process().accepted:
-        session.flash = "%s - %s has been updated" % (form.vars.id, form.vars.job_name)
-        if form.deleted:
-            session.flash = "%s) %s has been deleted" % (form.vars.id, form.vars.job_name)
-            redirect(URL('select'))
-        elif form.errors:
-            session.job = form.vars.job_name
-            session.flash = "Errors in form"
-    return dict(job=XML(job), vsat=XML(json.dumps(vsat)), gw=XML(json.dumps(gw)), sat=XML(json.dumps(sat)),
-                trsp=XML(json.dumps(trsp)), form=form)
+        form.add_button('Next', URL('launch', args=request.args(0)))
+        if form.process().accepted:
+            session.flash = "%s - %s has been updated" % (form.vars.id, form.vars.job_name)
+            if form.deleted:
+                session.flash = "%s) %s has been deleted" % (form.vars.id, form.vars.job_name)
+                redirect(URL('select'))
+            elif form.errors:
+                session.job = form.vars.job_name
+                session.flash = "Errors in form"
+        return dict(job=XML(job), vsat=XML(json.dumps(vsat)), gw=XML(json.dumps(gw)), sat=XML(json.dumps(sat)),
+                    trsp=XML(json.dumps(trsp)), form=form)
+    else:
+        redirect(URL('input'))
 
 
 def launch():
@@ -117,12 +102,13 @@ def launch():
 
     """
     session.job = ""
-    arg = request.args(0)
-    dbLinkBudget.Calculate.processed.readable = False # enable these when in use. Having it off is good for debugging
+    job_id = request.args(0)
+    dbLinkBudget.Calculate.processed.readable = False  # enable these when in use. Having it off is good for debugging
     dbLinkBudget.Calculate.processed.writable = False
-    if dbLinkBudget.Job(arg):
-        record = dbLinkBudget.Calculate(arg)
-        form = SQLFORM(dbLinkBudget.Calculate, record, formstyle='table3cols', submit_button='Save')
+    dbLinkBudget.Calculate.Job_ID.writable = False
+    if dbLinkBudget.Job(job_id):
+        record = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
+        form = SQLFORM(dbLinkBudget.Calculate, record, showid=False, formstyle='table3cols', submit_button='Save')
         form.add_button('Select Page', URL('select'))
         if form.process().accepted:
             session.flash = "%s -  has been updated" % (form.vars.id)
@@ -133,16 +119,7 @@ def launch():
                 session.job = form.vars.job_name
         return dict(form=form)
     else:
-        record = dbLinkBudget.Job(arg)
-        form = SQLFORM(dbLinkBudget.Job, record, deletable=True,
-                       upload=URL('download'), formstyle='table3cols')
-        if form.process().accepted:
-            session.flash = "%s - %s has been accepted" % (form.vars.id, form.vars.job_name)
-            session.job = form.vars.job_name
-            add_excel_2_db()
-        elif form.errors:
-            session.flash = "%s - %s has FAILED" % (form.vars.id, form.vars.job_name)
-        return dict(form=form)
+        redirect(URL('input'))
 
 
 def add_excel_2_db():
@@ -180,7 +157,26 @@ def read_array_to_db(db, ordDict, job_id=0):
     for v in range(ordDict.values()[0].size):
         for k in range(len(ordDict.keys())):
             row[ordDict.keys()[k]] = ordDict.values()[k][v]
-        db.update_or_insert(Job_ID= job_id, **row)  # All fields must be filled in for update to occur
+        #insert to database, but check if the fields already exist
+        if db is dbLinkBudget.Gateway:
+            db.update_or_insert((db.Job_ID == job_id) & (db.GW_ID == row['GW_ID']), Job_ID=job_id,
+                                **row)
+        elif db is dbLinkBudget.SAT:
+            db.update_or_insert((db.Job_ID == job_id) & (db.SAT_ID == row['SAT_ID']), Job_ID=job_id, **row)
+        elif db is dbLinkBudget.TRSP:
+            db.update_or_insert((db.Job_ID == job_id) & (db.TRSP_ID == row['TRSP_ID']), Job_ID=job_id, **row)
+        elif db is dbLinkBudget.VSAT:
+            db.update_or_insert((db.Job_ID == job_id) & (db.VSAT_ID == row['VSAT_ID']), Job_ID=job_id, **row)
+        elif db is dbLinkBudget.Earth_coord_GW:
+            db.update_or_insert(
+                (db.Job_ID == job_id) & (db.LON == row['LON']) & (db.LAT == row['LAT']) & (db.GW_ID == row['GW_ID']) & (
+                    db.TRSP_ID == row['TRSP_ID']), Job_ID=job_id, **row)
+        elif db is dbLinkBudget.EARTH_coord_VSAT:
+            db.update_or_insert(
+                (db.Job_ID == job_id) & (db.LON == row['LON']) & (db.LAT == row['LAT']) & (
+                db.VSAT_ID == row['VSAT_ID']), Job_ID=job_id, **row)
+        else:
+            db.update_or_insert((db.Job_ID == job_id), Job_ID=job_id, **row)
 
 
 def read_db_to_array(db, job_id=0):
@@ -253,40 +249,40 @@ def create_download():
 
     vsat_element = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(0))
     gw_element = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0))
+    sat_element = dbLinkBudget(dbLinkBudget.SAT.Job_ID == request.args(0))
+    trsp_element = dbLinkBudget(dbLinkBudget.TRSP.Job_ID == request.args(0))
 
     # todo : insteand of use interselect if you can extrac all
     #  VSAT
-    rowt = vsat_element.iterselect(*vsat_fieldNames).first().as_dict()
 
+    vsat_keys = dbLinkBudget.EARTH_coord_VSAT.fields
+
+    rowt = vsat_element.iterselect(*vsat_keys).first().as_dict()
     vsat = OrderedDict.fromkeys(rowt["_extra"])
-    for key in vsat.keys():
+    for key in vsat_keys:
         vsat[key] = []
-    for row in vsat_element.iterselect(*vsat_fieldNames):
-        for key in vsat.keys():
+    for row in vsat_element.iterselect(*vsat_keys):
+        for key in vsat_keys:
             vsat[key].append(row["_extra"][key])
     # SAT
-    for row in gw_element.iterselect(groupby='SAT_ID'):  #
-        # this looks for the different types of Satellite referred to in gateway Earth_coord
-        rowt = dbLinkBudget(dbLinkBudget.SAT.SAT_ID == row['SAT_ID']).iterselect(*sat_fieldNames).first().as_dict()
+    rowt = sat_element.iterselect(*sat_fieldNames).first().as_dict()
 
-        sat = OrderedDict.fromkeys(rowt["_extra"])
+    sat = OrderedDict.fromkeys(rowt["_extra"])
+    for key in sat.keys():
+        sat[key] = []
+    for row in sat_element.iterselect(*sat_fieldNames):
         for key in sat.keys():
-            sat[key] = []
-        for row in dbLinkBudget(dbLinkBudget.SAT.SAT_ID == row['SAT_ID']).iterselect(*sat_fieldNames):
-            for key in sat.keys():
-                sat[key].append(row["_extra"][key])
+            sat[key].append(row["_extra"][key])
     # TRSP
-    for row in gw_element.iterselect(groupby='PAYLOAD_ID'):
-        # this looks for the different types of Satellite referred to in gateway Earth_coord
-        rowt = dbLinkBudget(dbLinkBudget.TRSP.PAYLOAD_ID == row['PAYLOAD_ID']).iterselect(
-            *trsp_fieldNames).first().as_dict()
+    rowt = trsp_element.iterselect(
+        *trsp_fieldNames).first().as_dict()
 
-        trsp = OrderedDict.fromkeys(rowt["_extra"])
+    trsp = OrderedDict.fromkeys(rowt["_extra"])
+    for key in trsp.keys():
+        trsp[key] = []
+    for row in trsp_element.iterselect(*trsp_fieldNames):
         for key in trsp.keys():
-            trsp[key] = []
-        for row in dbLinkBudget(dbLinkBudget.TRSP.PAYLOAD_ID == row['PAYLOAD_ID']).iterselect(*trsp_fieldNames):
-            for key in trsp.keys():
-                trsp[key].append(row["_extra"][key])
+            trsp[key].append(row["_extra"][key])
 
     filename = "Link Budget - Output Scenario " + request.args(0) + ".xlsx"
     filepath = os.path.join(request.folder, 'uploads', filename)
@@ -310,7 +306,7 @@ def run():
 
     """
 
-    element = dbLinkBudget.Calculate(dbLinkBudget.Calculate.id == request.args(0))
+    element = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == request.args(0))
     fileName = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).file_up  # Find uploaded file
     job_id = request.args(0)
 
@@ -401,9 +397,9 @@ def run():
                 SAT_IDs = np.append(SAT_IDs, np.full(len(beam_contour_ll[2 * i, :]), SAT_ID))
                 trsp_fov_dict = {'SAT_ID': SAT_IDs, 'TRSP_ID': count, 'LON': lon, 'LAT': lat}
             read_array_to_db(dbLinkBudget.TRSP_FOV, trsp_fov_dict, job_id)
-    else:
-        session.flash = "You need to choose a calculation to launch"
-        redirect(URL('launch', args=request.args(0)))
+    #else:
+    #    session.flash = "You need to choose a calculation to launch"
+    #    redirect(URL('launch', args=request.args(0)))
     read_array_to_db(dbLinkBudget.TRSP, TRSP_dict, job_id)  # at the moment these write to new lines
     read_array_to_db(dbLinkBudget.SAT, SAT_dict, job_id)
     read_array_to_db(dbLinkBudget.EARTH_coord_VSAT, EARTH_COORD_VSAT_dict, job_id)
@@ -584,7 +580,7 @@ def get_geojson_sat():
                      "type": "Point",
                      "coordinates": [row[satellite.NADIR_LON],
                                      row[satellite.NADIR_LAT],
-                                     row[satellite.DISTANCE]*1000 #convert to metres
+                                     row[satellite.DISTANCE] * 1000  # convert to metres
                                      ]
                  },
                  "properties": {
@@ -618,7 +614,8 @@ def get_geojson_FOV():
                      "type": "Point",
                      "coordinates": [row[satellite.NADIR_LON],
                                      row[satellite.NADIR_LAT],
-                                     row[satellite.DISTANCE]*1000/2 #centre of the cone is half way from ground to satellites
+                                     row[satellite.DISTANCE] * 1000 / 2
+                                     # centre of the cone is half way from ground to satellites
                                      ]
                  },
                  "properties": {
@@ -626,14 +623,15 @@ def get_geojson_FOV():
                      "Height": row[satellite.DISTANCE],
                      "SAT ID": row[satellite.SAT_ID],
                      "Job ID": row[satellite.Job_ID],
-                     "FOVBottomRadius": row[satellite.DISTANCE]*1000*np.tan((np.pi/180)*row[satellite.FOV_RADIUS]), #radius of bottom of cone is D*tan(theta) where theta is the half angle at the top of the cone
+                     "FOVBottomRadius": row[satellite.DISTANCE] * 1000 * np.tan(
+                         (np.pi / 180) * row[satellite.FOV_RADIUS]),
+                     # radius of bottom of cone is D*tan(theta) where theta is the half angle at the top of the cone
                      "Payload ID": row[satellite.PAYLOAD_ID],
                      "Lat": row[satellite.NADIR_LAT],
                      "Lon": row[satellite.NADIR_LON],
                  }
                  } for row in satellite_rows]
     return response.json({"type": "FeatureCollection", 'features': features})
-
 
 
 def get_geojson_FOV_CIRCLE():
