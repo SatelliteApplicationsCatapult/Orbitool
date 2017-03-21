@@ -93,7 +93,8 @@ def update():
 
     record = dbLinkBudget.Job(request.args(0))
     dbLinkBudget.Job.Date.readable = False
-
+    dbLinkBudget.Job.file_up.readable = False
+    dbLinkBudget.Job.file_up.writable = False
     form = SQLFORM(dbLinkBudget.Job, record, deletable=True, formstyle='table3cols', submit_button='Update')
 
     form.add_button('Next', URL('launch', args=request.args(0)))
@@ -117,11 +118,11 @@ def launch():
     """
     session.job = ""
     arg = request.args(0)
-    #    dbLinkBudget.Calculate.processed.readable = False # enable these when in use. Having it off is good for debugging
-    #    dbLinkBudget.Calculate.processed.writable = False
+    dbLinkBudget.Calculate.processed.readable = False # enable these when in use. Having it off is good for debugging
+    dbLinkBudget.Calculate.processed.writable = False
     if dbLinkBudget.Job(arg):
         record = dbLinkBudget.Calculate(arg)
-        form = SQLFORM(dbLinkBudget.Calculate, record, deletable=True, formstyle='table3cols', submit_button='Save')
+        form = SQLFORM(dbLinkBudget.Calculate, record, formstyle='table3cols', submit_button='Save')
         form.add_button('Select Page', URL('select'))
         if form.process().accepted:
             session.flash = "%s -  has been updated" % (form.vars.id)
@@ -514,21 +515,22 @@ def get_geojson():
     Returns:
         object: GeoJSON
     """
+    earth_vsat = dbLinkBudget.EARTH_coord_VSAT
     rows = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(
         0)).iterselect()  # TODO : test if iterselect is better than regular select, time and memory resources.
     features = [{"type": "Feature",
                  "geometry": {
                      "type": "Point",
-                     "coordinates": [r[dbLinkBudget.EARTH_coord_VSAT.LON], r[dbLinkBudget.EARTH_coord_VSAT.LAT]]
+                     "coordinates": [r[earth_vsat.LON], r[earth_vsat.LAT]]
                  },
                  "properties": {
-                     "title": [str(r[dbLinkBudget.EARTH_coord_VSAT.VSAT_ID])],
-                     "Job ID": r[dbLinkBudget.EARTH_coord_VSAT.Job_ID],
-                     "EIRP": r[dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP],
-                     "ELEVATION": r[dbLinkBudget.EARTH_coord_VSAT.ELEVATION],
-                     "SAT_GPT": r[dbLinkBudget.EARTH_coord_VSAT.SAT_GPT],
-                     "Lat": r[dbLinkBudget.EARTH_coord_VSAT.LAT],
-                     "Lon": r[dbLinkBudget.EARTH_coord_VSAT.LON],
+                     "title": [str(r[earth_vsat.VSAT_ID])],
+                     "Job ID": r[earth_vsat.Job_ID],
+                     "EIRP": r[earth_vsat.SAT_EIRP],
+                     "ELEVATION": r[earth_vsat.ELEVATION],
+                     "SAT_GPT": r[earth_vsat.SAT_GPT],
+                     "Lat": r[earth_vsat.LAT],
+                     "Lon": r[earth_vsat.LON],
                  }
                  } for r in rows if r[
                     dbLinkBudget.EARTH_coord_VSAT.ELEVATION]]  # TODO : Extend to include more information form
@@ -545,25 +547,26 @@ def get_geojson_gw():
     Returns:
         object: GeoJSON
     """
-    rows = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect()
+    earth_gateway = dbLinkBudget.Earth_coord_GW
+    rows = dbLinkBudget(earth_gateway.Job_ID == request.args(0)).iterselect()
 
     features = [{"type": "Feature",
                  "geometry": {
                      "type": "Point",
-                     "coordinates": [r[dbLinkBudget.Earth_coord_GW.LON], r[dbLinkBudget.Earth_coord_GW.LAT]]
+                     "coordinates": [r[earth_gateway.LON], r[earth_gateway.LAT]]
                  },
                  "properties": {
                      "title": "Gateway",
-                     "Job ID": r[dbLinkBudget.Earth_coord_GW.Job_ID],
-                     "Gateway ID": r[dbLinkBudget.Earth_coord_GW.GW_ID],
+                     "Job ID": r[earth_gateway.Job_ID],
+                     "Gateway ID": r[earth_gateway.GW_ID],
                      "EIRP Max": dbLinkBudget.Gateway(
-                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).EIRP_MAX,
+                         dbLinkBudget.Gateway.GW_ID == r[earth_gateway.GW_ID]).EIRP_MAX,
                      "Bandwidth": dbLinkBudget.Gateway(
-                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).BANDWIDTH,
+                         dbLinkBudget.Gateway.GW_ID == r[earth_gateway.GW_ID]).BANDWIDTH,
                      "Diameter": dbLinkBudget.Gateway(
-                         dbLinkBudget.Gateway.GW_ID == r[dbLinkBudget.Earth_coord_GW.GW_ID]).DIAMETER,
-                     "Lat": r[dbLinkBudget.Earth_coord_GW.LAT],
-                     "Lon": r[dbLinkBudget.Earth_coord_GW.LON],
+                         dbLinkBudget.Gateway.GW_ID == r[earth_gateway.GW_ID]).DIAMETER,
+                     "Lat": r[earth_gateway.LAT],
+                     "Lon": r[earth_gateway.LON],
                  }
                  } for r in rows]
     return response.json({"type": "FeatureCollection", 'features': features})
@@ -578,33 +581,25 @@ def get_geojson_sat():
     Returns:
         object: GeoJSON
     """
-    rows = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect()
-
+    rows = dbLinkBudget(dbLinkBudget.SAT.Job_ID == request.args(0)).iterselect()
+    satellite = dbLinkBudget.SAT
     features = [{"type": "Feature",
                  "geometry": {
                      "type": "Point",
-                     "coordinates": [
-                         dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON,
-                         dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT, (
-                                                                                                                           dbLinkBudget.SAT(
-                                                                                                                               dbLinkBudget.SAT.SAT_ID ==
-                                                                                                                               r[
-                                                                                                                                   dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE) * 1000]
+                     "coordinates": [r[satellite.NADIR_LON],
+                                     r[satellite.NADIR_LAT],
+                                     r[satellite.DISTANCE]*1000
+                                     ]
                  },
                  "properties": {
                      "title": "SAT",
-                     "Height": dbLinkBudget.SAT(
-                         dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE,
-                     "SAT ID": r[dbLinkBudget.Earth_coord_GW.SAT_ID],
-                     "Job ID": r[dbLinkBudget.Earth_coord_GW.Job_ID],
-                     "FOV Radius": dbLinkBudget.SAT(
-                         dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).FOV_RADIUS,
-                     "Payload ID": dbLinkBudget.SAT(
-                         dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).PAYLOAD_ID,
-                     "Lat": dbLinkBudget.SAT(
-                         dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT,
-                     "Lon": dbLinkBudget.SAT(
-                         dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON,
+                     "Height": r[satellite.DISTANCE],
+                     "SAT ID": r[satellite.SAT_ID],
+                     "Job ID": r[satellite.Job_ID],
+                     "FOV Radius": r[satellite.FOV_RADIUS],
+                     "Payload ID": r[satellite.PAYLOAD_ID],
+                     "Lat": r[satellite.NADIR_LAT],
+                     "Lon": r[satellite.NADIR_LON],
                  }
                  } for r in rows]
     return response.json({"type": "FeatureCollection", 'features': features})
@@ -619,38 +614,30 @@ def get_geojson_FOV():
     Returns:
         object: GeoJSON
     """
-    rows = dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect()
+    satellite = dbLinkBudget.SAT
+    rows = dbLinkBudget(satellite.Job_ID == request.args(0)).iterselect()
 
     features = [{"type": "Feature",
                  "geometry": {
                      "type": "Point",
-                     "coordinates": [
-                         dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON,
-                         dbLinkBudget.SAT(dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT, (
-                                                                                                                           dbLinkBudget.SAT(
-                                                                                                                               dbLinkBudget.SAT.SAT_ID ==
-                                                                                                                               r[
-                                                                                                                                   dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE) * 1000 / 2]
+                     "coordinates": [r[satellite.NADIR_LON],
+                                     r[satellite.NADIR_LAT],
+                                     r[satellite.DISTANCE]*1000/2
+                                     ]
                  },
                  "properties": {
                      "title": "SAT",
-                     "Height": dbLinkBudget.SAT(
-                         dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE,
-                     "SAT ID": r[dbLinkBudget.Earth_coord_GW.SAT_ID],
-                     "Job ID": r[dbLinkBudget.Earth_coord_GW.Job_ID],
-                     "FOVBottomRadius": (dbLinkBudget.SAT(
-                         dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).DISTANCE) * 1000 * np.tan(
-                         (np.pi / 180) * (dbLinkBudget.SAT(
-                             dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).FOV_RADIUS)),
-                     "Payload ID": dbLinkBudget.SAT(
-                         dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).PAYLOAD_ID,
-                     "Lat": dbLinkBudget.SAT(
-                         dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LAT,
-                     "Lon": dbLinkBudget.SAT(
-                         dbLinkBudget.SAT.SAT_ID == r[dbLinkBudget.Earth_coord_GW.SAT_ID]).NADIR_LON,
+                     "Height": r[satellite.DISTANCE],
+                     "SAT ID": r[satellite.SAT_ID],
+                     "Job ID": r[satellite.Job_ID],
+                     "FOVBottomRadius": r[satellite.DISTANCE]*1000*np.tan((np.pi/180)*r[satellite.FOV_RADIUS]),
+                     "Payload ID": r[satellite.PAYLOAD_ID],
+                     "Lat": r[satellite.NADIR_LAT],
+                     "Lon": r[satellite.NADIR_LON],
                  }
                  } for r in rows]
     return response.json({"type": "FeatureCollection", 'features': features})
+
 
 
 def get_geojson_FOV_CIRCLE():
@@ -662,14 +649,15 @@ def get_geojson_FOV_CIRCLE():
     Returns:
         object: GeoJSON
     """
-    rows = dbLinkBudget((dbLinkBudget.SAT_FOV.Job_ID == request.args(0))).iterselect()
+    satellite_fov = dbLinkBudget.SAT_FOV
+    rows = dbLinkBudget((satellite_fov.Job_ID == request.args(0))).iterselect()
     coordinates = {}
 
     for row in rows:
-        if row[dbLinkBudget.SAT_FOV.SAT_ID] not in coordinates.keys():
-            coordinates[row[dbLinkBudget.SAT_FOV.SAT_ID]] = []
-        coordinates[row[dbLinkBudget.SAT_FOV.SAT_ID]].append(
-            [row[dbLinkBudget.SAT_FOV.LON], row[dbLinkBudget.SAT_FOV.LAT]])
+        if row[satellite_fov.SAT_ID] not in coordinates.keys():
+            coordinates[row[satellite_fov.SAT_ID]] = []
+        coordinates[row[satellite_fov.SAT_ID]].append(
+            [row[satellite_fov.LON], row[satellite_fov.LAT]])
 
     features = [{"type": "Feature",
                  "geometry": {
@@ -693,15 +681,16 @@ def get_geojson_TRSP_FOV_CIRCLE():
     Returns:
         object: GeoJSON
     """
+    transponder_fov = dbLinkBudget.TRSP_FOV
     rows = dbLinkBudget(
-        (dbLinkBudget.TRSP_FOV.Job_ID == request.args(0)) & (dbLinkBudget.TRSP_FOV.TRSP_ID > 0)).iterselect()
+        (transponder_fov.Job_ID == request.args(0)) & (transponder_fov.TRSP_ID > 0)).iterselect()
     coordinates = {}
 
     for row in rows:
-        if (row[dbLinkBudget.TRSP_FOV.SAT_ID], row[dbLinkBudget.TRSP_FOV.TRSP_ID]) not in coordinates.keys():
-            coordinates[row[dbLinkBudget.TRSP_FOV.SAT_ID], row[dbLinkBudget.TRSP_FOV.TRSP_ID]] = []
-        coordinates[row[dbLinkBudget.TRSP_FOV.SAT_ID], row[dbLinkBudget.TRSP_FOV.TRSP_ID]].append(
-            [row[dbLinkBudget.TRSP_FOV.LON], row[dbLinkBudget.TRSP_FOV.LAT]])
+        if (row[transponder_fov.SAT_ID], row[transponder_fov.TRSP_ID]) not in coordinates.keys():
+            coordinates[row[transponder_fov.SAT_ID], row[transponder_fov.TRSP_ID]] = []
+        coordinates[row[transponder_fov.SAT_ID], row[transponder_fov.TRSP_ID]].append(
+            [row[transponder_fov.LON], row[transponder_fov.LAT]])
 
     features = [{"type": "Feature",
                  "geometry": {
