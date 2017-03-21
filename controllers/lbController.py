@@ -13,6 +13,12 @@ from lbConfiguration import *
 from lib_lkb.compute_high_level_func import *
 from lib_lkb.display_func import *
 
+import platform
+if platform.system() is 'Windows':
+    from lib_lkb.propa_func_windows import *
+elif platform.sysstem() is 'Linux':
+    from lib_lkb.propa_func_linux import *
+
 
 response.title = 'Link Budget Calculator'
 
@@ -341,8 +347,9 @@ def run():
 
     if element.propa_user_link:
         EARTH_COORD_VSAT_dict = compute_lkb_propag_params(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, VSAT_dict,
-                                                          'DN' if element.simulator_mode is 'FWD' else 'UP', True,
-                                                          element.simulator_mode)
+                                                          'DN', True, element.simulator_mode)
+                                                          #'DN' if element.simulator_mode is 'FWD' else 'UP', True,
+
 
     # ----------------- 5/ Compute satellite perfos -------------------
     if element.sat_up_perf:

@@ -12,6 +12,11 @@ import numpy as np
 from lib_lkb.functions_to_use import *
 from lib_lkb.xl_func import *
 from lib_lkb.geometric_func import *
+import platform
+if platform.system() is 'Windows':
+    from lib_lkb.propa_func_windows import *
+elif platform.sysstem() is 'Linux':
+    from lib_lkb.propa_func_linux import *
 
 
 ############################################################################################################################
@@ -236,7 +241,7 @@ def compute_lkb_propag_params(EARTH_COORD_dict, SAT_dict, TRSP_dict, TERMINAL_di
 
 
 
-    else:
+    elif (flag_uplink_downlink == 'UP'):
         EARTH_COORD_dict['CENTRAL_FQ_UP'] = db_join(EARTH_COORD_dict, TRSP_dict, 'CENTRAL_FQ_UP',
                                                     ['PAYLOAD_ID', 'TRSP_ID'])
         EARTH_COORD_dict['FSL_UP'] = compute_fsl(EARTH_COORD_dict['DIST'], EARTH_COORD_dict['CENTRAL_FQ_UP'])

@@ -20,6 +20,33 @@ filepath = os.path.dirname(os.path.abspath(__file__))  # current directory
 cfile = os.path.join(config.pathtopropadir, 'propa/', "propaexec")
 
 
+# _----------------------------------------------------------------------------------------
+def compute_propag(lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, efficiency, availability):
+    '''
+    This function computes propagation attenuation due to rain conditions, using the CNES library available at :
+
+    description : TODO
+    '''
+
+    import time
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    filename = 'applications/linkbudgetweb/arrays/propa_input_array-' + timestr + '.txt'
+    np.savetxt(filename,
+               np.column_stack((lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, efficiency, availability)))
+    cfile = pathtopropa
+    Atot = []
+    proc = subprocess.Popen([cfile, filename], stdout=subprocess.PIPE)  # runs propa
+    (out, err) = proc.communicate()
+    for i in range(0, len(out), 9):
+        Atot.append(float(out[i:i + 8]))
+    Atot = np.asarray(Atot)
+    os.remove(filename)
+
+    return Atot
+
+
+# _----------------------------------------------------------------------------------------
+
 # -------------------------------------------------------------------
 # NWET
 def NWET(lat, lon):

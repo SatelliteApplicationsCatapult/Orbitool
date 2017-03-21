@@ -10,7 +10,6 @@ MODULE
 
 import os
 import subprocess
-
 from scipy.special import j1
 
 from lbConfiguration import pathtopropa
@@ -182,34 +181,6 @@ def compute_fsl(distance, freq):
     fsl_lin = (4 * np.pi * distance * 1e3 * freq * 1e6 / 3e8) ** 2
 
     return 10 * np.log10(fsl_lin)
-
-
-# _----------------------------------------------------------------------------------------
-
-
-# _----------------------------------------------------------------------------------------
-def compute_propag(lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, efficiency, availability):
-    '''
-    This function computes propagation attenuation due to rain conditions, using the CNES library available at :
-
-    description : TODO
-    '''
-
-    import time
-    timestr = time.strftime("%Y%m%d-%H%M%S")
-    filename = 'applications/linkbudgetweb/arrays/propa_input_array-' + timestr + '.txt'
-    np.savetxt(filename,
-               np.column_stack((lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, efficiency, availability)))
-    cfile = pathtopropa
-    Atot = []
-    proc = subprocess.Popen([cfile, filename], stdout=subprocess.PIPE)  # runs propa
-    (out, err) = proc.communicate()
-    for i in range(0, len(out), 9):
-        Atot.append(float(out[i:i + 8]))
-    Atot = np.asarray(Atot)
-    os.remove(filename)
-
-    return Atot
 
 
 # _----------------------------------------------------------------------------------------
