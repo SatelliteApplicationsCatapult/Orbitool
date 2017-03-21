@@ -262,7 +262,7 @@ def create_download():
 
     filename = "Link Budget - Output Scenario " + request.args(0) + ".xlsx"
     filepath = os.path.join(request.folder, 'uploads', filename)
-    create_saving_worksheet(filepath, sheets[0], "VSAT", sheets[1], "GW", sheets[2], "SAT", sheets[3], "TRSP", sheets[4], "EARTH_coord_GW",sheets[5], "EARTH_coord_VSAT")
+    create_saving_worksheet(filepath, sheets[0], "VSAT", sheets[1], "GATEWAY", sheets[2], "SAT", sheets[3], "TRSP", sheets[4], "EARTH_coord_GW",sheets[5], "EARTH_coord_VSAT")
     stream = open(filepath, 'rb')
     dbLinkBudget(dbLinkBudget.Calculate.id == request.args(0)).update(
         processed_file=dbLinkBudget.Calculate.processed_file.store(stream, filepath))
