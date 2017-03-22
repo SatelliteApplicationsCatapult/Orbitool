@@ -7,39 +7,9 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
     <title>Cesium / ID: {{=request.args(0)}}</title>
+    <link rel="stylesheet" href="{{=URL("static","css/lbcesium.css")}}">
     <script src="{{=URL("static","cesium/Build/Cesium/Cesium.js")}}"></script>
-
-    <style>
-        @import url({{=URL("static","cesium/Build/Cesium/Widgets/widgets.css")}});
-
-        html, body, #cesiumContainer {
-            font-family: "Source Sans Pro", "Segoe UI", Arial, Geneva, sans-serif;
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-
-        #toolbar {
-            display: block;
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            background: rgba(42, 42, 42, 0.8);
-            padding: 4px;
-            border-radius: 4px;
-        }
-
-        #toolbar input {
-            vertical-align: middle;
-            padding-top: 2px;
-            padding-bottom: 2px;
-        }
-    </style>
-    <style>
-        @import url({{=URL("static","cesium/Apps/Sandcastle/templates/bucket.css")}});
-    </style>
+    <link rel="stylesheet"  href="{{=URL("static","/cesium/Build/Cesium/Widgets/widgets.css")}}">
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 
 </head>
@@ -50,17 +20,6 @@
 <div id="target"></div>
 <div id="toolbar">
     <h1><font color="white" size="5"> Link Budget Visualiser</font></h1>
-    <!--<button onclick="alert('You clicked!');">Click me!</button>
-    <button type="button" class="button1 clickable">Toggle</button>
-    <table>
-        <tbody><tr>
-            <td><font color="white" face="verdana" size="2">Adjust Colour</font></td>
-            <td>
-                <input type="range" min="270" max="290" step="0.02" data-bind="value: , valueUpdate: 'input'">
-                <input type="text" size="5" data-bind="value: brightness">
-            </td>
-        </tr>
-    </tbody></table>-->
     <table>
         <tbody data-bind="foreach: layers">
         <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
@@ -269,14 +228,15 @@
     </table>
 </div>
 
-    <script src="{{=URL("static","js/lbcesium.js")}}" type="text/javascript", geo_json_vsat = "{{=URL('lbController', 'get_geojson',args=[request.args(0)])}}",
-        geojson_sat = "{{=URL('lbController', 'get_geojson_sat',args=[request.args(0)])}}",
-        geojson_gw = "{{=URL('lbController', 'get_geojson_gw',args=[request.args(0)])}}",
-        geojson_FOV = "{{=URL('lbController', 'get_geojson_FOV',args=[request.args(0)])}}",
-        geojson_FOV_circle = "{{=URL('lbController', 'get_geojson_FOV_CIRCLE',args=[request.args(0)])}}",
-        geojson_TRSP_FOV = "{{=URL('lbController', 'get_geojson_TRSP_FOV_CIRCLE',args=[request.args(0)])}}",
-        satellite_img = "{{=URL("static","satellite1.gif")}}",
-        ground_station_img = "{{=URL("static","facility.gif")}}">
-    </script>
+<script src="{{=URL("static","js/lbcesium.js")}}" type="text/javascript" ,
+        geo_json_vsat="{{=URL('lbController', 'get_geojson',args=[request.args(0)])}}" ,
+        geojson_sat="{{=URL('lbController', 'get_geojson_sat',args=[request.args(0)])}}" ,
+        geojson_gw="{{=URL('lbController', 'get_geojson_gw',args=[request.args(0)])}}" ,
+        geojson_FOV="{{=URL('lbController', 'get_geojson_FOV',args=[request.args(0)])}}" ,
+        geojson_FOV_circle="{{=URL('lbController', 'get_geojson_FOV_CIRCLE',args=[request.args(0)])}}" ,
+        geojson_TRSP_FOV="{{=URL('lbController', 'get_geojson_TRSP_FOV_CIRCLE',args=[request.args(0)])}}" ,
+        satellite_img="{{=URL("static","satellite1.gif")}}" ,
+        ground_station_img="{{=URL("static","facility.gif")}}">
+</script>
 
 </body>
