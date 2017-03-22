@@ -9,7 +9,7 @@ Created on Fri Jun 26 14:38:06 2015
 from sys import path
 path.append("../modules/")
 import numpy as np
-from lib_lkb.functions_to_use import *
+from lib_lkb.utility_func import *
 from lib_lkb.xl_func import *
 from lib_lkb.compute_high_level_func import *
 
