@@ -241,7 +241,8 @@ def display_2D_sat_and_beams_for_cesium(SAT_ID, sat_ids, sat_pl_ids, nadir_ecef,
     CAREFUL : SAT_ID is a string !!!    
     
     '''
-
+    SAT_ID = int(float(SAT_ID))
+    sat_ids = np.array([int(float(ID)) for ID in sat_ids])
     # first convert to string if not already done the various IDs
     if not (sat_ids.dtype.char == 'S'):
         sat_ids = sat_ids.astype('int').astype('string')

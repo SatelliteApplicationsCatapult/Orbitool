@@ -354,7 +354,6 @@ def run():
 
     #### This is get transponder FOV circles
     if element.trsp_fov:
-        SAT_dict['SAT_ID'] = np.array([int(float(ID)) for ID in SAT_dict['SAT_ID']])
         for SAT_ID in SAT_dict['SAT_ID']:
             beam_centers_lonlat, beam_contour_ll = display_2D_sat_and_beams_for_cesium(SAT_ID, SAT_dict['SAT_ID'],
                                                                                        SAT_dict['PAYLOAD_ID'],
