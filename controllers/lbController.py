@@ -71,15 +71,11 @@ def update():
     if dbLinkBudget.Job(job_id):
         job = json.dumps(dbLinkBudget(dbLinkBudget.Job).select().as_list(),
                          default=json_serial)  # default json.dumps specificed
-        gw = []
-        vsat = []
-        sat = []
-        trsp = []
 
-        gw.extend(dbLinkBudget(dbLinkBudget.Gateway.Job_ID == job_id).select().as_list())
-        vsat.extend(dbLinkBudget(dbLinkBudget.VSAT.Job_ID == job_id).select().as_list())
-        sat.extend(dbLinkBudget(dbLinkBudget.SAT.Job_ID == job_id).select().as_list())
-        trsp.extend(dbLinkBudget(dbLinkBudget.TRSP.Job_ID == job_id).select().as_list())
+        gw = dbLinkBudget(dbLinkBudget.Gateway.Job_ID == job_id).select().as_list()
+        vsat = dbLinkBudget(dbLinkBudget.VSAT.Job_ID == job_id).select().as_list()
+        sat = dbLinkBudget(dbLinkBudget.SAT.Job_ID == job_id).select().as_list()
+        trsp = dbLinkBudget(dbLinkBudget.TRSP.Job_ID == job_id).select().as_list()
 
         record = dbLinkBudget.Job(request.args(0))
         dbLinkBudget.Job.Date.readable = False
