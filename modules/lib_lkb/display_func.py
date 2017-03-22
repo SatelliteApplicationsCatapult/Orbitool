@@ -8,7 +8,7 @@ Created on Fri Mar 06 11:52:00 2015
 import matplotlib.pyplot as plt
 
 import shapefile as shp
-from functions_to_use import *
+from utility_func import *
 
 
 # ------------------------------------------------------------------------------

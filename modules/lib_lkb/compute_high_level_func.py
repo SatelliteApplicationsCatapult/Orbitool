@@ -9,7 +9,7 @@ from sys import path
 
 path.append("../../")
 import numpy as np
-from lib_lkb.functions_to_use import *
+from lib_lkb.utility_func import *
 from lib_lkb.xl_func import *
 from lib_lkb.geometric_func import *
 import platform
