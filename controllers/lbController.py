@@ -321,12 +321,12 @@ def run():
     if element.points2trsp:
         EARTH_COORD_VSAT_dict = compute_transponder_assignment(EARTH_COORD_VSAT_dict,
                                                                SAT_dict, TRSP_dict, element.simulator_mode,
-                                                               'DN' if element.simulator_mode is 'FWD' else 'UP')
+                                                               'DN' if element.simulator_mode == 'FWD' else 'UP')
 
     if element.gw2trsp:
         EARTH_COORD_GW_dict = compute_transponder_assignment(EARTH_COORD_GW_dict, SAT_dict, TRSP_dict, element
                                                              .simulator_mode,
-                                                             'UP' if element.simulator_mode is 'FWD' else 'DN')
+                                                             'UP' if element.simulator_mode == 'FWD' else 'DN')
 
     # ----------------- 3/ Compute RX/TX COV geometric params -------------------
     if element.comp_point_cover:
@@ -338,13 +338,12 @@ def run():
     # ----------------- 4/ Compute propag params -------------------
     if element.propa_feeder_link:
         EARTH_COORD_GW_dict = compute_lkb_propag_params(EARTH_COORD_GW_dict, SAT_dict, TRSP_dict, GW_dict,
-                                                        'UP' if element.simulator_mode is 'FWD' else 'DN', True,
+                                                        'UP' if element.simulator_mode == 'FWD' else 'DN', True,
                                                         element.simulator_mode)
 
     if element.propa_user_link:
         EARTH_COORD_VSAT_dict = compute_lkb_propag_params(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, VSAT_dict,
-                                                          'DN', True, element.simulator_mode)
-                                                          #'DN' if element.simulator_mode is 'FWD' else 'UP', True,
+                                                          'DN'if element.simulator_mode == 'FWD' else 'UP', True, element.simulator_mode)
 
 
     # ----------------- 5/ Compute satellite perfos -------------------
