@@ -13,9 +13,9 @@ from lib_lkb.functions_to_use import *
 from lib_lkb.xl_func import *
 from lib_lkb.geometric_func import *
 import platform
-if platform.system() is 'Windows':
+if platform.system() == 'Windows':
     from lib_lkb.propa_func_windows import *
-elif platform.sysstem() is 'Linux':
+elif platform.system() == 'Linux':
     from lib_lkb.propa_func_linux import *
 
 
