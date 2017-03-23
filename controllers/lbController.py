@@ -13,6 +13,7 @@ from lbConfiguration import *
 from lib_lkb.compute_high_level_func import *
 from lib_lkb.display_func import *
 
+
 import platform
 if platform.system() is 'Windows':
     from lib_lkb.propa_func_windows import *
@@ -135,7 +136,6 @@ def add_excel_2_db():
     fileName = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).file_up  # Find uploaded file
     job_id = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).id
     excel_info = load_objects_from_xl(os.path.join(request.folder, 'uploads', fileName))
-
     read_array_to_db(dbLinkBudget.SAT, excel_info[0], job_id)
     read_array_to_db(dbLinkBudget.TRSP, excel_info[1], job_id)
     read_array_to_db(dbLinkBudget.VSAT, excel_info[2], job_id)
@@ -165,24 +165,54 @@ def read_array_to_db(db, ordDict, job_id=0):
         #insert to database, but check if the fields already exist
         job_id_check = db.Job_ID == job_id
         if db is dbLinkBudget.Gateway:
-            db.update_or_insert(job_id_check and (db.GW_ID == row['GW_ID']), Job_ID=job_id,
+            db.update_or_insert((job_id_check) & (db.GW_ID == row['GW_ID']), Job_ID=job_id,
                                 **row)
         elif db is dbLinkBudget.SAT:
-            db.update_or_insert(job_id_check and (db.SAT_ID == row['SAT_ID']), Job_ID=job_id, **row)
+            db.update_or_insert((job_id_check) & (db.SAT_ID == row['SAT_ID']), Job_ID=job_id, **row)
         elif db is dbLinkBudget.TRSP:
-            db.update_or_insert(job_id_check and (db.TRSP_ID == row['TRSP_ID']), Job_ID=job_id, **row)
+            db.update_or_insert((job_id_check) & (db.TRSP_ID == row['TRSP_ID']), Job_ID=job_id, **row)
         elif db is dbLinkBudget.VSAT:
-            db.update_or_insert(job_id_check and (db.VSAT_ID == row['VSAT_ID']), Job_ID=job_id, **row)
+            db.update_or_insert((job_id_check) & (db.VSAT_ID == row['VSAT_ID']), Job_ID=job_id, **row)
         elif db is dbLinkBudget.Earth_coord_GW:
             db.update_or_insert(
-                job_id_check and (db.LON == row['LON']) and (db.LAT == row['LAT']) and (db.GW_ID == row['GW_ID']) and (
+                (job_id_check) & (db.LON == row['LON']) & (db.LAT == row['LAT']) & (db.GW_ID == row['GW_ID']) & (
                     db.TRSP_ID == row['TRSP_ID']), Job_ID=job_id, **row)
         elif db is dbLinkBudget.EARTH_coord_VSAT:
             db.update_or_insert(
-                job_id_check and (db.LON == row['LON']) and (db.LAT == row['LAT']) and (
+                (job_id_check) & (db.LON == row['LON']) & (db.LAT == row['LAT']) & (
                 db.VSAT_ID == row['VSAT_ID']), Job_ID=job_id, **row)
         else:
             db.update_or_insert(Job_ID=job_id, **row)
+
+def test1():
+    job_id = 20
+    element = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
+    fileName = dbLinkBudget.Job(dbLinkBudget.Job.id == job_id).file_up  # Find uploaded file
+    excel_info = load_objects_from_xl(os.path.join(request.folder, 'uploads', fileName))
+    return excel_info[0]
+
+def test():
+    #for table in [dbLinkBudget.VSAT, dbLinkBudget.Gateway, dbLinkBudget.SAT,dbLinkBudget.TRSP,
+    #                      dbLinkBudget.Earth_coord_GW, dbLinkBudget.EARTH_coord_VSAT]:
+    SAT_dict = datatable_to_dict(dbLinkBudget.SAT,request.args(0))
+    row = SAT_dict.fromkeys(SAT_dict)
+    return SAT_dict
+
+def datatable_to_dict(table, job_id):
+    """
+    Reads dicts of numpy arrays from database
+    """
+    keys = table.fields
+    #keys = [unicode(key) for key in table.fields]
+    keys.remove('id')
+    keys.remove('Job_ID')
+    dict = OrderedDict.fromkeys(keys)
+    for key in keys:
+        dict[key] = np.array([])
+    for row in dbLinkBudget(table.Job_ID == job_id).iterselect(*keys):
+        for key in keys:
+            dict[key] = np.append((dict[key]),row["_extra"][key])
+    return dict
 
 
 def json_serial(obj):
@@ -254,10 +284,10 @@ def run():
         Refreshes the update page
 
     """
-
-    element = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == request.args(0))
-    fileName = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).file_up  # Find uploaded file
     job_id = request.args(0)
+    element = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
+    fileName = dbLinkBudget.Job(dbLinkBudget.Job.id == job_id).file_up  # Find uploaded file
+
 
     excel_info = load_objects_from_xl(os.path.join(request.folder, 'uploads', fileName))
 
@@ -353,6 +383,7 @@ def run():
     read_array_to_db(dbLinkBudget.SAT, SAT_dict, job_id)
     read_array_to_db(dbLinkBudget.EARTH_coord_VSAT, EARTH_COORD_VSAT_dict, job_id)
     read_array_to_db(dbLinkBudget.Earth_coord_GW, EARTH_COORD_GW_dict, job_id)
+
     dbLinkBudget(dbLinkBudget.Calculate.id == request.args(0)).update(processed=True)
     redirect(URL('launch', args=request.args(0)))
 
