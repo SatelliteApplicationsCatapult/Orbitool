@@ -58,6 +58,8 @@ def select():
     return dict(job=XML(job))
 
 
+
+
 def update():
     """
     Update form
@@ -161,58 +163,26 @@ def read_array_to_db(db, ordDict, job_id=0):
         for k in range(len(ordDict.keys())):
             row[ordDict.keys()[k]] = ordDict.values()[k][v]
         #insert to database, but check if the fields already exist
+        job_id_check = db.Job_ID == job_id
         if db is dbLinkBudget.Gateway:
-            db.update_or_insert((db.Job_ID == job_id) & (db.GW_ID == row['GW_ID']), Job_ID=job_id,
+            db.update_or_insert(job_id_check and (db.GW_ID == row['GW_ID']), Job_ID=job_id,
                                 **row)
         elif db is dbLinkBudget.SAT:
-            db.update_or_insert((db.Job_ID == job_id) & (db.SAT_ID == row['SAT_ID']), Job_ID=job_id, **row)
+            db.update_or_insert(job_id_check and (db.SAT_ID == row['SAT_ID']), Job_ID=job_id, **row)
         elif db is dbLinkBudget.TRSP:
-            db.update_or_insert((db.Job_ID == job_id) & (db.TRSP_ID == row['TRSP_ID']), Job_ID=job_id, **row)
+            db.update_or_insert(job_id_check and (db.TRSP_ID == row['TRSP_ID']), Job_ID=job_id, **row)
         elif db is dbLinkBudget.VSAT:
-            db.update_or_insert((db.Job_ID == job_id) & (db.VSAT_ID == row['VSAT_ID']), Job_ID=job_id, **row)
+            db.update_or_insert(job_id_check and (db.VSAT_ID == row['VSAT_ID']), Job_ID=job_id, **row)
         elif db is dbLinkBudget.Earth_coord_GW:
             db.update_or_insert(
-                (db.Job_ID == job_id) & (db.LON == row['LON']) & (db.LAT == row['LAT']) & (db.GW_ID == row['GW_ID']) & (
+                job_id_check and (db.LON == row['LON']) and (db.LAT == row['LAT']) and (db.GW_ID == row['GW_ID']) and (
                     db.TRSP_ID == row['TRSP_ID']), Job_ID=job_id, **row)
         elif db is dbLinkBudget.EARTH_coord_VSAT:
             db.update_or_insert(
-                (db.Job_ID == job_id) & (db.LON == row['LON']) & (db.LAT == row['LAT']) & (
+                job_id_check and (db.LON == row['LON']) and (db.LAT == row['LAT']) and (
                 db.VSAT_ID == row['VSAT_ID']), Job_ID=job_id, **row)
         else:
             db.update_or_insert(Job_ID=job_id, **row)
-
-
-def read_db_to_array(db, job_id=0):
-    """
-    Used to read from the db and output
-    dictionaries which contain
-    np arrays, same as inputted from the excel file
-
-    Args:
-        db: database
-        job_id:
-
-    """
-    SAT_dict = OrderedDict()
-    TRSP_dict = OrderedDict()
-    VSAT_dict = OrderedDict()
-    EARTH_COORD_GW_dict = OrderedDict()
-    GW_dict = OrderedDict()
-    EARTH_COORD_VSAT_dict = OrderedDict()
-
-    gw = []
-    for field in dbLinkBudget.Gateway:
-        for row in dbLinkBudget(dbLinkBudget.Earth_coord_GW.Job_ID == request.args(0)).iterselect(groupby='GW_ID'):
-            # this looks for the different types of gateway referred to in gw Earth_coord
-            gw.extend(dbLinkBudget(dbLinkBudget.Gateway.GW_ID == row['GW_ID']).select(field).as_list())
-
-    # d=OrderedDict({})
-    for curr_col in range(0, worksheet.ncols):
-        liste_elts = worksheet.col_values(curr_col)
-
-        d[worksheet.cell_value(0, curr_col)] = np.array(liste_elts[1:len(liste_elts)])
-
-    return d
 
 
 def json_serial(obj):
@@ -627,7 +597,7 @@ def get_geojson_FOV_CIRCLE():
     coordinates = {}
 
     for row in rows:
-        if row[satellite_fov.SAT_ID] not in coordinates.keys():
+        if row[satellite_fov.SAT_ID] not in coordinates:
             coordinates[row[satellite_fov.SAT_ID]] = []
         coordinates[row[satellite_fov.SAT_ID]].append(
             [row[satellite_fov.LON], row[satellite_fov.LAT]])
@@ -640,7 +610,7 @@ def get_geojson_FOV_CIRCLE():
                  "properties": {
                      "title": "SAT",
                      "SAT ID": i}
-                 } for i in coordinates.keys()]
+                 } for i in coordinates]
 
     return response.json({"type": "FeatureCollection", 'features': features})
 
@@ -660,7 +630,7 @@ def get_geojson_TRSP_FOV_CIRCLE():
     coordinates = {}
 
     for row in rows:
-        if (row[transponder_fov.SAT_ID], row[transponder_fov.TRSP_ID]) not in coordinates.keys():
+        if (row[transponder_fov.SAT_ID], row[transponder_fov.TRSP_ID]) not in coordinates:
             coordinates[row[transponder_fov.SAT_ID], row[transponder_fov.TRSP_ID]] = []
         coordinates[row[transponder_fov.SAT_ID], row[transponder_fov.TRSP_ID]].append(
             [row[transponder_fov.LON], row[transponder_fov.LAT]])
@@ -674,7 +644,7 @@ def get_geojson_TRSP_FOV_CIRCLE():
                      "title": "TRSP",
                      "SAT ID": i[0],
                      "TRSP ID": i[1]}
-                 } for i in coordinates.keys()]
+                 } for i in coordinates]
 
     return response.json({"type": "FeatureCollection", 'features': features})
 
