@@ -26,8 +26,8 @@ VSAT.load(geo_json_vsat).then(function () {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromBytes((((entity.properties.EIRP - viewModel.EIRPmin))) * 80.875, 0, (1 / (entity.properties.EIRP - viewModel.EIRPmin)) * 320.875, 210),
-            //color: Cesium.Color.fromBytes(0,((1/(entity.properties.EIRP-viewModel.EIRPmin)))*400.875,(entity.properties.EIRP-viewModel.EIRPmin)*120.875,210),
+            //color: Cesium.Color.fromBytes((((entity.properties.EIRP-viewModel.EIRPmin)))*80.875,0,(1/(entity.properties.EIRP-viewModel.EIRPmin))*320.875,210),
+            color: Cesium.Color.fromBytes(0,((1/(entity.properties.EIRP-viewModel.EIRPmin)))*400.875,(entity.properties.EIRP-viewModel.EIRPmin)*120.875,210),
             //color: Cesium.Color.fromBytes((entity.properties.EIRP-viewModel.Tmin)*20.875,0,((1/(entity.properties.EIRP-viewModel.Tmin)))*540.875,210),  //currently plots temperature
             pixelSize: 8,
             outlineWidth: .5,
@@ -92,7 +92,7 @@ FOV.load(geojson_FOV).then(function () {
         entity.cylinder = new Cesium.CylinderGraphics({
             length: entity.properties.Height * 1000,
             topRadius: 0,
-            bottomRadius: entity.properties.FOVBottomRadius,
+            bottomRadius: entity.properties.BottomRadius,
             outlineWidth: 2,
             outline: true,
             numberOfVerticalLines: 0,

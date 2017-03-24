@@ -13,7 +13,6 @@ from lbConfiguration import *
 from lib_lkb.compute_high_level_func import *
 from lib_lkb.display_func import *
 
-
 import platform
 if platform.system() is 'Windows':
     from lib_lkb.propa_func_windows import *
@@ -53,9 +52,9 @@ def input():
 
 def select():
     """  Page which renders a JQuery Datatable to let you select entries  """
+    import json
     job = json.dumps(dbLinkBudget(dbLinkBudget.Job).select().as_list(),
                      default=json_serial)  # Formatting need to interface with JQuery Datatables
-    # TODO: why xml ??
     return dict(job=XML(job))
 
 
@@ -165,14 +164,14 @@ def read_array_to_db(db, ordDict, job_id=0):
         #insert to database, but check if the fields already exist
         job_id_check = db.Job_ID == job_id
         if db is dbLinkBudget.Gateway:
-            db.update_or_insert((job_id_check) & (db.GW_ID == row['GW_ID']), Job_ID=job_id,
+            db.update_or_insert((db.GW_ID == row['GW_ID']) & (job_id_check), Job_ID=job_id,
                                 **row)
         elif db is dbLinkBudget.SAT:
-            db.update_or_insert((job_id_check) & (db.SAT_ID == row['SAT_ID']), Job_ID=job_id, **row)
+            dbLinkBudget.SAT.update_or_insert((db.SAT_ID == row['SAT_ID']) & (job_id_check),Job_ID=job_id, **row)
         elif db is dbLinkBudget.TRSP:
-            db.update_or_insert((job_id_check) & (db.TRSP_ID == row['TRSP_ID']), Job_ID=job_id, **row)
+            db.update_or_insert((db.TRSP_ID == row['TRSP_ID']) & (job_id_check), Job_ID=job_id, **row)
         elif db is dbLinkBudget.VSAT:
-            db.update_or_insert((job_id_check) & (db.VSAT_ID == row['VSAT_ID']), Job_ID=job_id, **row)
+            db.update_or_insert((db.VSAT_ID == row['VSAT_ID']) & (job_id_check), Job_ID=job_id, **row)
         elif db is dbLinkBudget.Earth_coord_GW:
             db.update_or_insert(
                 (job_id_check) & (db.LON == row['LON']) & (db.LAT == row['LAT']) & (db.GW_ID == row['GW_ID']) & (
@@ -184,18 +183,81 @@ def read_array_to_db(db, ordDict, job_id=0):
         else:
             db.update_or_insert(Job_ID=job_id, **row)
 
-def test1():
-    job_id = 20
-    element = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
-    fileName = dbLinkBudget.Job(dbLinkBudget.Job.id == job_id).file_up  # Find uploaded file
-    excel_info = load_objects_from_xl(os.path.join(request.folder, 'uploads', fileName))
-    return excel_info[0]
+def preview():
+    #SQL GRID
+    #process submitted form
+    if len(request.post_vars) > 0:
+        for key, value in request.post_vars.iteritems():
+            (field_name,sep,row_id) = key.partition('_row_') #name looks like home_state_row_99
+            if row_id:
+                dbLinkBudget(dbLinkBudget.SAT.id == row_id).update(**{field_name:value})
+
+   # the name attribute is the method we know which row is involved1.0
+
+    dbLinkBudget.SAT.SAT_ID.represent = lambda value,row: string_widget(dbLinkBudget.SAT.SAT_ID,value,
+                     **{'_name':'SAT_ID_row_%s' % row.id})
+    dbLinkBudget.SAT.NADIR_LON.represent = lambda value, row: string_widget(dbLinkBudget.SAT.NADIR_LON, value,
+                                                                         **{'_name': 'NADIR_LON_row_%s' % row.id})
+    dbLinkBudget.SAT.NADIR_LAT.represent = lambda value, row: string_widget(dbLinkBudget.SAT.NADIR_LAT, value,
+                                                                         **{'_name': 'NADIR_LAT_row_%s' % row.id})
+    dbLinkBudget.SAT.DISTANCE.represent = lambda value,row: string_widget(dbLinkBudget.SAT.DISTANCE,value,
+                     **{'_name':'DISTANCE_row_%s' % row.id})
+
+    dbLinkBudget.SAT.id.readable = False
+    dbLinkBudget.SAT.Job_ID.readable = False
+    dbLinkBudget.SAT.SAT_ID.writable = False
+    dbLinkBudget.SAT.INCLINATION_ANGLE.readable = False
+    dbLinkBudget.SAT.FOV_RADIUS.readable = False
+    dbLinkBudget.SAT.FLAG_ASC_DESC.readable = False
+    dbLinkBudget.SAT.INTERF_FLAG.readable = False
+    dbLinkBudget.SAT.ROLL.readable = False
+    dbLinkBudget.SAT.PITCH.readable = False
+    dbLinkBudget.SAT.YAW.readable = False
+    dbLinkBudget.SAT.PAYLOAD_ID.readable = False
+    dbLinkBudget.SAT.NADIR_X_ECEF.readable = False
+    dbLinkBudget.SAT.NADIR_Y_ECEF.readable = False
+    dbLinkBudget.SAT.NADIR_Z_ECEF.readable = False
+    dbLinkBudget.SAT.SAT_POS_X_ECEF.readable = False
+    dbLinkBudget.SAT.SAT_POS_Y_ECEF.readable = False
+    dbLinkBudget.SAT.SAT_POS_Z_ECEF.readable = False
+    dbLinkBudget.SAT.NORMAL_VECT_X.readable = False
+    dbLinkBudget.SAT.NORMAL_VECT_Y.readable = False
+    dbLinkBudget.SAT.NORMAL_VECT_Z.readable = False
+
+    grid = SQLFORM.grid(dbLinkBudget.SAT.Job_ID == request.args(0),details=False, deletable = True, user_signature=False, csv=False, paginate=5,
+    editable=True, args=request.args[:1],
+                        selectable= lambda ids : redirect(URL('lbController','preview',args=request.args(0))),
+                        )  #preserving _get_vars means user goes back to same grid page, same sort options etc
+
+    grid.element(_type='submit', _value='%s' % T('Submitttt'))
+    grid.elements(_type='checkbox',_name='records',replace=None)  #remove selectable's checkboxes
+
+
+
+
+    # SQL FORM
+
+
+    session.job = ""
+    job_id = request.args(0)
+    dbLinkBudget.Calculate.processed.readable = False  # enable these when in use. Having it off is good for debugging
+    dbLinkBudget.Calculate.processed.writable = False
+    dbLinkBudget.Calculate.Job_ID.writable = False
+    record = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
+    form = SQLFORM(dbLinkBudget.Calculate, record, showid=False, formstyle='table3cols', submit_button='Save')
+    if form.process().accepted:
+        session.flash = "%s -  has been updated" % (form.vars.id)
+        if form.deleted:
+            session.flash = "%s)  has been deleted" % (form.vars.id)
+            redirect(URL('select'))
+        elif form.errors:
+            session.job = form.vars.job_name
+    return dict(grid=grid, form=form)
+
 
 def test():
-    #for table in [dbLinkBudget.VSAT, dbLinkBudget.Gateway, dbLinkBudget.SAT,dbLinkBudget.TRSP,
-    #                      dbLinkBudget.Earth_coord_GW, dbLinkBudget.EARTH_coord_VSAT]:
     SAT_dict = datatable_to_dict(dbLinkBudget.SAT,request.args(0))
-    row = SAT_dict.fromkeys(SAT_dict)
+    read_array_to_db(dbLinkBudget.SAT,SAT_dict,request.args(0))
     return SAT_dict
 
 def datatable_to_dict(table, job_id):
@@ -385,7 +447,7 @@ def run():
     read_array_to_db(dbLinkBudget.Earth_coord_GW, EARTH_COORD_GW_dict, job_id)
 
     dbLinkBudget(dbLinkBudget.Calculate.id == request.args(0)).update(processed=True)
-    redirect(URL('launch', args=request.args(0)))
+    redirect(URL('preview', args=request.args(0)))
 
 
 def cesium():
@@ -501,8 +563,7 @@ def get_geojson():
                      "EIRP": row[earth_vsat.SAT_EIRP],
                      "ELEVATION": row[earth_vsat.ELEVATION],
                      "SAT_GPT": row[earth_vsat.SAT_GPT],
-                     "Lat": row[earth_vsat.LAT],
-                     "Lon": row[earth_vsat.LON],
+                     "Lon, Lat": str(row[earth_vsat.LON]) + ", " + str(row[earth_vsat.LAT]),
                  }
                  } for row in earth_vsat_rows if row[
                     dbLinkBudget.EARTH_coord_VSAT.ELEVATION]]  # TODO : Extend to include more information form
@@ -538,7 +599,7 @@ def get_geojson_gw():
                      "Diameter": dbLinkBudget.Gateway(
                          dbLinkBudget.Gateway.GW_ID == row[earth_gateway.GW_ID]).DIAMETER,
                      "Lat": row[earth_gateway.LAT],
-                     "Lon": row[earth_gateway.LON],
+                     "Lon, Lat": str(row[earth_gateway.LON]) + ", " + str(row[earth_gateway.LAT])
                  }
                  } for row in earth_gateway_rows]
     return response.json({"type": "FeatureCollection", 'features': features})
@@ -564,14 +625,11 @@ def get_geojson_sat():
                                      ]
                  },
                  "properties": {
-                     "title": "SAT",
-                     "Height": row[satellite.DISTANCE],
-                     "SAT ID": row[satellite.SAT_ID],
-                     "Job ID": row[satellite.Job_ID],
-                     "FOV Radius": row[satellite.FOV_RADIUS],
+                     "title": "SAT"  + " " + row[satellite.SAT_ID],
+                     "Height (km)": row[satellite.DISTANCE],
+                     "Field of View (degrees)": row[satellite.FOV_RADIUS],
                      "Payload ID": row[satellite.PAYLOAD_ID],
-                     "Lat": row[satellite.NADIR_LAT],
-                     "Lon": row[satellite.NADIR_LON],
+                     "Lon, Lat": str(row[satellite.NADIR_LON]) + "," + str(row[satellite.NADIR_LAT]),
                  }
                  } for row in satellite_rows]
     return response.json({"type": "FeatureCollection", 'features': features})
@@ -599,16 +657,12 @@ def get_geojson_FOV():
                                      ]
                  },
                  "properties": {
-                     "title": "SAT",
+                     "title": "SAT" + " " + row[satellite.SAT_ID] + " Cone",
                      "Height": row[satellite.DISTANCE],
-                     "SAT ID": row[satellite.SAT_ID],
-                     "Job ID": row[satellite.Job_ID],
-                     "FOVBottomRadius": row[satellite.DISTANCE] * 1000 * np.tan(
+                     "BottomRadius": row[satellite.DISTANCE] * 1000 * np.tan(
                          (np.pi / 180) * row[satellite.FOV_RADIUS]),
                      # radius of bottom of cone is D*tan(theta) where theta is the half angle at the top of the cone
                      "Payload ID": row[satellite.PAYLOAD_ID],
-                     "Lat": row[satellite.NADIR_LAT],
-                     "Lon": row[satellite.NADIR_LON],
                  }
                  } for row in satellite_rows]
     return response.json({"type": "FeatureCollection", 'features': features})
@@ -639,8 +693,7 @@ def get_geojson_FOV_CIRCLE():
                      "coordinates": coordinates[i]
                  },
                  "properties": {
-                     "title": "SAT",
-                     "SAT ID": i}
+                     "title": "SAT " + str(i) + " 3dB Field of View"}
                  } for i in coordinates]
 
     return response.json({"type": "FeatureCollection", 'features': features})
@@ -672,9 +725,7 @@ def get_geojson_TRSP_FOV_CIRCLE():
                      "coordinates": coordinates[i]
                  },
                  "properties": {
-                     "title": "TRSP",
-                     "SAT ID": i[0],
-                     "TRSP ID": i[1]}
+                     "title": "TRSP " + str(i[1]) + " SAT" + str(i[0]) + " \n 3dB Field of View"}
                  } for i in coordinates]
 
     return response.json({"type": "FeatureCollection", 'features': features})
@@ -693,3 +744,13 @@ def api():
             raise HTTP(parser.status, parser.error)
 
     return dict(GET=GET)
+
+def options_widget(field,value,**kwargs):
+    return SQLFORM.widgets.options.widget(field,value,**kwargs)
+
+def string_widget(field,value,**kwargs):
+    return SQLFORM.widgets.string.widget(field,value,**kwargs)
+
+def boolean_widget(field,value,**kwargs):
+#be careful using this; checkboxes on forms are tricky. see notes below.
+    return SQLFORM.widgets.boolean.widget(field,value,**kwargs)
