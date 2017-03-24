@@ -1,0 +1,102 @@
+{{response.title='Preview'}}
+{{extend 'layout.html'}}
+<head>
+    <script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.12.3.js">
+    </script>
+    <script type="text/javascript" language="javascript"
+            src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js">
+    </script>
+    <script type="text/javascript" src="https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js">
+    </script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <title>Hello World!</title>
+    <script src="{{=URL("static","cesium/Build/Cesium/Cesium.js")}}"></script>
+    <link rel="stylesheet"  href="{{=URL("static","/cesium/Build/Cesium/Widgets/widgets.css")}}">
+</head>
+<body>
+<h1>Preview</h1>
+<div  id="cesiumContainer" style="margin-left:auto; margin-right:auto; width:50%;padding:10px;height:500px;overflow: auto"></div>
+
+<script>
+var viewer = new Cesium.Viewer('cesiumContainer', {
+timeline: false,
+animation: false
+});
+var SAT = new Cesium.GeoJsonDataSource();
+SAT.load("{{=URL('lbController', 'get_geojson_sat',args=[request.args(0)])}}").then(function () {
+    var entities = SAT.entities.values;
+    for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        entity.billboard = new Cesium.BillboardGraphics({
+            image: "{{=URL("static","satellite1.gif")}}",
+        })
+    }
+});
+var FOV = new Cesium.GeoJsonDataSource();
+FOV.load("{{=URL('lbController', 'get_geojson_FOV',args=[request.args(0)])}}").then(function () {
+    var entities = FOV.entities.values;
+    for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        entity.billboard = undefined;
+        entity.cylinder = new Cesium.CylinderGraphics({
+            length: entity.properties.Height * 1000,
+            topRadius: 0,
+            bottomRadius: entity.properties.BottomRadius,
+            outlineWidth: 2,
+            outline: true,
+            numberOfVerticalLines: 0,
+            material: Cesium.Color.fromRandom({alpha: 0.25}),
+        })
+    }
+});
+viewer.dataSources.add(SAT);
+viewer.dataSources.add(FOV);
+</script>
+
+
+<div style="margin-left:auto; margin-right:auto; width:70%;padding:10px;height:500px;overflow: auto">
+{{=grid}}
+</div>
+
+
+<div style="float:left; width:50%;padding:10px;height:750px;overflow: auto">
+    <h1>Calculations</h1>
+    {{=form}}
+</div>
+
+
+    <div class = "Bwidget">
+        <h1>Actions</h1>
+        <button id="run" class="btn">Launch calculation</button>
+        <button class="btn" id="processed">
+            Out to Spreadsheet
+        </button>
+
+        <button class="btn" id="cesium">
+            Plot in Cesium
+        </button>
+        {{pass}}
+        </div>
+    <div id="selected"  style="float:right; width:50%;padding:30px;height:700px;overflow: auto">
+
+
+    </div>
+</body>
+<script type="text/javascript" >
+
+$(document).ready(function(){
+    $("#run").click(function(){
+        window.location="{{=URL('run',args = request.args(0))}}";
+    });
+    $("#processed").click(function(){
+        window.location="{{=URL('create_download',args = request.args(0))}}";
+    });
+    $("#cesium").click(function(){
+        window.open("{{=URL('cesium',args = request.args(0))}}");
+    });
+});
+</script>
+
+
+</body>
