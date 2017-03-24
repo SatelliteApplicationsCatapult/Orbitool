@@ -203,11 +203,12 @@ def preview():
     dbLinkBudget.SAT.DISTANCE.represent = lambda value,row: string_widget(dbLinkBudget.SAT.DISTANCE,value,
                      **{'_name':'DISTANCE_row_%s' % row.id})
 
+    dbLinkBudget.SAT.FOV_RADIUS.represent = lambda value, row: string_widget(dbLinkBudget.SAT.FOV_RADIUS, value,
+                                                                           **{'_name': 'FOV_RADIUS_row_%s' % row.id})
+
     dbLinkBudget.SAT.id.readable = False
     dbLinkBudget.SAT.Job_ID.readable = False
-    dbLinkBudget.SAT.SAT_ID.writable = False
     dbLinkBudget.SAT.INCLINATION_ANGLE.readable = False
-    dbLinkBudget.SAT.FOV_RADIUS.readable = False
     dbLinkBudget.SAT.FLAG_ASC_DESC.readable = False
     dbLinkBudget.SAT.INTERF_FLAG.readable = False
     dbLinkBudget.SAT.ROLL.readable = False
