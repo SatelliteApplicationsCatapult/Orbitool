@@ -13,6 +13,7 @@ from lbConfiguration import *
 from lib_lkb.compute_high_level_func import *
 from lib_lkb.display_func import *
 
+
 import platform
 if platform.system() is 'Windows':
     from lib_lkb.propa_func_windows import *
@@ -142,7 +143,7 @@ def add_excel_2_db():
     read_array_to_db(dbLinkBudget.Gateway, excel_info[4], job_id)
     read_array_to_db(dbLinkBudget.EARTH_coord_VSAT, excel_info[5], job_id)
 
-    redirect(URL('update', args=job_id))
+    redirect(URL('preview', args=job_id))
 
 
 def read_array_to_db(db, ordDict, job_id=0):
@@ -257,7 +258,12 @@ def preview():
 
 
 def test():
+    fileName = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).file_up  # Find uploaded file
+    job_id = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).id
+    excel_info = load_objects_from_xl(os.path.join(request.folder, 'uploads', fileName))
     SAT_dict = datatable_to_dict(dbLinkBudget.SAT,request.args(0))
+    SAT_dict = excel_info[0]
+    return SAT_dict
     read_array_to_db(dbLinkBudget.SAT,SAT_dict,request.args(0))
     return SAT_dict
 
