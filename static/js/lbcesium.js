@@ -258,6 +258,13 @@ checkbox8.addEventListener('change', function () {
         }
     }
 }, false);
+
+
+$("#screenshot").click(function(){
+    viewer.render();
+    window.open(viewer.canvas.toDataURL("image/png"));
+    });
+
 viewer.zoomTo(VSAT, new Cesium.HeadingPitchRange(40, -90, 9000000));
 var credit = new Cesium.Credit('Catapult', '../images/saWhite26.png', 'http://sa.catapult.org.uk');
 viewer.scene.frameState.creditDisplay.addDefaultCredit(credit)
