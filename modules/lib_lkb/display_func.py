@@ -241,17 +241,19 @@ def display_2D_sat_and_beams_for_cesium(SAT_ID, sat_ids, sat_pl_ids, nadir_ecef,
     CAREFUL : SAT_ID is a string !!!    
     
     '''
-    SAT_ID = int(float(SAT_ID))
-    sat_ids = np.array([int(float(ID)) for ID in sat_ids])
     # first convert to string if not already done the various IDs
-    if not (sat_ids.dtype.char == 'S'):
+    if sat_ids.dtype.char is 'U':
+        sat_ids = sat_ids.astype('string')
+    if sat_ids.dtype.char is 'int' or sat_ids.dtype.char is 'float':
         sat_ids = sat_ids.astype('int').astype('string')
 
     if not (type(SAT_ID) == np.ndarray):
         SAT_ID = str(SAT_ID)
     else:
-        if not (SAT_ID.dtype.char == 'S'):
+        if SAT_ID.dtype.char is 'int' or SAT_ID.dtype.char is 'float':
             SAT_ID = SAT_ID.astype('int').astype('string')
+        if SAT_ID.dtype.char is 'U':
+            SAT_ID = SAT_ID.astype('string')
 
     # find right satellite and right parameters of the SAT_dict to use
     index_satellite = np.flatnonzero(sat_ids == SAT_ID)
