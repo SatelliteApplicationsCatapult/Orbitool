@@ -15,7 +15,9 @@ var viewer = new Cesium.Viewer('cesiumContainer', {
 });
 var viewModel = {
     EIRPmin: 31.1984391831,
+    EIRPmax: 33.4,
     ELEVATIONmin: 57,
+    ELEVATIONmax:90,
     SAT_GPTmin: 1.6,
     Tmin: 282  //need to write a function to determin minimum temperature
 };
@@ -27,9 +29,7 @@ VSAT.load(geo_json_vsat).then(function () {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            //color: Cesium.Color.fromBytes((((entity.properties.EIRP-viewModel.EIRPmin)))*80.875,0,(1/(entity.properties.EIRP-viewModel.EIRPmin))*320.875,210),
-            color: Cesium.Color.fromBytes(0,((1/(entity.properties.EIRP-viewModel.EIRPmin)))*400.875,(entity.properties.EIRP-viewModel.EIRPmin)*120.875,210),
-            //color: Cesium.Color.fromBytes((entity.properties.EIRP-viewModel.Tmin)*20.875,0,((1/(entity.properties.EIRP-viewModel.Tmin)))*540.875,210),  //currently plots temperature
+            color: Cesium.Color.fromHsl(((entity.properties.EIRP-viewModel.EIRPmin)/(viewModel.EIRPmax-viewModel.EIRPmin)),1, .5),
             pixelSize: 8,
             outlineWidth: .5,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -45,7 +45,7 @@ ELEVATION.load(geo_json_vsat).then(function () {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromBytes((((entity.properties.ELEVATION - viewModel.ELEVATIONmin))) * 5.875, 0, (1 / (entity.properties.ELEVATION - viewModel.ELEVATIONmin)) * 3020.875, 210),
+            color: Cesium.Color.fromHsl(((entity.properties.ELEVATION-viewModel.ELEVATIONmin)/(viewModel.ELEVATIONmax-viewModel.ELEVATIONmin)),1, .5),
             pixelSize: 8,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
         })
