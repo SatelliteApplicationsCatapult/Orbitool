@@ -7,6 +7,7 @@ var geojson_FOV_circle = lbcesium.attr('geojson_FOV_circle');
 var geojson_TRSP_FOV = lbcesium.attr('geojson_TRSP_FOV');
 var satellite_img = lbcesium.attr('satellite_img');
 var ground_station_img = lbcesium.attr('ground_station_img');
+var catapult_logo = lbcesium.attr('catapult_logo');
 
 var viewer = new Cesium.Viewer('cesiumContainer', {
     timeline: false,
@@ -266,5 +267,5 @@ $("#screenshot").click(function(){
     });
 
 viewer.zoomTo(VSAT, new Cesium.HeadingPitchRange(40, -90, 9000000));
-var credit = new Cesium.Credit('Catapult', '../images/saWhite26.png', 'http://sa.catapult.org.uk');
+var credit = new Cesium.Credit('Catapult', catapult_logo, 'http://sa.catapult.org.uk');
 viewer.scene.frameState.creditDisplay.addDefaultCredit(credit)
