@@ -1,5 +1,22 @@
+h1 {
+    color: white;
+    font-size: 30;
+}
+
+button#screenshot {
+    background-color: #c1ba19;
+    border: none;
+    color: white;
+    padding: 10px 22px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+}
+
 html, body, #cesiumContainer {
     font-family: "Source Sans Pro", "Segoe UI", Arial, Geneva, sans-serif;
+    color: #fafafa;
     width: 100%;
     height: 100%;
     margin: 0;
@@ -10,6 +27,7 @@ html, body, #cesiumContainer {
 #toolbar {
     display: block;
     position: absolute;
+    color: white;
     top: 5px;
     left: 5px;
     background: rgba(42, 42, 42, 0.8);

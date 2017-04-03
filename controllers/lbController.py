@@ -685,8 +685,8 @@ def get_geojson_FOV():
                  "properties": {
                      "title": "SAT" + " " + row[satellite.SAT_ID] + " Cone",
                      "Height": row[satellite.DISTANCE],
-                     "BottomRadius": row[satellite.DISTANCE] * 1000 * np.tan(
-                         (np.pi / 180) * row[satellite.FOV_RADIUS]),
+                     "BottomRadius": round(row[satellite.DISTANCE] * 1000 * np.tan(
+                         (np.pi / 180) * row[satellite.FOV_RADIUS])),
                      # radius of bottom of cone is D*tan(theta) where theta is the half angle at the top of the cone
                      "Payload ID": row[satellite.PAYLOAD_ID],
                  }

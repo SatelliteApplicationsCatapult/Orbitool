@@ -14,12 +14,17 @@ var viewer = new Cesium.Viewer('cesiumContainer', {
     timeline: false,
     animation: false
 });
+//var alphaEIRP = 0.6;
 
 var viewModel = {
-    //alphaEIRP: ko.observable(.6),
-    alphaEIRP: 0.5,
-    Tmin: 282  //need to write a function to determin minimum temperature
+    FOVcolors : ['White', 'Red', 'Green', 'Blue', 'Yellow', 'Gray'],
+    FOVcolor: 'Green',
+    alphaEIRP: 0.6,
 };
+
+Cesium.knockout.track(viewModel);
+var toolbar = document.getElementById('toolbar');
+Cesium.knockout.applyBindings(viewModel, toolbar)
 
 $.getJSON(performance_maxmin, function(json){
     maxminjson = json;
@@ -96,18 +101,24 @@ SAT.load(geojson_sat).then(function () {
 var FOV = new Cesium.GeoJsonDataSource();
 FOV.load(geojson_FOV).then(function () {
     var entities = FOV.entities.values;
+    console.info(entities)
     for (var i = 0; i < entities.length; i++) {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.cylinder = new Cesium.CylinderGraphics({
-            length: entity.properties.Height * 1000,
+            length: entities[i].properties.Height * 1000,
             topRadius: 0,
             bottomRadius: entity.properties.BottomRadius,
             outlineWidth: 2,
             outline: true,
             numberOfVerticalLines: 0,
-            material: Cesium.Color.fromRandom({alpha: 0.25}),
+            material: Cesium.Color.fromAlpha(Cesium.Color[viewModel.FOVcolor.toUpperCase()], 0.4),
         })
+        Cesium.knockout.getObservable(viewModel, 'FOVcolor').subscribe(
+            function(newValue) {
+                entity.cylinder.material = Cesium.Color.fromAlpha(Cesium.Color[newValue.toUpperCase()], 0.4);
+            }
+        );
     }
 });
 var FOV_CIRCLE = new Cesium.GeoJsonDataSource();
