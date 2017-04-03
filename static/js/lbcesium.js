@@ -21,13 +21,13 @@ var viewModel = {
 };
 
 $.getJSON(performance_maxmin, function(json){
-    myjson = json;
-    EIRPmax = myjson["EIRP"]["max"][0]
-    EIRPmin = myjson["EIRP"]["min"][0]
-    ELEVATIONmin = myjson["ELEVATION"]["min"][0]
-    ELEVATIONmax = myjson["ELEVATION"]["max"][0]
-    SAT_GPTmin = myjson["SAT_GPT"]["min"][0]
-    SAT_GPTmax = myjson["SAT_GPT"]["max"][0]
+    maxminjson = json;
+    EIRPmax = maxminjson["EIRP"]["max"][0]
+    EIRPmin = maxminjson["EIRP"]["min"][0]
+    ELEVATIONmin = maxminjson["ELEVATION"]["min"][0]
+    ELEVATIONmax = maxminjson["ELEVATION"]["max"][0]
+    SAT_GPTmin = maxminjson["SAT_GPT"]["min"][0]
+    SAT_GPTmax = maxminjson["SAT_GPT"]["max"][0]
 });
 
 var VSAT = new Cesium.GeoJsonDataSource();
