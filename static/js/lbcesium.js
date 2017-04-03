@@ -114,13 +114,16 @@ FOV.load(geojson_FOV).then(function () {
             numberOfVerticalLines: 0,
             material: Cesium.Color.fromAlpha(Cesium.Color[viewModel.FOVcolor.toUpperCase()], 0.4),
         })
-        Cesium.knockout.getObservable(viewModel, 'FOVcolor').subscribe(
-            function(newValue) {
-                entity.cylinder.material = Cesium.Color.fromAlpha(Cesium.Color[newValue.toUpperCase()], 0.4);
-            }
-        );
     }
+    Cesium.knockout.getObservable(viewModel, 'FOVcolor').subscribe(
+        function(newValue) {
+            for (var i=0; i < entities.length; i++) {
+                entities[i].cylinder.material = Cesium.Color.fromAlpha(Cesium.Color[newValue.toUpperCase()], 0.4);
+            }
+        }
+    );
 });
+
 var FOV_CIRCLE = new Cesium.GeoJsonDataSource();
 FOV_CIRCLE.load(geojson_FOV_circle).then(function () {
     var entities = FOV_CIRCLE.entities.values;
