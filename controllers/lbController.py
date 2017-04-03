@@ -5,16 +5,12 @@
 # This is the Link Budget Controller
 # -------------------------------------------------------------------------
 import json
-import logging
 from datetime import datetime
 
 from excelHandling import *
 from gluon import *
 from lib_lkb.compute_high_level_func import *
 from lib_lkb.display_func import *
-
-logger = logging.getLogger("web2py.app.myweb2pyapplication")
-logger.setLevel(logging.DEBUG)
 
 import platform
 
