@@ -8,28 +8,35 @@ var geojson_TRSP_FOV = lbcesium.attr('geojson_TRSP_FOV');
 var satellite_img = lbcesium.attr('satellite_img');
 var ground_station_img = lbcesium.attr('ground_station_img');
 var catapult_logo = lbcesium.attr('catapult_logo');
+var performance_maxmin = lbcesium.attr('performance_maxmin');
 
 var viewer = new Cesium.Viewer('cesiumContainer', {
     timeline: false,
     animation: false
 });
+
 var viewModel = {
-    EIRPmin: 31.1984391831,
-    EIRPmax: 33.4,
-    ELEVATIONmin: 57,
-    ELEVATIONmax:90,
     SAT_GPTmin: 1.6,
     Tmin: 282  //need to write a function to determin minimum temperature
 };
 
+$.getJSON(performance_maxmin, function(json){
+    myjson = json;
+    EIRPmax = myjson["EIRP"]["max"][0]
+    EIRPmin = myjson["EIRP"]["min"][0]
+    ELEVATIONmin = myjson["ELEVATION"]["min"][0]
+    ELEVATIONmax = myjson["ELEVATION"]["max"][0]
+});
+
 var VSAT = new Cesium.GeoJsonDataSource();
 VSAT.load(geo_json_vsat).then(function () {
+
     var entities = VSAT.entities.values;
     for (var i = 0; i < entities.length; i++) {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(((entity.properties.EIRP-viewModel.EIRPmin)/(viewModel.EIRPmax-viewModel.EIRPmin)),1, .5),
+            color: Cesium.Color.fromHsl(((entity.properties.EIRP-EIRPmin)/(EIRPmax-EIRPmin)),1, .5, .6),
             pixelSize: 8,
             outlineWidth: .5,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -45,7 +52,7 @@ ELEVATION.load(geo_json_vsat).then(function () {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(((entity.properties.ELEVATION-viewModel.ELEVATIONmin)/(viewModel.ELEVATIONmax-viewModel.ELEVATIONmin)),1, .5),
+            color: Cesium.Color.fromHsl(((entity.properties.ELEVATION-ELEVATIONmin)/(ELEVATIONmax-ELEVATIONmin)),1, .5, .6),
             pixelSize: 8,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
         })

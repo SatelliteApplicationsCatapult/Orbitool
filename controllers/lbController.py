@@ -14,6 +14,10 @@ from lib_lkb.compute_high_level_func import *
 from lib_lkb.display_func import *
 
 
+import logging
+logger = logging.getLogger("web2py.app.myweb2pyapplication")
+logger.setLevel(logging.DEBUG)
+
 import platform
 if platform.system() is 'Windows':
     from lib_lkb.propa_func_windows import *
@@ -21,12 +25,12 @@ elif platform.system() is 'Linux':
     from lib_lkb.propa_func_linux import *
 
 
-response.title = 'Link Budget Calculator'
+response.title = 'Orbitool'
 
 
 def index():
     """ Home Page """
-    return dict(message=T('Multi-Mission Satellite Link Budget Analysis Framework'))
+    return dict(message=T(''))
 
 
 def about():
@@ -490,22 +494,17 @@ def copy():  # TODO: Add all of the new fields to this list
     redirect(URL('select'))
 
 
-def maxmin(dbtablecol, option):
+def performance_maxmin():
     """
-    Function to get the maximum value of a column.
-
-    Usage:
-    maxmin(dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP, 'min')
+    Function to extract min and max performance values to scale the plots in cesium.
+    args: job_id
+    returns: json with max and min for each performance
     """
-    if option == 'max':
-        field = dbtablecol.max()
-    if option == 'min':
-        field = dbtablecol.min()
-    return dbLinkBudget(dbtablecol).select(field)
-
-
-def testmax():
-    return maxmin(dbLinkBudget.EARTH_coord_VSAT.SAT_EIRP, 'min')
+    earth_vsat = dbLinkBudget.EARTH_coord_VSAT
+    rows = dbLinkBudget(earth_vsat.Job_ID == request.args(0)).select(earth_vsat.SAT_EIRP, earth_vsat.ELEVATION)
+    EIRP = [[row.SAT_EIRP] for row in rows]
+    ELEVATION = [[row.ELEVATION] for row in rows]
+    return json.dumps({"EIRP":{"max":max(EIRP),  "min": min(EIRP)}, "ELEVATION":{"max":max(ELEVATION), "min":min(ELEVATION)}}, sort_keys=True, indent=4, separators=(',', ': '))
 
 
 def VSATcoverage(lat, lon, npoints, distance):
@@ -557,7 +556,7 @@ def get_geojson():
         object: GeoJSON
     """
     earth_vsat = dbLinkBudget.EARTH_coord_VSAT
-    earth_vsat_rows = dbLinkBudget(dbLinkBudget.EARTH_coord_VSAT.Job_ID == request.args(
+    earth_vsat_rows = dbLinkBudget(earth_vsat.Job_ID == request.args(
         0)).iterselect()  # TODO : test if iterselect is better than regular select, time and memory resources.
     features = [{"type": "Feature",
                  "geometry": {

@@ -9,6 +9,7 @@
     <title>Cesium / ID: {{=request.args(0)}}</title>
     <link rel="stylesheet" href="{{=URL("static","css/lbcesium.css")}}">
     <script src="{{=URL("static","cesium/Build/Cesium/Cesium.js")}}"></script>
+    <script src="{{=URL("static","js/lodash.core.js")}}"></script>
     <link rel="stylesheet"  href="{{=URL("static","/cesium/Build/Cesium/Widgets/widgets.css")}}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 
@@ -240,7 +241,8 @@
         geojson_TRSP_FOV="{{=URL('lbController', 'get_geojson_TRSP_FOV_CIRCLE',args=[request.args(0)])}}" ,
         satellite_img="{{=URL("static","satellite1.gif")}}" ,
         ground_station_img="{{=URL("static","facility.gif")}}",
-        catapult_logo="{{=URL("static","images/saWhite26.png")}}">
+        catapult_logo="{{=URL("static","images/saWhite26.png")}}",
+        performance_maxmin="{{=URL('lbController', 'performance_maxmin',args=[request.args(0)])}}">
 </script>
 
 </body>
