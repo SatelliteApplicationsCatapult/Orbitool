@@ -26,6 +26,8 @@ $.getJSON(performance_maxmin, function(json){
     EIRPmin = myjson["EIRP"]["min"][0]
     ELEVATIONmin = myjson["ELEVATION"]["min"][0]
     ELEVATIONmax = myjson["ELEVATION"]["max"][0]
+    SAT_GPTmin = myjson["SAT_GPT"]["min"][0]
+    SAT_GPTmax = myjson["SAT_GPT"]["max"][0]
 });
 
 var VSAT = new Cesium.GeoJsonDataSource();
@@ -65,7 +67,7 @@ SAT_GPT.load(geo_json_vsat).then(function () {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromBytes(0, ((entity.properties.SAT_GPT - viewModel.SAT_GPTmin)) * 220.875, 0, 210),
+            color: Cesium.Color.fromHsl(((entity.properties.SAT_GPT-SAT_GPTmin)/(SAT_GPTmax-SAT_GPTmin)),1, .5, .6),
             pixelSize: 8,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
         })

@@ -5,25 +5,23 @@
 # This is the Link Budget Controller
 # -------------------------------------------------------------------------
 import json
+import logging
 from datetime import datetime
-import numpy as np
+
 from excelHandling import *
 from gluon import *
-from lbConfiguration import *
 from lib_lkb.compute_high_level_func import *
 from lib_lkb.display_func import *
 
-
-import logging
 logger = logging.getLogger("web2py.app.myweb2pyapplication")
 logger.setLevel(logging.DEBUG)
 
 import platform
+
 if platform.system() is 'Windows':
     from lib_lkb.propa_func_windows import *
 elif platform.system() is 'Linux':
     from lib_lkb.propa_func_linux import *
-
 
 response.title = 'Orbitool'
 
@@ -61,8 +59,6 @@ def select():
     job = json.dumps(dbLinkBudget(dbLinkBudget.Job).select().as_list(),
                      default=json_serial)  # Formatting need to interface with JQuery Datatables
     return dict(job=XML(job))
-
-
 
 
 def update():
@@ -166,13 +162,13 @@ def read_array_to_db(db, ordDict, job_id=0):
     for v in range(ordDict.values()[0].size):
         for k in range(len(ordDict.keys())):
             row[ordDict.keys()[k]] = ordDict.values()[k][v]
-        #insert to database, but check if the fields already exist
+        # insert to database, but check if the fields already exist
         job_id_check = db.Job_ID == job_id
         if db is dbLinkBudget.Gateway:
             db.update_or_insert((db.GW_ID == row['GW_ID']) & (job_id_check), Job_ID=job_id,
                                 **row)
         elif db is dbLinkBudget.SAT:
-            dbLinkBudget.SAT.update_or_insert((db.SAT_ID == row['SAT_ID']) & (job_id_check),Job_ID=job_id, **row)
+            dbLinkBudget.SAT.update_or_insert((db.SAT_ID == row['SAT_ID']) & (job_id_check), Job_ID=job_id, **row)
         elif db is dbLinkBudget.TRSP:
             db.update_or_insert((db.TRSP_ID == row['TRSP_ID']) & (job_id_check), Job_ID=job_id, **row)
         elif db is dbLinkBudget.VSAT:
@@ -184,32 +180,33 @@ def read_array_to_db(db, ordDict, job_id=0):
         elif db is dbLinkBudget.EARTH_coord_VSAT:
             db.update_or_insert(
                 (job_id_check) & (db.LON == row['LON']) & (db.LAT == row['LAT']) & (
-                db.VSAT_ID == row['VSAT_ID']), Job_ID=job_id, **row)
+                    db.VSAT_ID == row['VSAT_ID']), Job_ID=job_id, **row)
         else:
             db.update_or_insert(Job_ID=job_id, **row)
 
+
 def preview():
-    #SQL GRID
-    #process submitted form
+    # SQL GRID
+    # process submitted form
     if len(request.post_vars) > 0:
         for key, value in request.post_vars.iteritems():
-            (field_name,sep,row_id) = key.partition('_row_') #name looks like home_state_row_99
+            (field_name, sep, row_id) = key.partition('_row_')  # name looks like home_state_row_99
             if row_id:
-                dbLinkBudget(dbLinkBudget.SAT.id == row_id).update(**{field_name:value})
+                dbLinkBudget(dbLinkBudget.SAT.id == row_id).update(**{field_name: value})
 
-   # the name attribute is the method we know which row is involved1.0
+                # the name attribute is the method we know which row is involved1.0
 
-    dbLinkBudget.SAT.SAT_ID.represent = lambda value,row: string_widget(dbLinkBudget.SAT.SAT_ID,value,
-                     **{'_name':'SAT_ID_row_%s' % row.id})
+    dbLinkBudget.SAT.SAT_ID.represent = lambda value, row: string_widget(dbLinkBudget.SAT.SAT_ID, value,
+                                                                         **{'_name': 'SAT_ID_row_%s' % row.id})
     dbLinkBudget.SAT.NADIR_LON.represent = lambda value, row: string_widget(dbLinkBudget.SAT.NADIR_LON, value,
-                                                                         **{'_name': 'NADIR_LON_row_%s' % row.id})
+                                                                            **{'_name': 'NADIR_LON_row_%s' % row.id})
     dbLinkBudget.SAT.NADIR_LAT.represent = lambda value, row: string_widget(dbLinkBudget.SAT.NADIR_LAT, value,
-                                                                         **{'_name': 'NADIR_LAT_row_%s' % row.id})
-    dbLinkBudget.SAT.DISTANCE.represent = lambda value,row: string_widget(dbLinkBudget.SAT.DISTANCE,value,
-                     **{'_name':'DISTANCE_row_%s' % row.id})
+                                                                            **{'_name': 'NADIR_LAT_row_%s' % row.id})
+    dbLinkBudget.SAT.DISTANCE.represent = lambda value, row: string_widget(dbLinkBudget.SAT.DISTANCE, value,
+                                                                           **{'_name': 'DISTANCE_row_%s' % row.id})
 
     dbLinkBudget.SAT.FOV_RADIUS.represent = lambda value, row: string_widget(dbLinkBudget.SAT.FOV_RADIUS, value,
-                                                                           **{'_name': 'FOV_RADIUS_row_%s' % row.id})
+                                                                             **{'_name': 'FOV_RADIUS_row_%s' % row.id})
 
     dbLinkBudget.SAT.id.readable = False
     dbLinkBudget.SAT.Job_ID.readable = False
@@ -230,16 +227,14 @@ def preview():
     dbLinkBudget.SAT.NORMAL_VECT_Y.readable = False
     dbLinkBudget.SAT.NORMAL_VECT_Z.readable = False
 
-    grid = SQLFORM.grid(dbLinkBudget.SAT.Job_ID == request.args(0),details=False, deletable = True, user_signature=False, csv=False, paginate=5,
-    editable=True, args=request.args[:1],
-                        selectable= lambda ids : redirect(URL('lbController','preview',args=request.args(0))),
-                        )  #preserving _get_vars means user goes back to same grid page, same sort options etc
+    grid = SQLFORM.grid(dbLinkBudget.SAT.Job_ID == request.args(0), details=False, deletable=True, user_signature=False,
+                        csv=False, paginate=5,
+                        editable=True, args=request.args[:1],
+                        selectable=lambda ids: redirect(URL('lbController', 'preview', args=request.args(0))),
+                        )  # preserving _get_vars means user goes back to same grid page, same sort options etc
 
     grid.element(_type='submit', _value='%s' % T('Submitttt'))
-    grid.elements(_type='checkbox',_name='records',replace=None)  #remove selectable's checkboxes
-
-
-
+    grid.elements(_type='checkbox', _name='records', replace=None)  # remove selectable's checkboxes
 
     # SQL FORM
 
@@ -265,18 +260,19 @@ def test():
     fileName = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).file_up  # Find uploaded file
     job_id = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).id
     excel_info = load_objects_from_xl(os.path.join(request.folder, 'uploads', fileName))
-    SAT_dict = datatable_to_dict(dbLinkBudget.SAT,request.args(0))
+    SAT_dict = datatable_to_dict(dbLinkBudget.SAT, request.args(0))
     SAT_dict = excel_info[0]
     return SAT_dict
-    read_array_to_db(dbLinkBudget.SAT,SAT_dict,request.args(0))
+    read_array_to_db(dbLinkBudget.SAT, SAT_dict, request.args(0))
     return SAT_dict
+
 
 def datatable_to_dict(table, job_id):
     """
     Reads dicts of numpy arrays from database
     """
     keys = table.fields
-    #keys = [unicode(key) for key in table.fields]
+    # keys = [unicode(key) for key in table.fields]
     keys.remove('id')
     keys.remove('Job_ID')
     dict = OrderedDict.fromkeys(keys)
@@ -284,7 +280,7 @@ def datatable_to_dict(table, job_id):
         dict[key] = np.array([])
     for row in dbLinkBudget(table.Job_ID == job_id).iterselect(*keys):
         for key in keys:
-            dict[key] = np.append((dict[key]),row["_extra"][key])
+            dict[key] = np.append((dict[key]), row["_extra"][key])
     return dict
 
 
@@ -323,8 +319,8 @@ def create_download():
     TODO: at RX fields
     """
     sheets = []
-    for table in [dbLinkBudget.VSAT, dbLinkBudget.Gateway, dbLinkBudget.SAT,dbLinkBudget.TRSP,
-                          dbLinkBudget.Earth_coord_GW, dbLinkBudget.EARTH_coord_VSAT]:
+    for table in [dbLinkBudget.VSAT, dbLinkBudget.Gateway, dbLinkBudget.SAT, dbLinkBudget.TRSP,
+                  dbLinkBudget.Earth_coord_GW, dbLinkBudget.EARTH_coord_VSAT]:
         keys = table.fields
         keys.remove('id')
         keys.remove('Job_ID')
@@ -338,7 +334,8 @@ def create_download():
 
     filename = "Link Budget - Output Scenario " + request.args(0) + ".xlsx"
     filepath = os.path.join(request.folder, 'uploads', filename)
-    create_saving_worksheet(filepath, sheets[0], "VSAT", sheets[1], "GATEWAY", sheets[2], "SAT", sheets[3], "TRSP", sheets[4], "EARTH_coord_GW",sheets[5], "EARTH_coord_VSAT")
+    create_saving_worksheet(filepath, sheets[0], "VSAT", sheets[1], "GATEWAY", sheets[2], "SAT", sheets[3], "TRSP",
+                            sheets[4], "EARTH_coord_GW", sheets[5], "EARTH_coord_VSAT")
     stream = open(filepath, 'rb')
     dbLinkBudget(dbLinkBudget.Calculate.id == request.args(0)).update(
         processed_file=dbLinkBudget.Calculate.processed_file.store(stream, filepath))
@@ -360,7 +357,6 @@ def run():
     job_id = request.args(0)
     element = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
     fileName = dbLinkBudget.Job(dbLinkBudget.Job.id == job_id).file_up  # Find uploaded file
-
 
     excel_info = load_objects_from_xl(os.path.join(request.folder, 'uploads', fileName))
 
@@ -416,8 +412,8 @@ def run():
 
     if element.propa_user_link:
         EARTH_COORD_VSAT_dict = compute_lkb_propag_params(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, VSAT_dict,
-                                                          'DN'if element.simulator_mode == 'FWD' else 'UP', True, element.simulator_mode)
-
+                                                          'DN' if element.simulator_mode == 'FWD' else 'UP', True,
+                                                          element.simulator_mode)
 
     # ----------------- 5/ Compute satellite perfos -------------------
     if element.sat_up_perf:
@@ -449,7 +445,7 @@ def run():
                 SAT_IDs = np.append(SAT_IDs, np.full(len(beam_contour_ll[2 * i, :]), SAT_ID))
                 trsp_fov_dict = {'SAT_ID': SAT_IDs, 'TRSP_ID': count, 'LON': lon, 'LAT': lat}
             read_array_to_db(dbLinkBudget.TRSP_FOV, trsp_fov_dict, job_id)
-    #else:
+    # else:
     #    session.flash = "You need to choose a calculation to launch"
     #    redirect(URL('launch', args=request.args(0)))
     read_array_to_db(dbLinkBudget.TRSP, TRSP_dict, job_id)  # at the moment these write to new lines
@@ -501,10 +497,15 @@ def performance_maxmin():
     returns: json with max and min for each performance
     """
     earth_vsat = dbLinkBudget.EARTH_coord_VSAT
-    rows = dbLinkBudget(earth_vsat.Job_ID == request.args(0)).select(earth_vsat.SAT_EIRP, earth_vsat.ELEVATION)
+    rows = dbLinkBudget(earth_vsat.Job_ID == request.args(0)).select(earth_vsat.SAT_EIRP, earth_vsat.ELEVATION,
+                                                                     earth_vsat.SAT_GPT)
     EIRP = [[row.SAT_EIRP] for row in rows]
     ELEVATION = [[row.ELEVATION] for row in rows]
-    return json.dumps({"EIRP":{"max":max(EIRP),  "min": min(EIRP)}, "ELEVATION":{"max":max(ELEVATION), "min":min(ELEVATION)}}, sort_keys=True, indent=4, separators=(',', ': '))
+    SAT_GPT = [[row.SAT_GPT] for row in rows]
+    return json.dumps(
+        {"EIRP": {"max": max(EIRP), "min": min(EIRP)}, "ELEVATION": {"max": max(ELEVATION), "min": min(ELEVATION)},
+         "SAT_GPT": {"max": max(SAT_GPT), "min": min(SAT_GPT)}},
+        sort_keys=True, indent=4, separators=(',', ': '))
 
 
 def VSATcoverage(lat, lon, npoints, distance):
@@ -556,8 +557,12 @@ def get_geojson():
         object: GeoJSON
     """
     earth_vsat = dbLinkBudget.EARTH_coord_VSAT
+    # I think putting the fields in the brackets will speed up the query
     earth_vsat_rows = dbLinkBudget(earth_vsat.Job_ID == request.args(
-        0)).iterselect()  # TODO : test if iterselect is better than regular select, time and memory resources.
+        0)).select(earth_vsat.LON, earth_vsat.LAT, earth_vsat.VSAT_ID, earth_vsat.Job_ID, earth_vsat.SAT_EIRP,
+                   earth_vsat.ELEVATION,
+                   earth_vsat.SAT_GPT)  # TODO : test if iterselect is better than regular select, time and memory
+    # resources.
     features = [{"type": "Feature",
                  "geometry": {
                      "type": "Point",
@@ -587,7 +592,10 @@ def get_geojson_gw():
         object: GeoJSON
     """
     earth_gateway = dbLinkBudget.Earth_coord_GW
-    earth_gateway_rows = dbLinkBudget(earth_gateway.Job_ID == request.args(0)).iterselect()
+    earth_gateway_rows = dbLinkBudget(earth_gateway.Job_ID == request.args(0)).iterselect(earth_gateway.LON,
+                                                                                          earth_gateway.LAT,
+                                                                                          earth_gateway.Job_ID,
+                                                                                          earth_gateway.GW_ID)
 
     features = [{"type": "Feature",
                  "geometry": {
@@ -631,7 +639,7 @@ def get_geojson_sat():
                                      ]
                  },
                  "properties": {
-                     "title": "SAT"  + " " + row[satellite.SAT_ID],
+                     "title": "SAT" + " " + row[satellite.SAT_ID],
                      "Height (km)": row[satellite.DISTANCE],
                      "Field of View (degrees)": row[satellite.FOV_RADIUS],
                      "Payload ID": row[satellite.PAYLOAD_ID],
@@ -751,12 +759,15 @@ def api():
 
     return dict(GET=GET)
 
-def options_widget(field,value,**kwargs):
-    return SQLFORM.widgets.options.widget(field,value,**kwargs)
 
-def string_widget(field,value,**kwargs):
-    return SQLFORM.widgets.string.widget(field,value,**kwargs)
+def options_widget(field, value, **kwargs):
+    return SQLFORM.widgets.options.widget(field, value, **kwargs)
 
-def boolean_widget(field,value,**kwargs):
-#be careful using this; checkboxes on forms are tricky. see notes below.
-    return SQLFORM.widgets.boolean.widget(field,value,**kwargs)
+
+def string_widget(field, value, **kwargs):
+    return SQLFORM.widgets.string.widget(field, value, **kwargs)
+
+
+def boolean_widget(field, value, **kwargs):
+    # be careful using this; checkboxes on forms are tricky. see notes below.
+    return SQLFORM.widgets.boolean.widget(field, value, **kwargs)
