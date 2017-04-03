@@ -20,7 +20,7 @@
 <div id="loadingOverlay"><h1>Loading...</h1></div>
 <div id="target"></div>
 <div id="toolbar">
-    <h1><font color="white" size="5"> Link Budget Visualiser</font></h1>
+    <h1><font color="white" size="5">Orbitool Visualiser</font></h1>
     <table>
         <tbody data-bind="foreach: layers">
         <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
@@ -32,18 +32,6 @@
             <td>
                 <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
             </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">
-                    ▲
-                </button>
-            </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">
-                    ▼
-                </button>
-            </td>
         </tr>
         <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
             <td><input type="checkbox" id="showFOVCheckbox"></td>
@@ -54,18 +42,7 @@
             <td>
                 <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
             </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">
-                    ▲
-                </button>
-            </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">
-                    ▼
-                </button>
-            </td>
+
         </tr>
 
         <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
@@ -77,18 +54,7 @@
             <td>
                 <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
             </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">
-                    ▲
-                </button>
-            </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">
-                    ▼
-                </button>
-            </td>
+
         </tr>
 
 
@@ -101,18 +67,7 @@
             <td>
                 <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
             </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">
-                    ▲
-                </button>
-            </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">
-                    ▼
-                </button>
-            </td>
+
         </tr>
 
         <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
@@ -124,18 +79,7 @@
             <td>
                 <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
             </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">
-                    ▲
-                </button>
-            </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">
-                    ▼
-                </button>
-            </td>
+
         </tr>
         <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
             <td><input type="checkbox" id="showVSATCheckbox"></td>
@@ -144,20 +88,9 @@
                 <select data-bind="visible: $parent.isSelectableLayer($data), options: $parent.baseLayers, optionsText: 'name', value: $parent.selectedLayer"></select>-->
             </td>
             <td>
-                <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
+                <input type="range" min="0" max="1" step="0.01" data-bind="value: alphaEIRP, valueUpdate: 'input'">
             </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">
-                    ▲
-                </button>
-            </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">
-                    ▼
-                </button>
-            </td>
+
         </tr>
         <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
             <td><input type="checkbox" id="showELEVATIONCheckbox"></td>
@@ -168,18 +101,7 @@
             <td>
                 <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
             </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">
-                    ▲
-                </button>
-            </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">
-                    ▼
-                </button>
-            </td>
+
         </tr>
 
         <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
@@ -189,18 +111,7 @@
             <td>
                 <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
             </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">
-                    ▲
-                </button>
-            </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">
-                    ▼
-                </button>
-            </td>
+
         </tr>
 
         <tr data-bind="css: { up: $parent.upLayer === $data, down: $parent.downLayer === $data }">
@@ -211,18 +122,6 @@
             </td>
             <td>
                 <input type="range" min="0" max="1" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
-            </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.raise($data, $index()); }, visible: $parent.canRaise($index())">
-                    ▲
-                </button>
-            </td>
-            <td>
-                <button type="button" class="cesium-button"
-                        data-bind="click: function() { $parent.lower($data, $index()); }, visible: $parent.canLower($index())">
-                    ▼
-                </button>
             </td>
         </tr>
         <button class="btn" id="screenshot">

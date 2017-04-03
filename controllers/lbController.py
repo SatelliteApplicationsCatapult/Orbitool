@@ -559,22 +559,38 @@ def get_geojson():
                    earth_vsat.ELEVATION,
                    earth_vsat.SAT_GPT)  # TODO : test if iterselect is better than regular select, time and memory
     # resources.
-    features = [{"type": "Feature",
-                 "geometry": {
-                     "type": "Point",
-                     "coordinates": [row[earth_vsat.LON], row[earth_vsat.LAT]]
-                 },
-                 "properties": {
-                     "title": [str(row[earth_vsat.VSAT_ID])],
-                     "Job ID": row[earth_vsat.Job_ID],
-                     "EIRP": row[earth_vsat.SAT_EIRP],
-                     "ELEVATION": row[earth_vsat.ELEVATION],
-                     "SAT_GPT": row[earth_vsat.SAT_GPT],
-                     "Lon, Lat": str(row[earth_vsat.LON]) + ", " + str(row[earth_vsat.LAT]),
-                 }
-                 } for row in earth_vsat_rows if row[
-                    dbLinkBudget.EARTH_coord_VSAT.ELEVATION]]  # TODO : Extend to include more information form
-    # database #hacky way to ignore NONEs
+    features = []
+    for row in earth_vsat_rows:
+        if row[earth_vsat.SAT_EIRP] and not row[earth_vsat.SAT_GPT]:
+            features.append({"type": "Feature",
+                         "geometry": {
+                             "type": "Point",
+                             "coordinates": [row[earth_vsat.LON], row[earth_vsat.LAT]]
+                         },
+                         "properties": {
+                             "title": [str(row[earth_vsat.VSAT_ID])],
+                             "Job ID": row[earth_vsat.Job_ID],
+                             "EIRP": round(row[earth_vsat.SAT_EIRP],2),
+                             "ELEVATION": round(row[earth_vsat.ELEVATION],2),
+                             "Lon, Lat": str(row[earth_vsat.LON]) + ", " + str(row[earth_vsat.LAT]),
+                         }
+                         })  # TODO : Extend to include more information form
+            # database #hacky way to ignore NONEs
+        elif row[earth_vsat.SAT_GPT] and not row[earth_vsat.SAT_EIRP]:
+            features.append({"type": "Feature",
+                         "geometry": {
+                             "type": "Point",
+                             "coordinates": [row[earth_vsat.LON], row[earth_vsat.LAT]]
+                         },
+                         "properties": {
+                             "title": [str(row[earth_vsat.VSAT_ID])],
+                             "Job ID": row[earth_vsat.Job_ID],
+                             "ELEVATION": round(row[earth_vsat.ELEVATION],2),
+                             "SAT_GPT": round(row[earth_vsat.SAT_GPT],2),
+                             "Lon, Lat": str(row[earth_vsat.LON]) + ", " + str(row[earth_vsat.LAT]),
+                         }
+                         })  # TODO : Extend to include more information form
+            # database #hacky way to ignore NONEs
     return response.json({"type": "FeatureCollection", 'features': features})
 
 

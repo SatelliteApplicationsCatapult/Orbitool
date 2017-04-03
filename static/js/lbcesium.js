@@ -16,7 +16,8 @@ var viewer = new Cesium.Viewer('cesiumContainer', {
 });
 
 var viewModel = {
-    SAT_GPTmin: 1.6,
+    //alphaEIRP: ko.observable(.6),
+    alphaEIRP: 0.5,
     Tmin: 282  //need to write a function to determin minimum temperature
 };
 
@@ -32,13 +33,12 @@ $.getJSON(performance_maxmin, function(json){
 
 var VSAT = new Cesium.GeoJsonDataSource();
 VSAT.load(geo_json_vsat).then(function () {
-
     var entities = VSAT.entities.values;
     for (var i = 0; i < entities.length; i++) {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(((entity.properties.EIRP-EIRPmin)/(EIRPmax-EIRPmin)),1, .5, .6),
+            color: Cesium.Color.fromHsl(((entity.properties.EIRP-EIRPmin)/(EIRPmax-EIRPmin)),1, .5, viewModel.alphaEIRP),
             pixelSize: 8,
             outlineWidth: .5,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -67,7 +67,7 @@ SAT_GPT.load(geo_json_vsat).then(function () {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(((entity.properties.SAT_GPT-SAT_GPTmin)/(SAT_GPTmax-SAT_GPTmin)),1, .5, .6),
+            color: Cesium.Color.fromHsl(((entity.properties.SAT_GPT - SAT_GPTmin) / (SAT_GPTmax - SAT_GPTmin)), 1, .5, .6),
             pixelSize: 8,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
         })
