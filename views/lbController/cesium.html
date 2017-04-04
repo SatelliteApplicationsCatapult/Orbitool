@@ -35,9 +35,14 @@
             <td><input type="checkbox" id="showFOVCheckbox"></td>
             <td>Satellite Cone
             </td>
-
+<tr><td></td>
             <td>Color:
             <select data-bind="options: FOVcolors, value: FOVcolor"></select></td>
+
+            <td>
+                <input type="range" min="0" max=".50" step="0.01" data-bind="value: FOValpha, valueUpdate: 'input'">
+            </td>
+            </tr>
 
         </tr>
         <tr>
@@ -65,14 +70,17 @@
             <td><input type="checkbox" id="showVSATCheckbox"></td>
             <td>EIRP
             </td>
-            <td>
-                <input type="range" min="0" max="1" step="0.01" data-bind="value: alphaEIRP, valueUpdate: 'input'">
-            </td>
+
+                <td>Hue:
+            <select data-bind="options: hue_preset, value: hue_scale"></select></td>
+
         </tr>
         <tr>
             <td><input type="checkbox" id="showELEVATIONCheckbox"></td>
             <td>Elevation
             </td>
+            <td>Hue:
+            <select data-bind="options: hue_preset, value: hue_scale"></select></td>
             <td>
             </td>
         </tr>
@@ -80,6 +88,8 @@
             <td><input type="checkbox" id="showSAT_GPTCheckbox"></td>
             <td>SAT_GPT
             </td>
+            <td>Hue:
+            <select data-bind="options: hue_preset, value: hue_scale"></select></td>
             <td>
             </td>
         </tr>
