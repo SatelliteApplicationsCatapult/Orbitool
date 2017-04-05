@@ -16,14 +16,14 @@ var viewer = new Cesium.Viewer('cesiumContainer', {
 });
 
 var viewModel = {
-    FOVcolors : ['White', 'Red', 'Green', 'Blue', 'Yellow', 'Gray'],
-    FOVcolor: 'Green',
-    FOValpha: 0.25,
+    FOVcolors: Cesium.knockout.observable(['735078', '3c8d87','d26f52','923d50','FFFFFF', '000000', 'adadad']),
+    //FOVcolortext: ['735078', '3c8d87','d26f52','923d50','FFFFFF', '000000', 'black'],
+    FOVcolor: "735078",
+    FOValpha: "42",
     perf_alpha: 0.6,
     hue_scale: 1.,
     hue_preset: [1., .9, 0.8, 0.7, .6, .5, .4, .3, .2, .1],
 };
-
 Cesium.knockout.track(viewModel);
 var toolbar = document.getElementById('toolbar');
 Cesium.knockout.applyBindings(viewModel, toolbar)
@@ -132,25 +132,25 @@ FOV.load(geojson_FOV).then(function () {
             outlineWidth: 2,
             outline: true,
             numberOfVerticalLines: 0,
-            material: Cesium.Color.fromAlpha(Cesium.Color[viewModel.FOVcolor.toUpperCase()], viewModel.FOValpha),
+            material: Cesium.Color.fromRgba(["0x"]+[viewModel.FOValpha]+[viewModel.FOVcolor]),
         })
     }
     Cesium.knockout.getObservable(viewModel, 'FOVcolor').subscribe(
         function(newValue) {
             for (var i=0; i < entities.length; i++) {
-                entities[i].cylinder.material = Cesium.Color.fromAlpha(Cesium.Color[newValue.toUpperCase()], viewModel.FOValpha);
+                entities[i].cylinder.material = Cesium.Color.fromRgba(["0x"]+[viewModel.FOValpha]+[newValue])
             }
         }
     );
     Cesium.knockout.getObservable(viewModel, 'FOValpha').subscribe(
         function(newValue){
             for (var i = 0; i <entities.length; i++) {
-                entities[i].cylinder.material = Cesium.Color.fromAlpha(Cesium.Color[viewModel.FOVcolor.toUpperCase()], newValue);
+                entities[i].cylinder.material = Cesium.Color.fromRgba(["0x"]+[newValue]+[viewModel.FOVcolor])
             }
+
         }
     );
 });
-
 var FOV_CIRCLE = new Cesium.GeoJsonDataSource();
 FOV_CIRCLE.load(geojson_FOV_circle).then(function () {
     var entities = FOV_CIRCLE.entities.values;
