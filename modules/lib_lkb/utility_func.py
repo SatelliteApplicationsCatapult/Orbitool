@@ -17,7 +17,6 @@ from .geometric_func import *
 
 k_dB = -228.6  # Boltzmann's constant
 
-
 # ________________________________________________________________________________________
 #########################################################################################
 # UTILITIES, DISTANCE AND RF PERFOS CALCULATIONS
@@ -397,7 +396,6 @@ def assign_transponder3(grd_points_ecef, sat_pos_ecef, nadir_ecef, normal_vector
                 #                theta_ant[mask_elev][mask_better_theta] = new_theta_ant[mask_better_theta]
                 counter_trsp += 1
         counter_sat += 1
-
     # TODO : check compat entre indices sat et TRSP_ID
     return sat_id[indices_sat.astype(np.int16)], trsp_id[indices_trsp.astype(np.int16)]  # dBs
 
