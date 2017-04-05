@@ -36,13 +36,14 @@
             <td><input type="checkbox" id="showFOVCheckbox"></td>
             <td>Satellite Cone
             </td>
-        <tr><td></td>
+        <tr>
+            <td></td>
             <td>Color (Hex):
-            <select data-bind="options: FOVcolors, value: FOVcolor"></select></td>
+                <select data-bind="options: FOVcolors, value: FOVcolor"></select></td>
             <td>
                 <input type="range" min="0" max="85" step="1" data-bind="value: FOValpha, valueUpdate: 'input'">
             </td>
-            </tr>
+        </tr>
 
         </tr>
         <tr>
@@ -68,30 +69,17 @@
         </td>
         <tr>
             <td><input type="checkbox" id="showVSATCheckbox"></td>
-            <td>EIRP
-            </td>
+            <td> Analytics:
+                <select id="performance" name="performance" selected="Analytics">
+                    <option value="Analytics">Pick a plot below..</option>
+                    <option value="EIRP">EIRP</option>
+                    <option value="Elevation">Elevation</option>
+                    <option value="GPT">GPT</option>
+                </select>
 
-                <td>Hue:
-            <select data-bind="options: hue_preset, value: hue_scale"></select></td>
+            <td>Hue:
+                <select data-bind="options: hue_preset, value: hue_scale"></select></td>
 
-        </tr>
-        <tr>
-            <td><input type="checkbox" id="showELEVATIONCheckbox"></td>
-            <td>Elevation
-            </td>
-            <td>Hue:
-            <select data-bind="options: hue_preset, value: hue_scale"></select></td>
-            <td>
-            </td>
-        </tr>
-        <tr>
-            <td><input type="checkbox" id="showSAT_GPTCheckbox"></td>
-            <td>SAT_GPT
-            </td>
-            <td>Hue:
-            <select data-bind="options: hue_preset, value: hue_scale"></select></td>
-            <td>
-            </td>
         </tr>
         <tr>
             <td><input type="checkbox" id="centreCheckbox"></td>
