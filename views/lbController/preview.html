@@ -104,6 +104,7 @@ viewer.entities.add({
 
     <div class = "Bwidget">
         <h1>Actions</h1>
+        <button id="geometric" class="btn">Calc Geometrics</button>
         <button id="run" class="btn">Launch calculation</button>
         <button class="btn" id="processed">
             Out to Spreadsheet
@@ -122,6 +123,9 @@ viewer.entities.add({
 <script type="text/javascript" >
 
 $(document).ready(function(){
+    $("#geometric").click(function(){
+        window.location="{{=URL('calculate_geometrics',args = request.args(0))}}";
+    });
     $("#run").click(function(){
         window.location="{{=URL('run',args = request.args(0))}}";
     });
