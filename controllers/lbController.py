@@ -194,7 +194,7 @@ def preview():
     grid = SQLFORM.grid(dbLinkBudget.SAT.Job_ID == request.args(0), details=False, deletable=True, user_signature=False,
                         csv=False, paginate=5,
                         editable=True, args=request.args[:1],
-                        selectable=lambda ids: redirect(URL('lbController', 'preview', args=request.args(0))),
+                        selectable=lambda ids: redirect(URL('lbController', 'calculate_geometrics', args=request.args(0))),
                         )  # preserving _get_vars means user goes back to same grid page, same sort options etc
 
     grid.element(_type='submit', _value='%s' % T('Submitttt'))
