@@ -670,7 +670,7 @@ def get_geojson_sat():
                                      ]
                  },
                  "properties": {
-                     "title": "SAT" + " " + row[satellite.SAT_ID],
+                     "title": "SAT" + " " + str(row[satellite.SAT_ID]),
                      "Height (km)": row[satellite.DISTANCE],
                      "Field of View (degrees)": row[satellite.FOV_RADIUS],
                      "Payload ID": row[satellite.PAYLOAD_ID],
@@ -702,7 +702,7 @@ def get_geojson_FOV():
                                      ]
                  },
                  "properties": {
-                     "title": "SAT" + " " + row[satellite.SAT_ID] + " Cone",
+                     "title": "SAT" + " " + str(row[satellite.SAT_ID]) + " Cone",
                      "Height": row[satellite.DISTANCE],
                      "BottomRadius": round(row[satellite.DISTANCE] * 1000 * np.tan(
                          (np.pi / 180) * row[satellite.FOV_RADIUS])),
