@@ -219,47 +219,41 @@ def preview():
             session.job = form.vars.job_name
     return dict(grid=grid, form=form)
 
-def write_dict_to_table(db, ordDict, job_id):
+def write_dict_to_table(table, dic, job_id):
     # type: (object, object, object) -> object
     """
     Used to read in dictionaries which contain
     np arrays created when reading excel file
 
     Args:
-        db: database
-        ordDict: OrderedDict
+        table: db table
+        dic: dictionary of arrays
         job_id:
 
     """
-    row = ordDict.fromkeys(ordDict)
-    for v in range(ordDict.values()[0].size):
-        for k in range(len(ordDict.keys())):
-            row[ordDict.keys()[k]] = ordDict.values()[k][v]
+    row = dic.fromkeys(dic)
+    for v in range(dic.values()[0].size):
+        for k in range(len(dic.keys())):
+            row[dic.keys()[k]] = dic.values()[k][v]
         # insert to database, but check if the fields already exist
-        job_id_check = db.Job_ID == job_id
-        if db is dbLinkBudget.Gateway:
-            db.update_or_insert((db.GW_ID == row['GW_ID']) & (job_id_check), Job_ID=job_id,
+        job_id_check = table.Job_ID == job_id
+        if table is dbLinkBudget.Gateway:
+            table.update_or_insert((table.GW_ID == row['GW_ID']) & (job_id_check), Job_ID=job_id,
                                 **row)
-        elif db is dbLinkBudget.SAT:
-            dbLinkBudget.SAT.update_or_insert((db.SAT_ID == row['SAT_ID']) & (job_id_check), Job_ID=job_id, **row)
-        elif db is dbLinkBudget.TRSP:
-            db.update_or_insert((db.TRSP_ID == row['TRSP_ID']) & (job_id_check), Job_ID=job_id, **row)
-        elif db is dbLinkBudget.VSAT:
-            db.update_or_insert((db.VSAT_ID == row['VSAT_ID']) & (job_id_check), Job_ID=job_id, **row)
-        elif db is dbLinkBudget.Earth_coord_GW:
-            db.update_or_insert(
-                (job_id_check) & (db.LON == row['LON']) & (db.LAT == row['LAT']) & (db.GW_ID == row['GW_ID']) & (
-                    db.TRSP_ID == row['TRSP_ID']), Job_ID=job_id, **row)
-        elif db is dbLinkBudget.EARTH_coord_VSAT:
-            db.update_or_insert(
-                (job_id_check) & (db.LON == row['LON']) & (db.LAT == row['LAT']) & (
-                    db.VSAT_ID == row['VSAT_ID']), Job_ID=job_id, **row)
+        elif table is dbLinkBudget.SAT:
+            table.update_or_insert((table.SAT_ID == row['SAT_ID']) & (job_id_check), Job_ID=job_id, **row)
+        elif table is dbLinkBudget.TRSP:
+            table.update_or_insert((table.TRSP_ID == row['TRSP_ID']) & (job_id_check), Job_ID=job_id, **row)
+        elif table is dbLinkBudget.VSAT:
+            table.update_or_insert((table.VSAT_ID == row['VSAT_ID']) & (job_id_check), Job_ID=job_id, **row)
+        elif table is dbLinkBudget.Earth_coord_GW:
+            table.update_or_insert(
+                (job_id_check) & (table.LON == row['LON']) & (table.LAT == row['LAT']) & (table.GW_ID == row['GW_ID']) & (
+                    table.TRSP_ID == row['TRSP_ID']), Job_ID=job_id, **row)
+        elif table is dbLinkBudget.EARTH_coord_VSAT:
+            table.update_or_insert((job_id_check) & (table.LON == row['LON']) & (table.LAT == row['LAT']) & (table.VSAT_ID == row['VSAT_ID']), Job_ID=job_id, **row)
         else:
-            db.update_or_insert(Job_ID=job_id, **row)
-
-def testtest():
-    return datatable_to_dict(dbLinkBudget.SAT, 1)
-
+            table.update_or_insert(Job_ID=job_id, **row)
 
 
 def datatable_to_dict(table, job_id):
@@ -560,13 +554,6 @@ def VSATcoverage(lat, lon, npoints, distance):
     lonfull = np.tile(lonarray, sidelength)
     EARTH_COORD_VSAT_dict = {'LON': lonfull, 'LAT': latfull}
     return EARTH_COORD_VSAT_dict
-
-def test1():
-    fileName = dbLinkBudget.Job(dbLinkBudget.Job.id == 14).file_up
-    excel_info = load_objects_from_xl(os.path.join(request.folder, 'uploads', fileName))
-    return excel_info[1]
-def test2():
-    return datatable_to_dict(dbLinkBudget.SAT, 1)
 
 def testthis():
     return VSATcoverage(-90., 0., 300.,
