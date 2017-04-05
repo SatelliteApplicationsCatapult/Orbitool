@@ -356,6 +356,57 @@ def benchmarkexcel():
     logger.error(time.time() - time2)
     return {1:SAT_dict, 2:TRSP_dict, 3: excel_info[2], 4:excel_info[3], 5:excel_info[4], 6:excel_info[5]}
 
+def calculate_geometrics():
+    job_id = request.args(0)
+    element = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
+
+    SAT_dict = datatable_to_dict(dbLinkBudget.SAT, job_id)
+    TRSP_dict = datatable_to_dict(dbLinkBudget.TRSP, job_id)
+    # -----------------  1/ Compute SAT geometric params ------------------
+    SAT_dict, nadir_ecef, pos_ecef, normal_vector = compute_sat_params(SAT_dict, True)
+
+    values = display_sat_field_of_views_for_cesium(nadir_ecef, pos_ecef, normal_vector, \
+                                                   SAT_dict['FOV_RADIUS'] * np.pi / 180, \
+                                                   SAT_dict['ROLL'] * np.pi / 180, \
+                                                   SAT_dict['PITCH'] * np.pi / 180, \
+                                                   SAT_dict['YAW'] * np.pi / 180)
+    lat = np.array([])
+    lon = np.array([])
+    count = np.array([])
+    for i in np.arange(0, np.size(values, 0) / 2):
+        lon = np.append(lon, values[2 * i, :])
+        lat = np.append(lat, values[2 * i + 1, :])
+        count = np.append(count, np.full(len(values[2 * i, :]), i + 1))
+        sat_fov_dict = {'SAT_ID': count, 'LON': lon, 'LAT': lat}
+    dbLinkBudget(dbLinkBudget.SAT_FOV.Job_ID == job_id).delete()
+    write_dict_to_table(dbLinkBudget.SAT_FOV, sat_fov_dict, job_id)
+
+    for SAT_ID in SAT_dict['SAT_ID']:
+        dbLinkBudget(dbLinkBudget.TRSP_FOV.Job_ID == job_id).delete()
+        beam_centers_lonlat, beam_contour_ll = display_2D_sat_and_beams_for_cesium(SAT_ID, SAT_dict['SAT_ID'],
+                                                                                   SAT_dict['PAYLOAD_ID'],
+                                                                                   nadir_ecef, pos_ecef,
+                                                                                   normal_vector, \
+                                                                                   TRSP_dict['PAYLOAD_ID'],
+                                                                                   TRSP_dict[
+                                                                                       'BEAM_TX_CENTER_AZ_ANT'],
+                                                                                   TRSP_dict[
+                                                                                       'BEAM_TX_CENTER_EL_ANT'],
+                                                                                   TRSP_dict['BEAM_TX_RADIUS'])
+        lat = np.array([])
+        lon = np.array([])
+        count = np.array([])
+        SAT_IDs = np.array([])
+        for i in np.arange(0, np.size(beam_contour_ll, 0) / 2):
+            lon = np.append(lon, beam_contour_ll[2 * i, :])
+            lat = np.append(lat, beam_contour_ll[2 * i + 1, :])
+            count = np.append(count, np.full(len(beam_contour_ll[2 * i, :]), i + 1))
+            SAT_IDs = np.append(SAT_IDs, np.full(len(beam_contour_ll[2 * i, :]), SAT_ID))
+            trsp_fov_dict = {'SAT_ID': SAT_IDs, 'TRSP_ID': count, 'LON': lon, 'LAT': lat}
+        write_dict_to_table(dbLinkBudget.TRSP_FOV, trsp_fov_dict, job_id)
+    write_dict_to_table(dbLinkBudget.SAT, SAT_dict, job_id)
+    redirect(URL('preview', args=request.args(0)))
+
 def run():
     """
     This runs the processing of the excel file.
@@ -380,21 +431,6 @@ def run():
     if element.sat_geo_params:
         # -----------------  1/ Compute SAT geometric params ------------------
         SAT_dict, nadir_ecef, pos_ecef, normal_vector = compute_sat_params(SAT_dict, True)
-    if element.sat_fov:
-        values = display_sat_field_of_views_for_cesium(nadir_ecef, pos_ecef, normal_vector, \
-                                                       SAT_dict['FOV_RADIUS'] * np.pi / 180, \
-                                                       SAT_dict['ROLL'] * np.pi / 180, \
-                                                       SAT_dict['PITCH'] * np.pi / 180, \
-                                                       SAT_dict['YAW'] * np.pi / 180)
-        lat = np.array([])
-        lon = np.array([])
-        count = np.array([])
-        for i in np.arange(0, np.size(values, 0) / 2):
-            lon = np.append(lon, values[2 * i, :])
-            lat = np.append(lat, values[2 * i + 1, :])
-            count = np.append(count, np.full(len(values[2 * i, :]), i + 1))
-            sat_fov_dict = {'SAT_ID': count, 'LON': lon, 'LAT': lat}
-        write_dict_to_table(dbLinkBudget.SAT_FOV, sat_fov_dict, job_id)
 
     # ----------------- 2/ Assign sat to each point of coverage -----------
     if element.points2trsp:
@@ -430,31 +466,6 @@ def run():
         EARTH_COORD_VSAT_dict = compute_satellite_perfos(EARTH_COORD_VSAT_dict, TRSP_dict, 'UP')
     if element.sat_dwn_perf:
         EARTH_COORD_VSAT_dict = compute_satellite_perfos(EARTH_COORD_VSAT_dict, TRSP_dict, 'DN')
-
-    #### This is get transponder FOV circles
-    if element.trsp_fov:
-        for SAT_ID in SAT_dict['SAT_ID']:
-            beam_centers_lonlat, beam_contour_ll = display_2D_sat_and_beams_for_cesium(SAT_ID, SAT_dict['SAT_ID'],
-                                                                                       SAT_dict['PAYLOAD_ID'],
-                                                                                       nadir_ecef, pos_ecef,
-                                                                                       normal_vector, \
-                                                                                       TRSP_dict['PAYLOAD_ID'],
-                                                                                       TRSP_dict[
-                                                                                           'BEAM_TX_CENTER_AZ_ANT'],
-                                                                                       TRSP_dict[
-                                                                                           'BEAM_TX_CENTER_EL_ANT'],
-                                                                                       TRSP_dict['BEAM_TX_RADIUS'])
-            lat = np.array([])
-            lon = np.array([])
-            count = np.array([])
-            SAT_IDs = np.array([])
-            for i in np.arange(0, np.size(beam_contour_ll, 0) / 2):
-                lon = np.append(lon, beam_contour_ll[2 * i, :])
-                lat = np.append(lat, beam_contour_ll[2 * i + 1, :])
-                count = np.append(count, np.full(len(beam_contour_ll[2 * i, :]), i + 1))
-                SAT_IDs = np.append(SAT_IDs, np.full(len(beam_contour_ll[2 * i, :]), SAT_ID))
-                trsp_fov_dict = {'SAT_ID': SAT_IDs, 'TRSP_ID': count, 'LON': lon, 'LAT': lat}
-            write_dict_to_table(dbLinkBudget.TRSP_FOV, trsp_fov_dict, job_id)
     # else:
     #    session.flash = "You need to choose a calculation to launch"
     #    redirect(URL('launch', args=request.args(0)))
