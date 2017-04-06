@@ -4,6 +4,9 @@ Created on Thu Jun 25 18:00:23 2015
 
 ***REMOVED***
 """
+import logging
+logger = logging.getLogger("web2py.app.myweb2pyapplication")
+logger.setLevel(logging.DEBUG)
 
 from sys import path
 
@@ -250,7 +253,7 @@ def compute_lkb_propag_params(EARTH_COORD_dict, SAT_dict, TRSP_dict, TERMINAL_di
         if ((flag_fwd_rtn == 'FWD' and flag_uplink_downlink == 'DN') or (
                 flag_fwd_rtn == 'RTN' and flag_uplink_downlink == 'UP')):  # this implies that VSAT is always Tx for
             # RTN...
-            EARTH_COORD_dict['POLAR'] = db_join(EARTH_COORD_dict, TERMINAL_dict, 'POLAR', 'VSAT_ID')  # @!!! BUG
+            EARTH_COORD_dict['POLAR'] = db_join(EARTH_COORD_dict, TERMINAL_dict, 'POLAR', 'VSAT_ID')  # @!!! BUG #the error here is caused by not having VSAT_ID in both sheets corresponding
             EARTH_COORD_dict['DIAMETER'] = db_join(EARTH_COORD_dict, TERMINAL_dict, 'DIAMETER', 'VSAT_ID')  # @!!! BUG
             EARTH_COORD_dict['EFFICIENCY'] = db_join(EARTH_COORD_dict, TERMINAL_dict, 'EFFICIENCY',
                                                      'VSAT_ID')  # @!!! BUG
