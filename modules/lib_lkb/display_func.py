@@ -238,26 +238,21 @@ def display_2D_sat_and_beams_for_cesium(SAT_ID, sat_ids, sat_pl_ids, nadir_ecef,
     '''
     display nadir and beam centers and contours of ONE satellite
     
-    CAREFUL : SAT_ID is a string !!!    
+    CAREFUL : SAT_ID is a string !!! Only works for integer sat IDs though
     
     '''
     # first convert to string if not already done the various IDs
-    if sat_ids.dtype.char is 'U':
-        sat_ids = sat_ids.astype('string')
-    if sat_ids.dtype.char is 'int' or sat_ids.dtype.char is 'float':
+    if not (sat_ids.dtype.char == 'S'):
         sat_ids = sat_ids.astype('int').astype('string')
 
     if not (type(SAT_ID) == np.ndarray):
-        SAT_ID = str(SAT_ID)
+        SAT_ID = str(int(SAT_ID))
     else:
-        if SAT_ID.dtype.char is 'int' or SAT_ID.dtype.char is 'float':
+        if not (SAT_ID.dtype.char == 'S'):
             SAT_ID = SAT_ID.astype('int').astype('string')
-        if SAT_ID.dtype.char is 'U':
-            SAT_ID = SAT_ID.astype('string')
 
     # find right satellite and right parameters of the SAT_dict to use
     index_satellite = np.flatnonzero(sat_ids == SAT_ID)
-
     # if no satellite found break
     if np.size(index_satellite) == 0:
         print('NO SAT FOUND')

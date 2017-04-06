@@ -46,12 +46,36 @@ FOV.load("{{=URL('lbController', 'get_geojson_FOV',args=[request.args(0)])}}").t
             outlineWidth: 2,
             outline: true,
             numberOfVerticalLines: 0,
-            material: Cesium.Color.fromRandom({alpha: 0.25}),
+            material: Cesium.Color.fromRandom({alpha: 0.1}),
         })
     }
 });
+
+var FOV_CIRCLE = new Cesium.GeoJsonDataSource();
+FOV_CIRCLE.load("{{=URL('lbController', 'get_geojson_FOV_CIRCLE',args=[request.args(0)])}}").then(function () {
+    var entities = FOV_CIRCLE.entities.values;
+    for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        entity.polyline.loop = true;
+        entity.polyline.material = Cesium.Color.BLACK;
+        entity.polyline.width = .8;// lines get displayed properly with red strok
+    }
+});
+var TRSP_FOV_CIRCLE = new Cesium.GeoJsonDataSource();
+TRSP_FOV_CIRCLE.load("{{=URL('lbController', 'get_geojson_TRSP_FOV_CIRCLE',args=[request.args(0)])}}").then(function () {
+    var entities = TRSP_FOV_CIRCLE.entities.values;
+    for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        entity.polyline.loop = true;
+        entity.polyline.material = Cesium.Color.LIGHTGREY;
+        entity.polyline.width = .8;
+    }
+});
+
 viewer.dataSources.add(SAT);
 viewer.dataSources.add(FOV);
+viewer.dataSources.add(FOV_CIRCLE);
+viewer.dataSources.add(TRSP_FOV_CIRCLE);
 
 var lon = -180;
 var lat = 0.;
