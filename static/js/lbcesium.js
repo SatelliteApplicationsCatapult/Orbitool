@@ -267,29 +267,36 @@ $("#performance").change(function () {
 
     var el = $(this);
     checkbox.addEventListener('change', function () {
-        if (checkbox.checked) {
-            if (el.val() === "EIRP") {
+        if (el.val() === "EIRP") {
+            if (checkbox.checked) {
                 if (!viewer.dataSources.contains(EIRP)) {
                     viewer.dataSources.add(EIRP)
                     viewer.dataSources.remove(SAT_GPT)
                     viewer.dataSources.remove(ELEVATION);
                 }
             }
-            else if (el.val() === "Elevation") {
+        }
+        else if (el.val() === "Elevation") {
+            if (checkbox.checked) {
                 if (!viewer.dataSources.contains(ELEVATION)) {
                     viewer.dataSources.add(ELEVATION)
                     viewer.dataSources.remove(SAT_GPT)
                     viewer.dataSources.remove(EIRP);
                 }
             }
-            else if (el.val() === "GPT") {
+        }
+        else if (el.val() === "GPT") {
+            if (checkbox.checked) {
                 if (!viewer.dataSources.contains(SAT_GPT)) {
                     viewer.dataSources.add(SAT_GPT)
                     viewer.dataSources.remove(ELEVATION)
                     viewer.dataSources.remove(EIRP);
                 }
             }
-        }  else {
+        }
+        if (checkbox.checked) {
+        }
+          else {
             viewer.dataSources.remove(EIRP)
             viewer.dataSources.remove(ELEVATION)
             viewer.dataSources.remove(SAT_GPT);
