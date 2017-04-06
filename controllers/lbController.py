@@ -8,10 +8,8 @@ import json
 from datetime import datetime
 
 import logging
-logger = logging.getLogger("web2py.app.myweb2pyapplication")
-logger.setLevel(logging.DEBUG)
-import time
 
+import time
 from collections import defaultdict
 
 from excelHandling import *
@@ -194,7 +192,7 @@ def preview():
     grid = SQLFORM.grid(dbLinkBudget.SAT.Job_ID == request.args(0), details=False, deletable=True, user_signature=False,
                         csv=False, paginate=5,
                         editable=True, args=request.args[:1],
-                        selectable=lambda ids: redirect(URL('lbController', 'calculate_geometrics', args=request.args(0))),
+                        selectable=lambda ids: redirect(URL('lbController', 'preview', args=request.args(0))),
                         )  # preserving _get_vars means user goes back to same grid page, same sort options etc
 
     grid.element(_type='submit', _value='%s' % T('Submitttt'))
@@ -251,7 +249,10 @@ def write_dict_to_table(table, dic, job_id):
                 (job_id_check) & (table.LON == row['LON']) & (table.LAT == row['LAT']) & (table.GW_ID == row['GW_ID']) & (
                     table.TRSP_ID == row['TRSP_ID']), Job_ID=job_id, **row)
         elif table is dbLinkBudget.EARTH_coord_VSAT:
+            #row['POLAR'] = 'C' #bug with polarisations
+            #table.update_or_insert(**row)
             table.update_or_insert((job_id_check) & (table.LON == row['LON']) & (table.LAT == row['LAT']) & (table.VSAT_ID == row['VSAT_ID']), Job_ID=job_id, **row)
+
         else:
             table.update_or_insert(Job_ID=job_id, **row)
 
@@ -350,33 +351,43 @@ def benchmarkexcel():
     logger.error(time.time() - time2)
     return {1:SAT_dict, 2:TRSP_dict, 3: excel_info[2], 4:excel_info[3], 5:excel_info[4], 6:excel_info[5]}
 
-def calculate_geometrics():
+def SAT_FOV_to_JSON():
     job_id = request.args(0)
-    element = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
-
     SAT_dict = datatable_to_dict(dbLinkBudget.SAT, job_id)
-    TRSP_dict = datatable_to_dict(dbLinkBudget.TRSP, job_id)
     # -----------------  1/ Compute SAT geometric params ------------------
     SAT_dict, nadir_ecef, pos_ecef, normal_vector = compute_sat_params(SAT_dict, True)
-
+    write_dict_to_table(dbLinkBudget.SAT, SAT_dict, job_id)
     values = display_sat_field_of_views_for_cesium(nadir_ecef, pos_ecef, normal_vector, \
                                                    SAT_dict['FOV_RADIUS'] * np.pi / 180, \
                                                    SAT_dict['ROLL'] * np.pi / 180, \
                                                    SAT_dict['PITCH'] * np.pi / 180, \
                                                    SAT_dict['YAW'] * np.pi / 180)
-    lat = np.array([])
-    lon = np.array([])
-    count = np.array([])
-    for i in np.arange(0, np.size(values, 0) / 2):
-        lon = np.append(lon, values[2 * i, :])
-        lat = np.append(lat, values[2 * i + 1, :])
-        count = np.append(count, np.full(len(values[2 * i, :]), i + 1))
-        sat_fov_dict = {'SAT_ID': count, 'LON': lon, 'LAT': lat}
-    dbLinkBudget(dbLinkBudget.SAT_FOV.Job_ID == job_id).delete()
-    write_dict_to_table(dbLinkBudget.SAT_FOV, sat_fov_dict, job_id)
+    coordinates = {}
+    for SAT_ID in np.arange(0, np.size(values, 0) / 2):
+        coordinates[SAT_ID] = []
+        lon = values[2 * SAT_ID, :]
+        lat = values[2 * SAT_ID + 1, :]
+        for point in range(0,len(values[2 * int(SAT_ID), :])):
+            coordinates[SAT_ID].append([lon[point],lat[point]])
 
+    features = [{"type": "Feature",
+                 "geometry": {
+                     "type": "LineString",
+                     "coordinates": coordinates[i]
+                 },
+                 "properties": {
+                     "title": "SAT " + str(i) + " 3dB Field of View"}
+                 } for i in coordinates]
+
+    return response.json({"type": "FeatureCollection", 'features': features})
+
+def TRSP_FOV_to_JSON():
+    job_id = request.args(0)
+    SAT_dict = datatable_to_dict(dbLinkBudget.SAT, job_id)
+    TRSP_dict = datatable_to_dict(dbLinkBudget.TRSP, job_id)
+    SAT_dict, nadir_ecef, pos_ecef, normal_vector = compute_sat_params(SAT_dict, True)
+    coordinates = {}
     for SAT_ID in SAT_dict['SAT_ID']:
-        dbLinkBudget(dbLinkBudget.TRSP_FOV.Job_ID == job_id).delete()
         beam_centers_lonlat, beam_contour_ll = display_2D_sat_and_beams_for_cesium(SAT_ID, SAT_dict['SAT_ID'],
                                                                                    SAT_dict['PAYLOAD_ID'],
                                                                                    nadir_ecef, pos_ecef,
@@ -387,19 +398,21 @@ def calculate_geometrics():
                                                                                    TRSP_dict[
                                                                                        'BEAM_TX_CENTER_EL_ANT'],
                                                                                    TRSP_dict['BEAM_TX_RADIUS'])
-        lat = np.array([])
-        lon = np.array([])
-        count = np.array([])
-        SAT_IDs = np.array([])
-        for i in np.arange(0, np.size(beam_contour_ll, 0) / 2):
-            lon = np.append(lon, beam_contour_ll[2 * i, :])
-            lat = np.append(lat, beam_contour_ll[2 * i + 1, :])
-            count = np.append(count, np.full(len(beam_contour_ll[2 * i, :]), i + 1))
-            SAT_IDs = np.append(SAT_IDs, np.full(len(beam_contour_ll[2 * i, :]), SAT_ID))
-            trsp_fov_dict = {'SAT_ID': SAT_IDs, 'TRSP_ID': count, 'LON': lon, 'LAT': lat}
-        write_dict_to_table(dbLinkBudget.TRSP_FOV, trsp_fov_dict, job_id)
-    write_dict_to_table(dbLinkBudget.SAT, SAT_dict, job_id)
-    redirect(URL('preview', args=request.args(0)))
+        for TRSP_ID in np.arange(0, np.size(beam_contour_ll, 0) / 2):
+            coordinates[SAT_ID,TRSP_ID] = []
+            lon = beam_contour_ll[2 * TRSP_ID, :]
+            lat = beam_contour_ll[2 * TRSP_ID + 1, :]
+            for point in range(0, len(beam_contour_ll[2 * int(TRSP_ID), :])):
+                coordinates[SAT_ID,TRSP_ID].append([lon[point], lat[point]])
+    features = [{"type": "Feature",
+                 "geometry": {
+                     "type": "LineString",
+                     "coordinates": coordinates[i]
+                 },
+                 "properties": {
+                     "title": "TRSP " + str(i[1]) + " SAT" + str(i[0]) + " \n 3dB Field of View"}
+                 } for i in coordinates]
+    return response.json({"type": "FeatureCollection", 'features': features})
 
 def run():
     """
@@ -422,16 +435,11 @@ def run():
     GW_dict = datatable_to_dict(dbLinkBudget.Gateway, job_id)
     VSAT_dict = datatable_to_dict(dbLinkBudget.VSAT, job_id)
 
-    if element.sat_geo_params:
-        # -----------------  1/ Compute SAT geometric params ------------------
-        SAT_dict, nadir_ecef, pos_ecef, normal_vector = compute_sat_params(SAT_dict, True)
-
     # ----------------- 2/ Assign sat to each point of coverage -----------
     if element.points2trsp:
         EARTH_COORD_VSAT_dict = compute_transponder_assignment(EARTH_COORD_VSAT_dict,
                                                                SAT_dict, TRSP_dict, element.simulator_mode,
                                                                'DN' if element.simulator_mode == 'FWD' else 'UP')
-
     if element.gw2trsp:
         EARTH_COORD_GW_dict = compute_transponder_assignment(EARTH_COORD_GW_dict, SAT_dict, TRSP_dict, element
                                                              .simulator_mode,
@@ -708,69 +716,6 @@ def get_geojson_FOV():
                      "Payload ID": row[satellite.PAYLOAD_ID],
                  }
                  } for row in satellite_rows]
-    return response.json({"type": "FeatureCollection", 'features': features})
-
-
-def get_geojson_FOV_CIRCLE():
-    """
-    Function to get the coordinates into a GeoJSON format
-    This adds the lat and longitudes for the SAT
-    Called in cesium.html
-
-    Returns:
-        object: GeoJSON
-    """
-    satellite_fov = dbLinkBudget.SAT_FOV
-    rows = dbLinkBudget((satellite_fov.Job_ID == request.args(0))).iterselect()
-    coordinates = {}
-
-    for row in rows:
-        if row[satellite_fov.SAT_ID] not in coordinates:
-            coordinates[row[satellite_fov.SAT_ID]] = []
-        coordinates[row[satellite_fov.SAT_ID]].append(
-            [row[satellite_fov.LON], row[satellite_fov.LAT]])
-
-    features = [{"type": "Feature",
-                 "geometry": {
-                     "type": "LineString",
-                     "coordinates": coordinates[i]
-                 },
-                 "properties": {
-                     "title": "SAT " + str(i) + " 3dB Field of View"}
-                 } for i in coordinates]
-
-    return response.json({"type": "FeatureCollection", 'features': features})
-
-
-def get_geojson_TRSP_FOV_CIRCLE():
-    """
-    Function to get the coordinates into a GeoJSON format
-    This adds the lat and longitudes for the SAT
-    Called in cesium.html
-
-    Returns:
-        object: GeoJSON
-    """
-    transponder_fov = dbLinkBudget.TRSP_FOV
-    rows = dbLinkBudget(
-        (transponder_fov.Job_ID == request.args(0)) & (transponder_fov.TRSP_ID > 0)).iterselect()
-    coordinates = {}
-
-    for row in rows:
-        if (row[transponder_fov.SAT_ID], row[transponder_fov.TRSP_ID]) not in coordinates:
-            coordinates[row[transponder_fov.SAT_ID], row[transponder_fov.TRSP_ID]] = []
-        coordinates[row[transponder_fov.SAT_ID], row[transponder_fov.TRSP_ID]].append(
-            [row[transponder_fov.LON], row[transponder_fov.LAT]])
-
-    features = [{"type": "Feature",
-                 "geometry": {
-                     "type": "LineString",
-                     "coordinates": coordinates[i]
-                 },
-                 "properties": {
-                     "title": "TRSP " + str(i[1]) + " SAT" + str(i[0]) + " \n 3dB Field of View"}
-                 } for i in coordinates]
-
     return response.json({"type": "FeatureCollection", 'features': features})
 
 

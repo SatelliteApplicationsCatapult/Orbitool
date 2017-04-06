@@ -52,7 +52,7 @@ FOV.load("{{=URL('lbController', 'get_geojson_FOV',args=[request.args(0)])}}").t
 });
 
 var FOV_CIRCLE = new Cesium.GeoJsonDataSource();
-FOV_CIRCLE.load("{{=URL('lbController', 'get_geojson_FOV_CIRCLE',args=[request.args(0)])}}").then(function () {
+FOV_CIRCLE.load("{{=URL('lbController', 'SAT_FOV_to_JSON',args=[request.args(0)])}}").then(function () {
     var entities = FOV_CIRCLE.entities.values;
     for (var i = 0; i < entities.length; i++) {
         var entity = entities[i];
@@ -62,7 +62,7 @@ FOV_CIRCLE.load("{{=URL('lbController', 'get_geojson_FOV_CIRCLE',args=[request.a
     }
 });
 var TRSP_FOV_CIRCLE = new Cesium.GeoJsonDataSource();
-TRSP_FOV_CIRCLE.load("{{=URL('lbController', 'get_geojson_TRSP_FOV_CIRCLE',args=[request.args(0)])}}").then(function () {
+TRSP_FOV_CIRCLE.load("{{=URL('lbController', 'TRSP_FOV_to_JSON',args=[request.args(0)])}}").then(function () {
     var entities = TRSP_FOV_CIRCLE.entities.values;
     for (var i = 0; i < entities.length; i++) {
         var entity = entities[i];

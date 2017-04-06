@@ -21,7 +21,10 @@
 <div id="loadingOverlay"><h1>Loading...</h1></div>
 <div id="target"></div>
 <div id="toolbar">
-    <h1>Orbitool Visualiser</h1>
+    <h1>
+        <img src="../static/images/orbitool.png" alt="Orbitool"></h1>
+
+
     <table>
         <tbody>
         <tr>
@@ -29,7 +32,9 @@
             <td>Satellites
             </td>
             <td>
-
+            <button class="btn" id="screenshot">
+                Screenshot
+            </button>
             </td>
         </tr>
         <tr>
@@ -68,7 +73,14 @@
         <td>
         </td>
         <tr>
-            <td><input type="checkbox" id="showVSATCheckbox"></td>
+            <td>
+                <div id="ck-button">
+                    <label>
+                        <input type="checkbox" id="showVSATCheckbox"><span>Toggle</span>
+                    </label>
+                </div>
+
+            </td>
             <td> Analytics:
                 <select id="performance" name="performance" selected="Analytics">
                     <option value="Analytics">Pick a plot below..</option>
@@ -88,9 +100,6 @@
             <td>
             </td>
         </tr>
-        <button class="btn" id="screenshot">
-            Screenshot
-        </button>
         </tbody>
     </table>
 </div>
@@ -100,8 +109,8 @@
         geojson_sat="{{=URL('lbController', 'get_geojson_sat',args=[request.args(0)])}}" ,
         geojson_gw="{{=URL('lbController', 'get_geojson_gw',args=[request.args(0)])}}" ,
         geojson_FOV="{{=URL('lbController', 'get_geojson_FOV',args=[request.args(0)])}}" ,
-        geojson_FOV_circle="{{=URL('lbController', 'get_geojson_FOV_CIRCLE',args=[request.args(0)])}}" ,
-        geojson_TRSP_FOV="{{=URL('lbController', 'get_geojson_TRSP_FOV_CIRCLE',args=[request.args(0)])}}" ,
+        geojson_FOV_circle="{{=URL('lbController', 'SAT_FOV_to_JSON',args=[request.args(0)])}}" ,
+        geojson_TRSP_FOV="{{=URL('lbController', 'TRSP_FOV_to_JSON',args=[request.args(0)])}}" ,
         satellite_img="{{=URL("static","satellite1.gif")}}" ,
         ground_station_img="{{=URL("static","facility.gif")}}" ,
         catapult_logo="{{=URL("static","images/saWhite26.png")}}" ,
