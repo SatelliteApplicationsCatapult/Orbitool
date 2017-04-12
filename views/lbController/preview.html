@@ -77,41 +77,6 @@ viewer.dataSources.add(FOV);
 viewer.dataSources.add(FOV_CIRCLE);
 viewer.dataSources.add(TRSP_FOV_CIRCLE);
 
-var lon = -180;
-var lat = 0.;
-var lon2 = 0.;
-var lat2 = -90.;
-var pos = [];
-var pos2 = [];
-for (var i = 0; i < 360; i++) {
-    pos.push(Cesium.Cartesian3.fromDegrees(lon, lat));
-    lon++;
-}
-
-for (var i = 0; i < 180; i++) {
-    pos2.push(Cesium.Cartesian3.fromDegrees(lon2, lat2));
-    lat2++;
-}
-
-viewer.entities.add({
-    name: '0 Latitude',
-    polyline: {
-        followSurface: false,
-        width: 1,
-        material: Cesium.Color.BLACK,
-        positions: pos
-    }
-});
-
-viewer.entities.add({
-    polyline: {
-        followSurface: false,
-        width: 1,
-        material: Cesium.Color.BLACK,
-        positions: pos2
-    }
-});
-
 </script>
 
 
