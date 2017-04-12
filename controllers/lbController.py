@@ -7,11 +7,9 @@
 import json
 from datetime import datetime
 
-import logging
-
 import time
-from collections import defaultdict
 
+from dbhandling import*
 from excelHandling import *
 from gluon import *
 from lib_lkb.compute_high_level_func import *
@@ -137,12 +135,12 @@ def add_excel_2_db():
     fileName = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).file_up  # Find uploaded file
     job_id = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).id
     excel_info = load_objects_from_xl(os.path.join(request.folder, 'uploads', fileName))
-    write_dict_to_table(dbLinkBudget.SAT, excel_info[0], job_id)
-    write_dict_to_table(dbLinkBudget.TRSP, excel_info[1], job_id)
-    write_dict_to_table(dbLinkBudget.VSAT, excel_info[2], job_id)
-    write_dict_to_table(dbLinkBudget.Earth_coord_GW, excel_info[3], job_id)
-    write_dict_to_table(dbLinkBudget.Gateway, excel_info[4], job_id)
-    write_dict_to_table(dbLinkBudget.EARTH_coord_VSAT, excel_info[5], job_id)
+    write_dict_to_table(dbLinkBudget.SAT, excel_info[0], job_id, dbLinkBudget)
+    write_dict_to_table(dbLinkBudget.TRSP, excel_info[1], job_id, dbLinkBudget)
+    write_dict_to_table(dbLinkBudget.VSAT, excel_info[2], job_id, dbLinkBudget)
+    write_dict_to_table(dbLinkBudget.Earth_coord_GW, excel_info[3], job_id, dbLinkBudget)
+    write_dict_to_table(dbLinkBudget.Gateway, excel_info[4], job_id, dbLinkBudget)
+    write_dict_to_table(dbLinkBudget.EARTH_coord_VSAT, excel_info[5], job_id, dbLinkBudget)
 
     redirect(URL('preview', args=job_id))
 
@@ -217,60 +215,6 @@ def preview():
             session.job = form.vars.job_name
     return dict(grid=grid, form=form)
 
-def write_dict_to_table(table, dic, job_id):
-    # type: (object, object, object) -> object
-    """
-    Used to read in dictionaries which contain
-    np arrays created when reading excel file
-
-    Args:
-        table: db table
-        dic: dictionary of arrays
-        job_id:
-
-    """
-    row = dic.fromkeys(dic)
-    for v in range(dic.values()[0].size):
-        for k in range(len(dic.keys())):
-            row[dic.keys()[k]] = dic.values()[k][v]
-        # insert to database, but check if the fields already exist
-        job_id_check = table.Job_ID == job_id
-        if table is dbLinkBudget.Gateway:
-            table.update_or_insert((table.GW_ID == row['GW_ID']) & (job_id_check), Job_ID=job_id,
-                                **row)
-        elif table is dbLinkBudget.SAT:
-            table.update_or_insert((table.SAT_ID == row['SAT_ID']) & (job_id_check), Job_ID=job_id, **row)
-        elif table is dbLinkBudget.TRSP:
-            table.update_or_insert((table.TRSP_ID == row['TRSP_ID']) & (job_id_check), Job_ID=job_id, **row)
-        elif table is dbLinkBudget.VSAT:
-            table.update_or_insert((table.VSAT_ID == row['VSAT_ID']) & (job_id_check), Job_ID=job_id, **row)
-        elif table is dbLinkBudget.Earth_coord_GW:
-            table.update_or_insert(
-                (job_id_check) & (table.LON == row['LON']) & (table.LAT == row['LAT']) & (table.GW_ID == row['GW_ID']) & (
-                    table.TRSP_ID == row['TRSP_ID']), Job_ID=job_id, **row)
-        elif table is dbLinkBudget.EARTH_coord_VSAT:
-            #row['POLAR'] = 'C' #bug with polarisations
-            #table.update_or_insert(**row)
-            table.update_or_insert((job_id_check) & (table.LON == row['LON']) & (table.LAT == row['LAT']) & (table.VSAT_ID == row['VSAT_ID']), Job_ID=job_id, **row)
-
-        else:
-            table.update_or_insert(Job_ID=job_id, **row)
-
-
-def datatable_to_dict(table, job_id):
-    """
-    Reads dicts of numpy arrays from database
-    """
-    keys = list(table.fields)
-    keys.remove("Job_ID")
-    keys.remove("id")
-    mydict = defaultdict(list)
-    row_list=dbLinkBudget(table.Job_ID == job_id).iterselect(*keys).as_list()
-    for row in range(0,len(row_list)):
-        for key, value in row_list[row]['_extra'].items():
-            mydict[key] = np.append(mydict[key],value)
-    return mydict
-
 
 def json_serial(obj):
     """
@@ -334,12 +278,12 @@ def create_download():
 def benchmark():
     time1 = time.time()
     job_id = 1
-    SAT_dict = datatable_to_dict(dbLinkBudget.SAT, job_id)
-    TRSP_dict = datatable_to_dict(dbLinkBudget.TRSP, job_id)
-    EARTH_COORD_VSAT_dict = datatable_to_dict(dbLinkBudget.EARTH_coord_VSAT, job_id)
-    EARTH_COORD_GW_dict = datatable_to_dict(dbLinkBudget.Earth_coord_GW, job_id)
-    GW_dict = datatable_to_dict(dbLinkBudget.Gateway, job_id)
-    VSAT_dict = datatable_to_dict(dbLinkBudget.VSAT, job_id)
+    SAT_dict = datatable_to_dict(dbLinkBudget.SAT, job_id, dbLinkBudget)
+    TRSP_dict = datatable_to_dict(dbLinkBudget.TRSP, job_id, dbLinkBudget)
+    EARTH_COORD_VSAT_dict = datatable_to_dict(dbLinkBudget.EARTH_coord_VSAT, job_id, dbLinkBudget)
+    EARTH_COORD_GW_dict = datatable_to_dict(dbLinkBudget.Earth_coord_GW, job_id, dbLinkBudget)
+    GW_dict = datatable_to_dict(dbLinkBudget.Gateway, job_id, dbLinkBudget)
+    VSAT_dict = datatable_to_dict(dbLinkBudget.VSAT, job_id, dbLinkBudget)
     return time.time() - time1
 
 def benchmarkexcel():
@@ -353,10 +297,10 @@ def benchmarkexcel():
 
 def SAT_FOV_to_JSON():
     job_id = request.args(0)
-    SAT_dict = datatable_to_dict(dbLinkBudget.SAT, job_id)
+    SAT_dict = datatable_to_dict(dbLinkBudget.SAT, job_id, dbLinkBudget)
     # -----------------  1/ Compute SAT geometric params ------------------
     SAT_dict, nadir_ecef, pos_ecef, normal_vector = compute_sat_params(SAT_dict, True)
-    write_dict_to_table(dbLinkBudget.SAT, SAT_dict, job_id)
+    write_dict_to_table(dbLinkBudget.SAT, SAT_dict, job_id, dbLinkBudget)
     values = display_sat_field_of_views_for_cesium(nadir_ecef, pos_ecef, normal_vector, \
                                                    SAT_dict['FOV_RADIUS'] * np.pi / 180, \
                                                    SAT_dict['ROLL'] * np.pi / 180, \
@@ -383,8 +327,8 @@ def SAT_FOV_to_JSON():
 
 def TRSP_FOV_to_JSON():
     job_id = request.args(0)
-    SAT_dict = datatable_to_dict(dbLinkBudget.SAT, job_id)
-    TRSP_dict = datatable_to_dict(dbLinkBudget.TRSP, job_id)
+    SAT_dict = datatable_to_dict(dbLinkBudget.SAT, job_id, dbLinkBudget)
+    TRSP_dict = datatable_to_dict(dbLinkBudget.TRSP, job_id, dbLinkBudget)
     SAT_dict, nadir_ecef, pos_ecef, normal_vector = compute_sat_params(SAT_dict, True)
     coordinates = {}
     for SAT_ID in SAT_dict['SAT_ID']:
@@ -428,12 +372,12 @@ def run():
     job_id = request.args(0)
     element = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
 
-    SAT_dict = datatable_to_dict(dbLinkBudget.SAT, job_id)
-    TRSP_dict = datatable_to_dict(dbLinkBudget.TRSP, job_id)
-    EARTH_COORD_VSAT_dict = datatable_to_dict(dbLinkBudget.EARTH_coord_VSAT, job_id)
-    EARTH_COORD_GW_dict = datatable_to_dict(dbLinkBudget.Earth_coord_GW, job_id)
-    GW_dict = datatable_to_dict(dbLinkBudget.Gateway, job_id)
-    VSAT_dict = datatable_to_dict(dbLinkBudget.VSAT, job_id)
+    SAT_dict = datatable_to_dict(dbLinkBudget.SAT, job_id, dbLinkBudget)
+    TRSP_dict = datatable_to_dict(dbLinkBudget.TRSP, job_id, dbLinkBudget)
+    EARTH_COORD_VSAT_dict = datatable_to_dict(dbLinkBudget.EARTH_coord_VSAT, job_id, dbLinkBudget)
+    EARTH_COORD_GW_dict = datatable_to_dict(dbLinkBudget.Earth_coord_GW, job_id, dbLinkBudget)
+    GW_dict = datatable_to_dict(dbLinkBudget.Gateway, job_id, dbLinkBudget)
+    VSAT_dict = datatable_to_dict(dbLinkBudget.VSAT, job_id, dbLinkBudget)
 
     # ----------------- 2/ Assign sat to each point of coverage -----------
     if element.points2trsp:
@@ -471,10 +415,10 @@ def run():
     # else:
     #    session.flash = "You need to choose a calculation to launch"
     #    redirect(URL('launch', args=request.args(0)))
-    write_dict_to_table(dbLinkBudget.TRSP, TRSP_dict, job_id)  # at the moment these write to new lines
-    write_dict_to_table(dbLinkBudget.SAT, SAT_dict, job_id)
-    write_dict_to_table(dbLinkBudget.EARTH_coord_VSAT, EARTH_COORD_VSAT_dict, job_id)
-    write_dict_to_table(dbLinkBudget.Earth_coord_GW, EARTH_COORD_GW_dict, job_id)
+    write_dict_to_table(dbLinkBudget.TRSP, TRSP_dict, job_id, dbLinkBudget)  # at the moment these write to new lines
+    write_dict_to_table(dbLinkBudget.SAT, SAT_dict, job_id, dbLinkBudget)
+    write_dict_to_table(dbLinkBudget.EARTH_coord_VSAT, EARTH_COORD_VSAT_dict, job_id, dbLinkBudget)
+    write_dict_to_table(dbLinkBudget.Earth_coord_GW, EARTH_COORD_GW_dict, job_id, dbLinkBudget)
 
     dbLinkBudget(dbLinkBudget.Calculate.id == request.args(0)).update(processed=True)
     redirect(URL('preview', args=request.args(0)))
