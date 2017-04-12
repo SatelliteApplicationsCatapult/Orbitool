@@ -14,9 +14,10 @@
     <table id="job_table" class="table table-striped hover display" cellspacing="0" width="100%">
         <thead>
              <tr>
-                <th>ID</th>
+                <th>Scenario ID</th>
                 <th>Name </th>
-                <th>Date</th>
+                <th>Description</th>
+                 <th>Date</th>
                 <th>Links</th>
             </tr>
         </thead>
@@ -31,6 +32,7 @@ $(document).ready(function(){
         columns: [
             { data: 'id' },
             { data: 'job_name' },
+            { data: 'description'},
             { data: 'Date'},
             {width: '70px', "defaultContent": '<button class="btn-update" type="button">Preview</button>'}
         ],
