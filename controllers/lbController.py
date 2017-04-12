@@ -34,7 +34,7 @@ def index():
     form = SQLFORM(dbLinkBudget.Job, record, deletable=True,
                    upload=URL('download'), formstyle='table3cols')
     if form.process().accepted:
-        session.flash = "%s - %s has been uploaded!" % (form.vars.id, form.vars.job_name)
+        session.flash = "Senario %s - %s has been uploaded!" % (form.vars.id, form.vars.job_name)
         session.job = form.vars.id
         add_excel_2_db()
     elif form.errors:
@@ -59,8 +59,8 @@ def add_excel_2_db():
     Function used to insert excel dictionary into database
 
     """
-    fileName = dbLinkBudget.Job(dbLinkBudget.Job.job_id == session.job).file_up  # Find uploaded file
-    job_id = dbLinkBudget.Job(dbLinkBudget.Job.job_id == session.job).id
+    fileName = dbLinkBudget.Job(dbLinkBudget.Job.id == session.job).file_up  # Find uploaded file
+    job_id = dbLinkBudget.Job(dbLinkBudget.Job.id == session.job).id
     excel_info = load_objects_from_xl(os.path.join(request.folder, 'uploads', fileName))
     write_dict_to_table(dbLinkBudget.SAT, excel_info[0], job_id, dbLinkBudget)
     write_dict_to_table(dbLinkBudget.TRSP, excel_info[1], job_id, dbLinkBudget)
@@ -72,11 +72,10 @@ def add_excel_2_db():
     redirect(URL('preview', args=job_id))
 
 def preview():
-    # SQL GRID
-    # process submitted form
+    # SQL GRID for table on page
     if len(request.post_vars) > 0:
         for key, value in request.post_vars.iteritems():
-            (field_name, sep, row_id) = key.partition('_row_')  # name looks like home_state_row_99
+            (field_name, sep, row_id) = key.partition('_row_')  #
             if row_id:
                 dbLinkBudget(dbLinkBudget.SAT.id == row_id).update(**{field_name: value})
 
@@ -91,34 +90,42 @@ def preview():
 
     dbLinkBudget.SAT.FOV_RADIUS.represent = lambda value, row: string_widget(dbLinkBudget.SAT.FOV_RADIUS, value,
                                                                              **{'_name': 'FOV_RADIUS_row_%s' % row.id})
-
     dbLinkBudget.SAT.id.readable = False
-    dbLinkBudget.SAT.Job_ID.readable = False
-    dbLinkBudget.SAT.INCLINATION_ANGLE.readable = False
-    dbLinkBudget.SAT.FLAG_ASC_DESC.readable = False
-    dbLinkBudget.SAT.INTERF_FLAG.readable = False
-    dbLinkBudget.SAT.ROLL.readable = False
-    dbLinkBudget.SAT.PITCH.readable = False
-    dbLinkBudget.SAT.YAW.readable = False
-    dbLinkBudget.SAT.PAYLOAD_ID.readable = False
-    dbLinkBudget.SAT.NADIR_X_ECEF.readable = False
-    dbLinkBudget.SAT.NADIR_Y_ECEF.readable = False
-    dbLinkBudget.SAT.NADIR_Z_ECEF.readable = False
-    dbLinkBudget.SAT.SAT_POS_X_ECEF.readable = False
-    dbLinkBudget.SAT.SAT_POS_Y_ECEF.readable = False
-    dbLinkBudget.SAT.SAT_POS_Z_ECEF.readable = False
-    dbLinkBudget.SAT.NORMAL_VECT_X.readable = False
-    dbLinkBudget.SAT.NORMAL_VECT_Y.readable = False
-    dbLinkBudget.SAT.NORMAL_VECT_Z.readable = False
 
-    grid = SQLFORM.grid(dbLinkBudget.SAT.Job_ID == request.args(0), details=False, deletable=True, user_signature=False,
+    satgrid = SQLFORM.grid(dbLinkBudget.SAT.Job_ID == request.args(0), details=False, deletable=True, user_signature=False,
+                        csv=False, paginate=5,maxtextlength=1,
+                        editable=True, args=request.args[:1],ui='jquery-ui',
+                        selectable=lambda ids: redirect(URL('lbController', 'preview', args=request.args(0))),
+                        )  # preserving _get_vars means user goes back to same grid page, same sort options etc
+
+    satgrid.element(_type='submit', _value='%s' % T('Submit'))
+    satgrid.elements(_type='checkbox', _name='records', replace=None)  # remove selectable's checkboxes
+
+
+
+    #TRSP grid
+    if len(request.post_vars) > 0:
+        for key, value in request.post_vars.iteritems():
+            (field_name, sep, row_id) = key.partition('_row_')  #
+            if row_id:
+                dbLinkBudget(dbLinkBudget.TRSP.id == row_id).update(**{field_name: value})
+
+    dbLinkBudget.TRSP.TRSP_ID.represent = lambda value, row: string_widget(dbLinkBudget.TRSP.TRSP_ID, value,
+                                                                         **{'_name': 'TRSP_ID_row_%s' % row.id})
+    dbLinkBudget.TRSP.PAYLOAD_ID.represent = lambda value, row: string_widget(dbLinkBudget.TRSP.PAYLOAD_ID, value,
+                                                                            **{'_name': 'PAYLOAD_ID_row_%s' % row.id})
+
+    dbLinkBudget.TRSP.id.readable = False
+    dbLinkBudget.TRSP.Job_ID.readable = False
+
+    trspgrid = SQLFORM.grid(dbLinkBudget.TRSP.Job_ID == request.args(0), details=False, deletable=True, user_signature=False,
                         csv=False, paginate=5,
                         editable=True, args=request.args[:1],
                         selectable=lambda ids: redirect(URL('lbController', 'preview', args=request.args(0))),
                         )  # preserving _get_vars means user goes back to same grid page, same sort options etc
 
-    grid.element(_type='submit', _value='%s' % T('Submitttt'))
-    grid.elements(_type='checkbox', _name='records', replace=None)  # remove selectable's checkboxes
+    trspgrid.element(_type='submit', _value='%s' % T('Submit'))
+    trspgrid.elements(_type='checkbox', _name='records', replace=None)  # remove selectable's checkboxes
 
     # SQL FORM
     job_id = request.args(0)
@@ -127,7 +134,8 @@ def preview():
     dbLinkBudget.Calculate.Job_ID.writable = False
     record = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
     form = SQLFORM(dbLinkBudget.Calculate, record, showid=False, formstyle='table3cols', submit_button='Save')
-    return dict(grid=grid, form=form)
+
+    return dict(satgrid=satgrid, trspgrid=trspgrid, form=form)
 
 
 def json_serial(obj):
