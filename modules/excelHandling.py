@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import xlrd
 import numpy as np
+from collections import OrderedDict
 import xlsxwriter
 
 
@@ -89,7 +90,9 @@ def load_object(worksheet):
     Returns:
         object: dictionary
     """
-    d = {}
+    #d = {}
+    #d = OrderedDict()
+    d = OrderedDict()
     for curr_col in range(0, worksheet.ncols):
         liste_elts = worksheet.col_values(curr_col)
         d[worksheet.cell_value(0, curr_col)] = liste_elts[1:len(liste_elts)]
