@@ -39,11 +39,7 @@ $(document).ready(function(){
     //Button links to the ID of the row
     $('#job_table tbody').on( 'click', '.btn-update',  function (e) {
         var data = job_table.row( $(this).parents('tr') ).data();
-        window.location = '/preview/' +data['id'];
+        window.location = '/preview/' + data['id'];
     } );
-//    job_table.on('click','tr',function(){
-//        var data = job_table.row(this).data();
-//        window.location = 'update/' +data['id'];
-//    });
 });
 </script>
