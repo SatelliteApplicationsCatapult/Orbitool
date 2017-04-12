@@ -222,7 +222,8 @@ dbLinkBudget.define_table('Job',
                           Field('file_up', 'upload', requires=IS_NOT_EMPTY(), label='File (excel spreadsheet)',
                                 autodelete=True),
                           )
-
+dbLinkBudget.Job.file_up.requires=IS_UPLOAD_FILENAME(extension='^(xlsx|xls|xml)$')
+dbLinkBudget.Job.job_name.requires=IS_NOT_IN_DB(dbLinkBudget, dbLinkBudget.Job.job_name)
 dbLinkBudget.define_table('Calculate',
                           Field('Job_ID', label='Scenario ID',),
                           Field('processed_file', 'upload', writable=False, readable=False, autodelete=True),
@@ -256,7 +257,6 @@ dbLinkBudget.define_table('Calculate',
                                       'button'),
                           )
 dbLinkBudget.Calculate.Job_ID.default = request.args(0)
-# dbLinkBudget.Job.file_up.requires=IS_UPLOAD_FILENAME(extension=['xlsx','xls','xml'])
 dbLinkBudget.define_table('Earth_coord_GW',
                           Field('Job_ID', requires=IS_IN_DB(dbLinkBudget, 'Job.id')),
                           Field('LON', 'double', requires=IS_NOT_EMPTY()),

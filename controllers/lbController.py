@@ -26,16 +26,6 @@ response.title = 'Orbitool'
 
 
 def index():
-    """ Home Page """
-    return dict(message=T(''))
-
-
-def about():
-    """ About page """
-    return dict(message=T('About'))
-
-
-def input():
     """ Input form """  # TODO: Think about adding drag and drop plugin
     # TODO : separate the form
     session.job = ""
@@ -44,12 +34,17 @@ def input():
     form = SQLFORM(dbLinkBudget.Job, record, deletable=True,
                    upload=URL('download'), formstyle='table3cols')
     if form.process().accepted:
-        session.flash = "%s - %s has been accepted" % (form.vars.id, form.vars.job_name)
-        session.job = form.vars.job_name
+        session.flash = "%s - %s has been uploaded!" % (form.vars.id, form.vars.job_name)
+        session.job = form.vars.id
         add_excel_2_db()
     elif form.errors:
         session.flash = "%s - %s has FAILED" % (form.vars.id, form.vars.job_name)
     return dict(form=form)
+
+
+def about():
+    """ About page """
+    return dict(message=T('About'))
 
 
 def select():
@@ -59,81 +54,13 @@ def select():
                      default=json_serial)  # Formatting need to interface with JQuery Datatables
     return dict(job=XML(job))
 
-
-def update():
-    """
-    Update form
-    This function creates the update form and
-    creates dictionaries to be viewed on the right hand side of the page.
-    Returns:
-        JSON formatted stream
-
-    """
-    job_id = request.args(0)
-    if dbLinkBudget.Job(job_id):
-        job = json.dumps(dbLinkBudget(dbLinkBudget.Job).select().as_list(),
-                         default=json_serial)  # default json.dumps specificed
-
-        gw = dbLinkBudget(dbLinkBudget.Gateway.Job_ID == job_id).select().as_list()
-        vsat = dbLinkBudget(dbLinkBudget.VSAT.Job_ID == job_id).select().as_list()
-        sat = dbLinkBudget(dbLinkBudget.SAT.Job_ID == job_id).select().as_list()
-        trsp = dbLinkBudget(dbLinkBudget.TRSP.Job_ID == job_id).select().as_list()
-
-        record = dbLinkBudget.Job(request.args(0))
-        dbLinkBudget.Job.Date.readable = False
-        dbLinkBudget.Job.file_up.readable = False
-        dbLinkBudget.Job.file_up.writable = False
-        form = SQLFORM(dbLinkBudget.Job, record, deletable=True, formstyle='table3cols', submit_button='Update')
-
-        form.add_button('Next', URL('launch', args=request.args(0)))
-        if form.process().accepted:
-            session.flash = "%s - %s has been updated" % (form.vars.id, form.vars.job_name)
-            if form.deleted:
-                session.flash = "%s) %s has been deleted" % (form.vars.id, form.vars.job_name)
-                redirect(URL('select'))
-            elif form.errors:
-                session.job = form.vars.job_name
-                session.flash = "Errors in form"
-        return dict(job=XML(job), vsat=XML(json.dumps(vsat)), gw=XML(json.dumps(gw)), sat=XML(json.dumps(sat)),
-                    trsp=XML(json.dumps(trsp)), form=form)
-    else:
-        redirect(URL('input'))
-
-
-def launch():
-    """
-    Run page
-
-
-    """
-    session.job = ""
-    job_id = request.args(0)
-    dbLinkBudget.Calculate.processed.readable = False  # enable these when in use. Having it off is good for debugging
-    dbLinkBudget.Calculate.processed.writable = False
-    dbLinkBudget.Calculate.Job_ID.writable = False
-    if dbLinkBudget.Job(job_id):
-        record = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
-        form = SQLFORM(dbLinkBudget.Calculate, record, showid=False, formstyle='table3cols', submit_button='Save')
-        form.add_button('Select Page', URL('select'))
-        if form.process().accepted:
-            session.flash = "%s -  has been updated" % (form.vars.id)
-            if form.deleted:
-                session.flash = "%s)  has been deleted" % (form.vars.id)
-                redirect(URL('select'))
-            elif form.errors:
-                session.job = form.vars.job_name
-        return dict(form=form)
-    else:
-        redirect(URL('input'))
-
-
 def add_excel_2_db():
     """
     Function used to insert excel dictionary into database
 
     """
-    fileName = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).file_up  # Find uploaded file
-    job_id = dbLinkBudget.Job(dbLinkBudget.Job.job_name == session.job).id
+    fileName = dbLinkBudget.Job(dbLinkBudget.Job.job_id == session.job).file_up  # Find uploaded file
+    job_id = dbLinkBudget.Job(dbLinkBudget.Job.job_id == session.job).id
     excel_info = load_objects_from_xl(os.path.join(request.folder, 'uploads', fileName))
     write_dict_to_table(dbLinkBudget.SAT, excel_info[0], job_id, dbLinkBudget)
     write_dict_to_table(dbLinkBudget.TRSP, excel_info[1], job_id, dbLinkBudget)
@@ -144,7 +71,6 @@ def add_excel_2_db():
 
     redirect(URL('preview', args=job_id))
 
-
 def preview():
     # SQL GRID
     # process submitted form
@@ -153,8 +79,6 @@ def preview():
             (field_name, sep, row_id) = key.partition('_row_')  # name looks like home_state_row_99
             if row_id:
                 dbLinkBudget(dbLinkBudget.SAT.id == row_id).update(**{field_name: value})
-
-                # the name attribute is the method we know which row is involved1.0
 
     dbLinkBudget.SAT.SAT_ID.represent = lambda value, row: string_widget(dbLinkBudget.SAT.SAT_ID, value,
                                                                          **{'_name': 'SAT_ID_row_%s' % row.id})
@@ -197,22 +121,12 @@ def preview():
     grid.elements(_type='checkbox', _name='records', replace=None)  # remove selectable's checkboxes
 
     # SQL FORM
-
-
-    session.job = ""
     job_id = request.args(0)
     dbLinkBudget.Calculate.processed.readable = False  # enable these when in use. Having it off is good for debugging
     dbLinkBudget.Calculate.processed.writable = False
     dbLinkBudget.Calculate.Job_ID.writable = False
     record = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
     form = SQLFORM(dbLinkBudget.Calculate, record, showid=False, formstyle='table3cols', submit_button='Save')
-    if form.process().accepted:
-        session.flash = "%s -  has been updated" % (form.vars.id)
-        if form.deleted:
-            session.flash = "%s)  has been deleted" % (form.vars.id)
-            redirect(URL('select'))
-        elif form.errors:
-            session.job = form.vars.job_name
     return dict(grid=grid, form=form)
 
 
@@ -222,8 +136,6 @@ def json_serial(obj):
 
     Args:
         obj:
-
-
     """
     if isinstance(obj, datetime):
         serial = obj.strftime("%d-%m-%Y  %H:%M")
@@ -271,7 +183,6 @@ def create_download():
     stream = open(filepath, 'rb')
     dbLinkBudget(dbLinkBudget.Calculate.id == request.args(0)).update(
         processed_file=dbLinkBudget.Calculate.processed_file.store(stream, filepath))
-    os.remove(filepath)
     redirect(URL('download', args=dbLinkBudget.Calculate(dbLinkBudget.Calculate.id == request.args(0)).processed_file))
 
 
