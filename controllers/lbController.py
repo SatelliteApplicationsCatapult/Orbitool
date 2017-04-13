@@ -73,9 +73,11 @@ def add_excel_2_db():
 
 def preview():
     # SQL GRID for table on page
+
+
     if len(request.post_vars) > 0:
         for key, value in request.post_vars.iteritems():
-            (field_name, sep, row_id) = key.partition('_row_')  #
+            (field_name, sep, row_id) = key.partition('_row_')
             if row_id:
                 dbLinkBudget(dbLinkBudget.SAT.id == row_id).update(**{field_name: value})
 
@@ -87,7 +89,6 @@ def preview():
                                                                             **{'_name': 'NADIR_LAT_row_%s' % row.id})
     dbLinkBudget.SAT.DISTANCE.represent = lambda value, row: string_widget(dbLinkBudget.SAT.DISTANCE, value,
                                                                            **{'_name': 'DISTANCE_row_%s' % row.id})
-
     dbLinkBudget.SAT.FOV_RADIUS.represent = lambda value, row: string_widget(dbLinkBudget.SAT.FOV_RADIUS, value,
                                                                              **{'_name': 'FOV_RADIUS_row_%s' % row.id})
     dbLinkBudget.SAT.id.readable = False
@@ -101,32 +102,6 @@ def preview():
     satgrid.element(_type='submit', _value='%s' % T('Submit'))
     satgrid.elements(_type='checkbox', _name='records', replace=None)  # remove selectable's checkboxes
 
-
-
-    #TRSP grid
-    if len(request.post_vars) > 0:
-        for key, value in request.post_vars.iteritems():
-            (field_name, sep, row_id) = key.partition('_row_')  #
-            if row_id:
-                dbLinkBudget(dbLinkBudget.TRSP.id == row_id).update(**{field_name: value})
-
-    dbLinkBudget.TRSP.TRSP_ID.represent = lambda value, row: string_widget(dbLinkBudget.TRSP.TRSP_ID, value,
-                                                                         **{'_name': 'TRSP_ID_row_%s' % row.id})
-    dbLinkBudget.TRSP.PAYLOAD_ID.represent = lambda value, row: string_widget(dbLinkBudget.TRSP.PAYLOAD_ID, value,
-                                                                            **{'_name': 'PAYLOAD_ID_row_%s' % row.id})
-
-    dbLinkBudget.TRSP.id.readable = False
-    dbLinkBudget.TRSP.Job_ID.readable = False
-
-    trspgrid = SQLFORM.grid(dbLinkBudget.TRSP.Job_ID == request.args(0), details=False, deletable=True, user_signature=False,
-                        csv=False, paginate=5,
-                        editable=True, args=request.args[:1],
-                        selectable=lambda ids: redirect(URL('lbController', 'preview', args=request.args(0))),
-                        )  # preserving _get_vars means user goes back to same grid page, same sort options etc
-
-    trspgrid.element(_type='submit', _value='%s' % T('Submit'))
-    trspgrid.elements(_type='checkbox', _name='records', replace=None)  # remove selectable's checkboxes
-
     # SQL FORM
     job_id = request.args(0)
     dbLinkBudget.Calculate.processed.readable = False  # enable these when in use. Having it off is good for debugging
@@ -135,7 +110,7 @@ def preview():
     record = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
     form = SQLFORM(dbLinkBudget.Calculate, record, showid=False, formstyle='table3cols', submit_button='Save')
 
-    return dict(satgrid=satgrid, trspgrid=trspgrid, form=form)
+    return dict(satgrid=satgrid, form=form)
 
 
 def json_serial(obj):
@@ -232,6 +207,7 @@ def SAT_FOV_to_JSON():
         lat = values[2 * SAT_ID + 1, :]
         for point in range(0,len(values[2 * int(SAT_ID), :])):
             coordinates[SAT_ID].append([lon[point],lat[point]])
+        coordinates[SAT_ID].append(coordinates[SAT_ID][0])
 
     features = [{"type": "Feature",
                  "geometry": {
@@ -267,6 +243,7 @@ def TRSP_FOV_to_JSON():
             lat = beam_contour_ll[2 * TRSP_ID + 1, :]
             for point in range(0, len(beam_contour_ll[2 * int(TRSP_ID), :])):
                 coordinates[SAT_ID,TRSP_ID].append([lon[point], lat[point]])
+            coordinates[SAT_ID,TRSP_ID].append(coordinates[SAT_ID,TRSP_ID][0])
     features = [{"type": "Feature",
                  "geometry": {
                      "type": "LineString",
