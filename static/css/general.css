@@ -1,3 +1,10 @@
 body {
   background-color: #eeeeee
 }
+
+.ui-widget-content {
+    border: 1px solid #dddddd;
+    background: #ffffff;
+    color: #333333;
+    margin-bottom: -88px;
+}

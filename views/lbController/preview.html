@@ -13,10 +13,14 @@
     <title>Hello World!</title>
     <script src="{{=URL("static","cesium/Build/Cesium/Cesium.js")}}"></script>
     <link rel="stylesheet"  href="{{=URL("static","/cesium/Build/Cesium/Widgets/widgets.css")}}">
+    <link rel="stylesheet" href="{{=URL("static","css/jquery-ui.css")}}">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 <body>
 <h1>Preview</h1>
 <div  id="cesiumContainer" style="margin-left:auto; margin-right:auto; width:50%;padding:10px;height:500px;overflow: auto"></div>
+
 
 <script>
 var viewer = new Cesium.Viewer('cesiumContainer', {
@@ -79,35 +83,45 @@ viewer.dataSources.add(TRSP_FOV_CIRCLE);
 
 </script>
 
-
-<div style="margin-left:auto; margin-right:auto; width:1200px;padding:10px;height:500px;overflow: auto">
-{{=satgrid}}
-{{=trspgrid}}
+<div id="tabs">
+  <ul>
+  <li><a href="#tabs-1">Satellites</a></li>
+  <li><a href="#tabs-2">Transponders</a></li>
+  <li><a href="#tabs-3">Gateways</a></li>
+  <li><a href="#tabs-3">Coverage</a></li>
+  </ul>
+<div id="tabs-1">
+  {{=satgrid}}
+</div>
+<div id="tabs-2">
+  {{=trspgrid}}
+  </div>
+<div id="tabs-3">
+  <p>Mauris eleifend est et turpis. Duis id erat. Suspendisse potenti. Aliquam vulputate, pede vel vehicula accumsan, mi neque rutrum erat, eu congue orci lorem eget lorem. Vestibulum non ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce sodales. Quisque eu urna vel enim commodo pellentesque. Praesent eu risus hendrerit ligula tempus pretium. Curabitur lorem enim, pretium nec, feugiat nec, luctus a, lacus.</p>
+  <p>Duis cursus. Maecenas ligula eros, blandit nec, pharetra at, semper at, magna. Nullam ac lacus. Nulla facilisi. Praesent viverra justo vitae neque. Praesent blandit adipiscing velit. Suspendisse potenti. Donec mattis, pede vel pharetra blandit, magna ligula faucibus eros, id euismod lacus dolor eget odio. Nam scelerisque. Donec non libero sed nulla mattis commodo. Ut sagittis. Donec nisi lectus, feugiat porttitor, tempor ac, tempor vitae, pede. Aenean vehicula velit eu tellus interdum rutrum. Maecenas commodo. Pellentesque nec elit. Fusce in lacus. Vivamus a libero vitae lectus hendrerit hendrerit.</p>
+</div>
 </div>
 
-
-<div style="float:left; width:50%;padding:10px;height:750px;overflow: auto">
-    <h1>Calculations</h1>
-    {{=form}}
-</div>
-
-
-    <div class = "Bwidget">
-        <h1>Actions</h1>
-        <button id="run" class="btn">Launch calculation</button>
-        <button class="btn" id="processed">
-            Out to Spreadsheet
-        </button>
-
-        <button class="btn" id="cesium">
-            Plot in Cesium
-        </button>
-        {{pass}}
-        </div>
-    <div id="selected"  style="float:right; width:50%;padding:30px;height:700px;overflow: auto">
+<section style="margin-top:100px">
+  <div style="float:left; width:50%;padding:10px;height:750px;overflow: auto;">
+      <h1>Calculations</h1>
+      {{=form}}
+  </div>
 
 
-    </div>
+  <div class = "Bwidget">
+    <h1>Actions</h1>
+    <button id="run" class="btn">Launch calculation</button>
+    <button class="btn" id="processed">
+        Out to Spreadsheet
+    </button>
+
+    <button class="btn" id="cesium">
+        Plot in Cesium
+    </button>
+    {{pass}}
+  </div>
+</section>
 </body>
 <script type="text/javascript" >
 
@@ -120,6 +134,25 @@ $(document).ready(function(){
     });
     $("#cesium").click(function(){
         window.open("{{=URL('cesium',args = request.args(0))}}");
+    });
+});
+
+$( function() {
+  $( "#tabs" ).tabs();
+} );
+$( ".selector" ).tabs({
+  heightStyle: "fill"
+});
+//next one keeps tabs visible on refresh
+$(function() {
+    var selectedTabId = sessionStorage.getItem("selectedTab");
+    selectedTabId = selectedTabId === null ? 0 : selectedTabId; //your default being 0
+    $("#tabs").tabs({
+        active: selectedTabId,
+        activate : function( event, ui ) {
+            selectedTabId = $("#tabs").tabs("option", "active");
+            sessionStorage.setItem("selectedTab", selectedTabId);
+        }
     });
 });
 </script>
