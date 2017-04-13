@@ -14,13 +14,25 @@
     <script src="{{=URL("static","cesium/Build/Cesium/Cesium.js")}}"></script>
     <link rel="stylesheet"  href="{{=URL("static","/cesium/Build/Cesium/Widgets/widgets.css")}}">
     <link rel="stylesheet" href="{{=URL("static","css/jquery-ui.css")}}">
+
+    <script src="{{=URL("static","js/editablegrid/editablegrid.js")}}"></script>
+		<!-- [DO NOT DEPLOY] --> <script src="{{=URL("static","js/editablegrid/editablegrid_renderers.js")}}" ></script>
+		<!-- [DO NOT DEPLOY] --> <script src="{{=URL("static","js/editablegrid/editablegrid_editors.js")}}" ></script>
+		<!-- [DO NOT DEPLOY] --> <script src="{{=URL("static","js/editablegrid/editablegrid_validators.js")}}" ></script>
+		<!-- [DO NOT DEPLOY] --> <script src="{{=URL("static","js/editablegrid/editablegrid_utils.js")}}" ></script>
+		<link rel="stylesheet" href="{{=URL("static","css/editablegrid.css")}}" type="text/css" media="screen"/>
+
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <!-- include css and javascript sources for this demo -->
+    <link rel="stylesheet" type="text/css" href="{{=URL("static","css/simple.css")}}"/>
+    <script src="{{=URL("static","js/simpletable.js")}}", json="{{=URL("static", "grid.json")}}"></script>
+
 </head>
 <body>
 <h1>Preview</h1>
 <div  id="cesiumContainer" style="margin-left:auto; margin-right:auto; width:50%;padding:10px;height:500px;overflow: auto"></div>
-
 
 <script>
 var viewer = new Cesium.Viewer('cesiumContainer', {
@@ -94,6 +106,16 @@ viewer.dataSources.add(TRSP_FOV_CIRCLE);
   {{=satgrid}}
 </div>
 <div id="tabs-2">
+
+
+  <div id="wrap">
+    <!-- Feedback message zone -->
+    <div id="message"></div>
+
+    <!-- Grid contents -->
+    <div id="tablecontent"></div>
+
+  </div>
   </div>
 <div id="tabs-3">
 </div>
