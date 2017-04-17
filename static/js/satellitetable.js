@@ -1,10 +1,11 @@
-var simpletable = $('script[src*=simpletable]');
-var json = simpletable.attr('json');
-var editableGrid = null;
+var satellitetable = $('script[src*=satellitetable]');
+var satjson = satellitetable.attr('jsons');
+var editableGridsat = null;
 
-function loadJSON()
+function loadJSONsat()
 {
-	editableGridtrsp = new window.EditableGrid("trspgrid", {
+	editableGridsat = new window.EditableGrid("satgrid", {
+
 		// called when the XML has been fully loaded
 		tableLoaded: function() {
 
@@ -12,26 +13,26 @@ function loadJSON()
 
 			// renderer for the action column
 			this.setCellRenderer("action", new CellRenderer({render: function(cell, value) {
-			cell.innerHTML = "<a onclick=\"if (confirm('Are you sure you want to delete this person ? ')) editableGrid.remove(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
+			cell.innerHTML = "<a onclick=\"if (confirm('Are you sure you want to delete this person ? ')) editableGridsat.remove(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
 							 "<img src=\"/linkbudgetweb/static/images/delete.png\" border=\"0\" alt=\"delete\" title=\"delete\"/></a>";
 
 			}}));
 
 			// render the grid
-			this.renderGrid("trsp_tablecontent", "testgrid");
+			this.renderGrid("satellite_tablecontent", "testgrid");
 		},
 
 		// called when some value has been modified: we display a message
 		modelChanged: function(rowIdx, colIdx, oldValue, newValue, row) { $.ajax({
           type: "POST",
           url: "/lbController/ajax_to_db",
-          data: "array="+JSON.stringify({"table":"TRSP", "columnname":editableGridtrsp.columns[colIdx].name, "value":newValue, "rowid":row,})
+          data: "array="+JSON.stringify({"table":"SAT", "columnname":editableGridsat.columns[colIdx].name, "value":newValue, "rowid":row,})
        }).done(function( msg ) { }); }
 	});
 
 	// load XML file
-	editableGridtrsp.loadJSON(json);
+	editableGridsat.loadJSON(satjson);
 }
 
 // start when window is loaded
-window.onload = loadJSON;
+window.onload = loadJSONsat;

@@ -85,38 +85,6 @@ def add_excel_2_db():
 
 
 def preview():
-    # SQL GRID for table on page
-
-    if len(request.post_vars) > 0:
-        for key, value in request.post_vars.iteritems():
-            (field_name, sep, row_id) = key.partition('_row_')
-            if row_id:
-                dbLinkBudget(dbLinkBudget.SAT.id == row_id).update(
-                    **{field_name: value})
-
-    dbLinkBudget.SAT.SAT_ID.represent = lambda value, row: string_widget(dbLinkBudget.SAT.SAT_ID, value,
-                                                                         **{'_name': 'SAT_ID_row_%s' % row.id})
-    dbLinkBudget.SAT.NADIR_LON.represent = lambda value, row: string_widget(dbLinkBudget.SAT.NADIR_LON, value,
-                                                                            **{'_name': 'NADIR_LON_row_%s' % row.id})
-    dbLinkBudget.SAT.NADIR_LAT.represent = lambda value, row: string_widget(dbLinkBudget.SAT.NADIR_LAT, value,
-                                                                            **{'_name': 'NADIR_LAT_row_%s' % row.id})
-    dbLinkBudget.SAT.DISTANCE.represent = lambda value, row: string_widget(dbLinkBudget.SAT.DISTANCE, value,
-                                                                           **{'_name': 'DISTANCE_row_%s' % row.id})
-    dbLinkBudget.SAT.FOV_RADIUS.represent = lambda value, row: string_widget(dbLinkBudget.SAT.FOV_RADIUS, value,
-                                                                             **{'_name': 'FOV_RADIUS_row_%s' % row.id})
-    dbLinkBudget.SAT.id.readable = False
-
-    satgrid = SQLFORM.grid(dbLinkBudget.SAT.Job_ID == request.args(0), details=False, deletable=True, user_signature=False,
-                           csv=False, paginate=5, maxtextlength=1,
-                           editable=True, args=request.args[:1], ui='jquery-ui',
-                           selectable=lambda ids: redirect(
-                               URL('lbController', 'preview', args=request.args(0))),
-                           )  # preserving _get_vars means user goes back to same grid page, same sort options etc
-
-    satgrid.element(_type='submit', _value='%s' % T('Submit'))
-    # remove selectable's checkboxes
-    satgrid.elements(_type='checkbox', _name='records', replace=None)
-
     # SQL FORM
     job_id = request.args(0)
     # enable these when in use. Having it off is good for debugging
@@ -127,7 +95,7 @@ def preview():
     form = SQLFORM(dbLinkBudget.Calculate, record, showid=False,
                    formstyle='table3cols', submit_button='Save')
 
-    return dict(satgrid=satgrid, form=form)
+    return dict(form=form)
 
 def delete_row_editablegrid():
     temparray = json.loads(request.post_vars.array)
@@ -145,6 +113,31 @@ def ajax_to_db():
     ajax and write to the datatables
     """
     temparray = json.loads(request.post_vars.array)
+    if temparray["table"] == "SAT":
+        # Get the row to insert into
+        row = dbLinkBudget(dbLinkBudget.SAT.id == temparray["rowid"]["rowId"]).select().first()
+        if temparray["columnname"] == "SAT_ID":
+            row.update_record(SAT_ID=temparray["value"])
+        elif temparray["columnname"] == "NADIR_LON":
+            row.update_record(NADIR_LON=temparray["value"])
+        elif temparray["columnname"] == "NADIR_LAT":
+            row.update_record(NADIR_LAT=temparray["value"])
+        elif temparray["columnname"] == "DISTANCE":
+            row.update_record(DISTANCE=temparray["value"])
+        elif temparray["columnname"] == "FOV_RADIUS":
+            row.update_record(FOV_RADIUS=temparray["value"])
+        elif temparray["columnname"] == "INCLINATION_ANGLE":
+            row.update_record(INCLINATION_ANGLE=temparray["value"])
+        elif temparray["columnname"] == "FLAG_ASC_DESC":
+            row.update_record(FLAG_ASC_DESC=temparray["value"])
+        elif temparray["columnname"] == "ROLL":
+            row.update_record(ROLL=temparray["value"])
+        elif temparray["columnname"] == "PITCH":
+            row.update_record(PITCH=temparray["value"])
+        elif temparray["columnname"] == "YAW":
+            row.update_record(YAW=temparray["value"])
+        else:
+            raise Exception('There was a problem writing to the TRSP database')
     if temparray["table"] == "TRSP":
         # Get the row to insert into
         row = dbLinkBudget(dbLinkBudget.TRSP.id == temparray["rowid"]["rowId"]).select().first()
@@ -197,8 +190,43 @@ def transponder_JSON():
                         "BEAM_TX_CENTER_AZ_ANT": row["BEAM_TX_CENTER_AZ_ANT"],
                         "BEAM_TX_CENTER_EL_ANT": row["BEAM_TX_CENTER_EL_ANT"],
                         "BEAM_TX_RADIUS": row["BEAM_TX_RADIUS"]
+    }} for row in rows]
+    return response.json({"metadata": metadata, 'data': data})
 
+def satellite_table_JSON():
+    job_id = request.args(0)
+    sat_table = dbLinkBudget.SAT
+    rows = dbLinkBudget(sat_table.Job_ID == request.args(0)).select(sat_table.id, sat_table.SAT_ID, sat_table.NADIR_LON,
+                                                                sat_table.NADIR_LAT, sat_table.DISTANCE,
+                                                                sat_table.FOV_RADIUS,
+                                                                sat_table.INCLINATION_ANGLE,sat_table.FLAG_ASC_DESC,
+                                                                sat_table.ROLL,sat_table.PITCH,sat_table.YAW)
 
+    metadata = [
+        {"name": "SAT_ID", "label": "SAT ID", "datatype": "double", "editable": "true"},
+        {"name": "NADIR_LAT", "label": "Nadir Lat", "datatype": "double", "editable": "true"},
+        {"name": "NADIR_LON", "label": "Nadir Lon", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "DISTANCE", "label": "Altitude", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "FOV_RADIUS", "label": "Field of View Radius", "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "INCLINATION_ANGLE", "label": "Incl. Angle.", "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "FLAG_ASC_DESC", "label": "ASC/DESC Flag", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "ROLL", "label": "Roll", "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "PTCH", "label": "Pitch", "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "YAW", "label": "Yaw", "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+    	{"name":"action","label":"","datatype":"html","editable":'false'}
+    ]
+
+    data = [{"id": row["id"],
+             "values": {"SAT_ID": row["SAT_ID"],
+                        "NADIR_LON": row["NADIR_LON"],
+                        "NADIR_LAT": row["NADIR_LAT"],
+                        "DISTANCE": row["DISTANCE"],
+                        "FOV_RADIUS": row["FOV_RADIUS"],
+                        "INCLINATION_ANGLE": row["INCLINATION_ANGLE"],
+                        "FLAG_ASC_DESC": row["FLAG_ASC_DESC"],
+                        "ROLL": row["ROLL"],
+                        "PITCH": row["ROLL"],
+                        "YAW": row["ROLL"]
     }} for row in rows]
     return response.json({"metadata": metadata, 'data': data})
 
