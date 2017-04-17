@@ -129,19 +129,26 @@ def preview():
 
     return dict(satgrid=satgrid, form=form)
 
+def delete_row_editablegrid():
+    temparray = json.loads(request.post_vars.array)
+    logger.error(temparray)
+    if temparray["table"] == "TRSP":
+        row = dbLinkBudget(dbLinkBudget.TRSP.id == temparray["rowid"]["rowId"]).select().first()
+        row.delete()
+
+
+
 
 def ajax_to_db():
     """
-    read from tabls ajax to the datatables
+    read from editableGrid
+    ajax and write to the datatables
     """
     temparray = json.loads(request.post_vars.array)
-    logger.error(temparray["rowid"]["rowId"])
-    logger.error(temparray["columnname"])
-    logger.error(temparray["value"])
     if temparray["table"] == "TRSP":
+        # Get the row to insert into
         row = dbLinkBudget(dbLinkBudget.TRSP.id == temparray["rowid"]["rowId"]).select().first()
         if temparray["columnname"] == "TRSP_ID":
-            logger.error("the if statement workkkked")
             row.update_record(TRSP_ID=temparray["value"])
         elif temparray["columnname"] == "PAYLOAD_ID":
             row.update_record(PAYLOAD_ID=temparray["value"])
@@ -157,6 +164,8 @@ def ajax_to_db():
             row.update_record(BEAM_TX_CENTER_EL_ANT=temparray["value"])
         elif temparray["columnname"] == "BEAM_TX_RADIUS":
             row.update_record(BEAM_TX_RADIUS=temparray["value"])
+        else:
+            raise Exception('There was a problem writing to the TRSP database')
 
 
 
@@ -170,12 +179,12 @@ def transponder_JSON():
     metadata = [
         {"name": "PAYLOAD_ID", "label": "Payload ID", "datatype": "double", "editable": "true"},
         {"name": "TRSP_ID", "label": "Transponder ID", "datatype": "double", "editable": "true"},
-        {"name": "BEAM_RX_CENTER_AZ_ANT", "label": "Beam RX Center AZ ANT", "datatype": "double", "editable": "true"},
-        {"name": "BEAM_RX_CENTER_EL_ANT", "label": "Beam RX Center EL ANT", "datatype": "double", "editable": "true"},
-        {"name": "BEAM_RX_RADIUS", "label": "Beam RX Radius", "datatype": "double", "editable": "true"},
-        {"name": "BEAM_TX_CENTER_AZ_ANT", "label": "Beam TX Center AZ ANT", "datatype": "double(,2)", "editable": "true"},
-        {"name": "BEAM_TX_CENTER_EL_ANT", "label": "Beam TX Center EL ANT", "datatype": "double(,2)", "editable": "true"},
-        {"name": "BEAM_TX_RADIUS", "label": "Beam TX Radius", "datatype": "double(deg,2)", "editable": "true"},
+        {"name": "BEAM_RX_CENTER_AZ_ANT", "label": "Beam RX Center AZ ANT", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "BEAM_RX_CENTER_EL_ANT", "label": "Beam RX Center EL ANT", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "BEAM_RX_RADIUS", "label": "Beam RX Radius", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "BEAM_TX_CENTER_AZ_ANT", "label": "Beam TX Center AZ ANT", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "BEAM_TX_CENTER_EL_ANT", "label": "Beam TX Center EL ANT", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "BEAM_TX_RADIUS", "label": "Beam TX Radius", "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
     	{"name":"action","label":"","datatype":"html","editable":'false'}
     ]
 

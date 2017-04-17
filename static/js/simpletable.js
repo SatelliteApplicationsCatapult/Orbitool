@@ -16,9 +16,14 @@ function loadJSON()
 			this.setCellRenderer("action", new CellRenderer({render: function(cell, value) {
 				cell.innerHTML = "<a onclick=\"if (confirm('Are you sure you want to delete this person ? ')) editableGrid.remove(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
 								 "<img src=\"/linkbudgetweb/static/images/delete.png\" border=\"0\" alt=\"delete\" title=\"delete\"/></a>";
-			}}));
+				 $.ajax({
+			          type: "POST",
+			          url: "/lbController/delete_row_editablegrid",
+			          data: "array="+JSON.stringify({"table":"TRSP", "columnname":editableGrid.columns[colIdx].name, "value":newValue, "rowid":row,})
+			       }).done(function( msg ) { });
+				}}));
 
-			// render the grid
+				// render the grid
 			this.renderGrid("trsp_tablecontent", "testgrid");
 		},
 
