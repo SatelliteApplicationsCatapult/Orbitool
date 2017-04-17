@@ -27,7 +27,7 @@
 
     <!-- include css and javascript sources for this demo -->
     <link rel="stylesheet" type="text/css" href="{{=URL("static","css/simple.css")}}"/>
-    <script src="{{=URL("static","js/simpletable.js")}}", json="{{=URL("static", "grid.json")}}"></script>
+    <script src="{{=URL("static","js/simpletable.js")}}", json="{{=URL("transponder_JSON", args=[request.args(0)])}}"></script>
 
 </head>
 <body>
@@ -110,10 +110,10 @@ viewer.dataSources.add(TRSP_FOV_CIRCLE);
 
   <div id="wrap">
     <!-- Feedback message zone -->
-    <div id="message"></div>
+    <div id="trsp_message"></div>
 
     <!-- Grid contents -->
-    <div id="tablecontent"></div>
+    <div id="trsp_tablecontent"></div>
 
   </div>
   </div>

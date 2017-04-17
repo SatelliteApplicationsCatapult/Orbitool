@@ -10,7 +10,7 @@ function loadJSON()
 		tableLoaded: function() {
 
 			// display a message
-			_$("message").innerHTML = "<p class='ok'>Ready!</p>";
+			_$("trsp_message").innerHTML = "<p class='ok'>Ready!</p>";
 
 			// renderer for the action column
 			this.setCellRenderer("action", new CellRenderer({render: function(cell, value) {
@@ -19,11 +19,15 @@ function loadJSON()
 			}}));
 
 			// render the grid
-			this.renderGrid("tablecontent", "testgrid");
+			this.renderGrid("trsp_tablecontent", "testgrid");
 		},
 
 		// called when some value has been modified: we display a message
-		modelChanged: function(rowIdx, colIdx, oldValue, newValue, row) { _$("message").innerHTML = "<p class='ok'>New value is '" + newValue + "'</p>"; }
+		modelChanged: function(rowIdx, colIdx, oldValue, newValue, row) { $.ajax({
+          type: "POST",
+          url: "/lbController/ajax_to_db",
+          data: "array="+JSON.stringify({"table":"TRSP", "columnname":editableGrid.columns[colIdx].name, "value":newValue, "rowid":row,})
+       }).done(function( msg ) { }); }
 	});
 
 	// load XML file

@@ -1,6 +1,4 @@
 body {
-	font-family:'lucida grande', tahoma, verdana, arial, sans-serif;
-	font-size:11px;
 }
 
 #wrap {
@@ -44,7 +42,7 @@ input.invalid {
 	color: #FDFDFD;
 }
 
-#message {
+#trsp_message {
 	width: 100%;
 }
 
@@ -64,7 +62,7 @@ table.testgrid>tbody tr:hover {
 }
 
 table.testgrid>tbody tr:hover a {
-	color: white;
+	color: black;
 }
 
 table.testgrid th {
