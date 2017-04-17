@@ -13,7 +13,7 @@ function loadJSONsat()
 
 			// renderer for the action column
 			this.setCellRenderer("action", new CellRenderer({render: function(cell, value) {
-			cell.innerHTML = "<a onclick=\"if (confirm('Are you sure you want to delete this person ? ')) editableGridsat.remove(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
+			cell.innerHTML = "<a onclick=\"if (confirm('Are you sure you want to delete this ? ')) editableGridsat.remove(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
 							 "<img src=\"/linkbudgetweb/static/images/delete.png\" border=\"0\" alt=\"delete\" title=\"delete\"/></a>";
 
 			}}));
@@ -35,4 +35,4 @@ function loadJSONsat()
 }
 
 // start when window is loaded
-window.onload = loadJSONsat;
+loadJSONsat();

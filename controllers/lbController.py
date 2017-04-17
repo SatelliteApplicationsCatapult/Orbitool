@@ -104,9 +104,6 @@ def delete_row_editablegrid():
         row = dbLinkBudget(dbLinkBudget.TRSP.id == temparray["rowid"]["rowId"]).select().first()
         row.delete()
 
-
-
-
 def ajax_to_db():
     """
     read from editableGrid
@@ -137,7 +134,7 @@ def ajax_to_db():
         elif temparray["columnname"] == "YAW":
             row.update_record(YAW=temparray["value"])
         else:
-            raise Exception('There was a problem writing to the TRSP database')
+            raise Exception('There was a problem writing to the SAT datatable')
     if temparray["table"] == "TRSP":
         # Get the row to insert into
         row = dbLinkBudget(dbLinkBudget.TRSP.id == temparray["rowid"]["rowId"]).select().first()
@@ -158,9 +155,7 @@ def ajax_to_db():
         elif temparray["columnname"] == "BEAM_TX_RADIUS":
             row.update_record(BEAM_TX_RADIUS=temparray["value"])
         else:
-            raise Exception('There was a problem writing to the TRSP database')
-
-
+            raise Exception('There was a problem writing to the TRSP datatable')
 
 def transponder_JSON():
     job_id = request.args(0)
@@ -286,33 +281,6 @@ def create_download():
         processed_file=dbLinkBudget.Calculate.processed_file.store(stream, filepath))
     redirect(URL('download', args=dbLinkBudget.Calculate(
         dbLinkBudget.Calculate.id == request.args(0)).processed_file))
-
-
-def benchmark():
-    time1 = time.time()
-    job_id = 1
-    SAT_dict = datatable_to_dict(dbLinkBudget.SAT, job_id, dbLinkBudget)
-    TRSP_dict = datatable_to_dict(dbLinkBudget.TRSP, job_id, dbLinkBudget)
-    EARTH_COORD_VSAT_dict = datatable_to_dict(
-        dbLinkBudget.EARTH_coord_VSAT, job_id, dbLinkBudget)
-    EARTH_COORD_GW_dict = datatable_to_dict(
-        dbLinkBudget.Earth_coord_GW, job_id, dbLinkBudget)
-    GW_dict = datatable_to_dict(dbLinkBudget.Gateway, job_id, dbLinkBudget)
-    VSAT_dict = datatable_to_dict(dbLinkBudget.VSAT, job_id, dbLinkBudget)
-    return time.time() - time1
-
-
-def benchmarkexcel():
-    time2 = time.time()
-    fileName = dbLinkBudget.Job(
-        dbLinkBudget.Job.id == 1).file_up  # Find uploaded file
-    excel_info = load_objects_from_xl(
-        os.path.join(request.folder, 'uploads', fileName))
-    SAT_dict = excel_info[0]
-    TRSP_dict = excel_info[1]
-    logger.error(time.time() - time2)
-    return {1: SAT_dict, 2: TRSP_dict, 3: excel_info[2], 4: excel_info[3], 5: excel_info[4], 6: excel_info[5]}
-
 
 def SAT_FOV_to_JSON():
     job_id = request.args(0)
