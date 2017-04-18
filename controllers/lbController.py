@@ -18,6 +18,7 @@ from excelHandling import *
 from gluon import *
 from lib_lkb.compute_high_level_func import *
 from lib_lkb.display_func import *
+from collections import OrderedDict
 
 import platform
 
@@ -598,7 +599,7 @@ def testthis():
     # browser. Or do eg lonarray[3]
 
 
-def get_geojson():
+def get_performance_json():
     """
     Function to get the coordinates into a GeoJSON format
     This adds the lat and longitude for the User Terminals
@@ -715,6 +716,37 @@ def get_geojson_sat():
                      "Lon, Lat": str(row[satellite.NADIR_LON]) + "," + str(row[satellite.NADIR_LAT]),
                  }
                  } for row in satellite_rows]
+    return response.json({"type": "FeatureCollection", 'features': features})
+
+
+
+
+
+def json_subsatellite():
+    """
+    line from satellite to ground
+    """
+    satellite_rows = dbLinkBudget(
+        dbLinkBudget.SAT.Job_ID == request.args(0)).iterselect()
+    satellite = dbLinkBudget.SAT
+
+    features = [{"type": "Feature",
+                 "geometry": {
+                     "type": "LineString",
+                     "coordinates":[
+                                    [row[satellite.NADIR_LON],
+                                     row[satellite.NADIR_LAT],
+                                    0
+                                     ],
+                                     [row[satellite.NADIR_LON],
+                                     row[satellite.NADIR_LAT],
+                                     row[satellite.DISTANCE] *  1000  # convert to metres
+                                    ]]
+                                },
+                 "properties": {
+                     "title": "SAT " + str(row[satellite.SAT_ID])}
+                 } for row in satellite_rows]
+
     return response.json({"type": "FeatureCollection", 'features': features})
 
 

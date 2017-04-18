@@ -1,5 +1,5 @@
 var lbcesium = $('script[src*=lbcesium]');
-var geo_json_vsat = lbcesium.attr('geo_json_vsat');
+var get_performance_json = lbcesium.attr('get_performance_json');
 var geojson_sat = lbcesium.attr('geojson_sat');
 var geojson_gw = lbcesium.attr('geojson_gw');
 var geojson_FOV = lbcesium.attr('geojson_FOV');
@@ -9,6 +9,7 @@ var satellite_img = lbcesium.attr('satellite_img');
 var ground_station_img = lbcesium.attr('ground_station_img');
 var catapult_logo = lbcesium.attr('catapult_logo');
 var performance_maxmin = lbcesium.attr('performance_maxmin');
+var json_subsatellite = lbcesium.attr('json_subsatellite');
 
 var viewer = new Cesium.Viewer('cesiumContainer', {
     timeline: false,
@@ -39,7 +40,7 @@ $.getJSON(performance_maxmin, function (json) {
 });
 
 var EIRP = new Cesium.GeoJsonDataSource();
-EIRP.load(geo_json_vsat).then(function () {
+EIRP.load(get_performance_json).then(function () {
     var entities = EIRP.entities.values;
     for (var i = 0; i < entities.length; i++) {
         var entity = entities[i];
@@ -60,7 +61,7 @@ EIRP.load(geo_json_vsat).then(function () {
     );
 });
 var ELEVATION = new Cesium.GeoJsonDataSource();
-ELEVATION.load(geo_json_vsat).then(function () {
+ELEVATION.load(get_performance_json).then(function () {
     var entities = ELEVATION.entities.values;
     for (var i = 0; i < entities.length; i++) {
         var entity = entities[i];
@@ -80,7 +81,7 @@ ELEVATION.load(geo_json_vsat).then(function () {
     );
 });
 var SAT_GPT = new Cesium.GeoJsonDataSource();
-SAT_GPT.load(geo_json_vsat).then(function () {
+SAT_GPT.load(get_performance_json).then(function () {
     var entities = SAT_GPT.entities.values;
     for (var i = 0; i < entities.length; i++) {
         var entity = entities[i];
@@ -119,6 +120,25 @@ SAT.load(geojson_sat).then(function () {
         })
     }
 });
+
+var stripe = new Cesium.StripeMaterialProperty({
+    orientation : Cesium.StripeOrientation.HORIZONTAL,
+    evenColor : Cesium.Color.YELLOW,
+    oddColor : Cesium.Color.BLUE,
+    offset : 0.0,
+    repeat : 30
+});
+
+var SUBSAT = new Cesium.GeoJsonDataSource();
+SUBSAT.load(json_subsatellite).then(function () {
+    var entities = FOV_CIRCLE.entities.values;
+    for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        entity.polyline.width = 1
+    }
+});
+
+
 var FOV = new Cesium.GeoJsonDataSource();
 FOV.load(geojson_FOV).then(function () {
     var entities = FOV.entities.values;
@@ -185,6 +205,22 @@ checkbox1.addEventListener('change', function () {
         // Hide if currently shown.
         if (viewer.dataSources.contains(SAT)) {
             viewer.dataSources.remove(SAT);
+        }
+    }
+}, false);
+var checkboxline = document.getElementById('showLineCheckbox');
+checkboxline.addEventListener('change', function () {
+    // Checkbox state changed.
+    if (checkboxline.checked) {
+        // Show if not shown.
+        if (!viewer.dataSources.contains(SUBSAT)) {
+            viewer.dataSources.add(SUBSAT);
+            // viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40,-90,9000000));
+        }
+    } else {
+        // Hide if currently shown.
+        if (viewer.dataSources.contains(SUBSAT)) {
+            viewer.dataSources.remove(SUBSAT);
         }
     }
 }, false);
@@ -303,7 +339,6 @@ $("#performance").change(function () {
         }
     }, false)
 })
-
 
 $("#screenshot").click(function () {
     viewer.render();
