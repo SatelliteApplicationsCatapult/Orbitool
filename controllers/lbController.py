@@ -93,11 +93,12 @@ def preview():
     record = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
     form = SQLFORM(dbLinkBudget.Calculate, record, showid=False,
                    formstyle='table3cols', submit_button='Save')
-    if form.accepts(request,session):
+    if form.accepts(request, session):
         response.flash = 'form accepted'
     elif form.errors:
         response.flash = 'form has errors'
     return dict(form=form)
+
 
 def delete_row_editablegrid():
     """
@@ -106,8 +107,10 @@ def delete_row_editablegrid():
     temparray = json.loads(request.post_vars.array)
     logger.error(temparray)
     if temparray["table"] == "TRSP":
-        row = dbLinkBudget(dbLinkBudget.TRSP.id == temparray["rowid"]["rowId"]).select().first()
+        row = dbLinkBudget(dbLinkBudget.TRSP.id ==
+                           temparray["rowid"]["rowId"]).select().first()
         row.delete()
+
 
 def ajax_to_db():
     """
@@ -117,7 +120,8 @@ def ajax_to_db():
     temparray = json.loads(request.post_vars.array)
     if temparray["table"] == "SAT":
         # Get the row to insert into
-        row = dbLinkBudget(dbLinkBudget.SAT.id == temparray["rowid"]["rowId"]).select().first()
+        row = dbLinkBudget(dbLinkBudget.SAT.id ==
+                           temparray["rowid"]["rowId"]).select().first()
         if temparray["columnname"] == "SAT_ID":
             row.update_record(SAT_ID=temparray["value"])
         elif temparray["columnname"] == "NADIR_LON":
@@ -142,7 +146,8 @@ def ajax_to_db():
             raise Exception('There was a problem writing to the SAT datatable')
     if temparray["table"] == "TRSP":
         # Get the row to insert into
-        row = dbLinkBudget(dbLinkBudget.TRSP.id == temparray["rowid"]["rowId"]).select().first()
+        row = dbLinkBudget(dbLinkBudget.TRSP.id ==
+                           temparray["rowid"]["rowId"]).select().first()
         if temparray["columnname"] == "TRSP_ID":
             row.update_record(TRSP_ID=temparray["value"])
         elif temparray["columnname"] == "PAYLOAD_ID":
@@ -160,10 +165,12 @@ def ajax_to_db():
         elif temparray["columnname"] == "BEAM_TX_RADIUS":
             row.update_record(BEAM_TX_RADIUS=temparray["value"])
         else:
-            raise Exception('There was a problem writing to the TRSP datatable')
+            raise Exception(
+                'There was a problem writing to the TRSP datatable')
     if temparray["table"] == "GW":
         # Get the row to insert into
-        row = dbLinkBudget(dbLinkBudget.Earth_coord_GW.id == temparray["rowid"]["rowId"]).select().first()
+        row = dbLinkBudget(dbLinkBudget.Earth_coord_GW.id ==
+                           temparray["rowid"]["rowId"]).select().first()
         if temparray["columnname"] == "LON":
             row.update_record(LON=temparray["value"])
         elif temparray["columnname"] == "LAT":
@@ -173,25 +180,35 @@ def ajax_to_db():
         elif temparray["columnname"] == "GW_ID":
             row.update_record(GW_ID=temparray["value"])
         else:
-            raise Exception('There was a problem writing to the TRSP datatable')
+            raise Exception(
+                'There was a problem writing to the TRSP datatable')
+
 
 def transponder_JSON():
     job_id = request.args(0)
     trsp_table = dbLinkBudget.TRSP
     rows = dbLinkBudget(trsp_table.Job_ID == request.args(0)).select(trsp_table.id, trsp_table.PAYLOAD_ID, trsp_table.TRSP_ID,
-                                                                trsp_table.BEAM_RX_CENTER_AZ_ANT, trsp_table.BEAM_RX_CENTER_EL_ANT,                                                                trsp_table.BEAM_RX_RADIUS, trsp_table.BEAM_TX_CENTER_AZ_ANT,
-                                                                trsp_table.BEAM_TX_CENTER_EL_ANT, trsp_table.BEAM_TX_RADIUS)
+                                                                     trsp_table.BEAM_RX_CENTER_AZ_ANT, trsp_table.BEAM_RX_CENTER_EL_ANT,                                                                trsp_table.BEAM_RX_RADIUS, trsp_table.BEAM_TX_CENTER_AZ_ANT,
+                                                                     trsp_table.BEAM_TX_CENTER_EL_ANT, trsp_table.BEAM_TX_RADIUS)
 
     metadata = [
-        {"name": "PAYLOAD_ID", "label": "Payload ID", "datatype": "double", "editable": "true"},
-        {"name": "TRSP_ID", "label": "Transponder ID", "datatype": "double", "editable": "true"},
-        {"name": "BEAM_RX_CENTER_AZ_ANT", "label": "Beam RX Center AZ ANT", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "BEAM_RX_CENTER_EL_ANT", "label": "Beam RX Center EL ANT", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "BEAM_RX_RADIUS", "label": "Beam RX Radius", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "BEAM_TX_CENTER_AZ_ANT", "label": "Beam TX Center AZ ANT", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "BEAM_TX_CENTER_EL_ANT", "label": "Beam TX Center EL ANT", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "BEAM_TX_RADIUS", "label": "Beam TX Radius", "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
-    	{"name":"action","label":"","datatype":"html","editable":'false'}
+        {"name": "PAYLOAD_ID", "label": "Payload ID",
+            "datatype": "double", "editable": "true"},
+        {"name": "TRSP_ID", "label": "Transponder ID",
+            "datatype": "double", "editable": "true"},
+        {"name": "BEAM_RX_CENTER_AZ_ANT", "label": "Beam RX Center AZ ANT",
+            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "BEAM_RX_CENTER_EL_ANT", "label": "Beam RX Center EL ANT",
+            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "BEAM_RX_RADIUS", "label": "Beam RX Radius",
+            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "BEAM_TX_CENTER_AZ_ANT", "label": "Beam TX Center AZ ANT",
+            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "BEAM_TX_CENTER_EL_ANT", "label": "Beam TX Center EL ANT",
+            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "BEAM_TX_RADIUS", "label": "Beam TX Radius",
+            "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "action", "label": "", "datatype": "html", "editable": 'false'}
     ]
 
     data = [{"id": row["id"],
@@ -203,30 +220,41 @@ def transponder_JSON():
                         "BEAM_TX_CENTER_AZ_ANT": row["BEAM_TX_CENTER_AZ_ANT"],
                         "BEAM_TX_CENTER_EL_ANT": row["BEAM_TX_CENTER_EL_ANT"],
                         "BEAM_TX_RADIUS": row["BEAM_TX_RADIUS"]
-    }} for row in rows]
+                        }} for row in rows]
     return response.json({"metadata": metadata, 'data': data})
+
 
 def satellite_table_JSON():
     job_id = request.args(0)
     sat_table = dbLinkBudget.SAT
     rows = dbLinkBudget(sat_table.Job_ID == request.args(0)).select(sat_table.id, sat_table.SAT_ID, sat_table.NADIR_LON,
-                                                                sat_table.NADIR_LAT, sat_table.DISTANCE,
-                                                                sat_table.FOV_RADIUS,
-                                                                sat_table.INCLINATION_ANGLE,sat_table.FLAG_ASC_DESC,
-                                                                sat_table.ROLL,sat_table.PITCH,sat_table.YAW)
+                                                                    sat_table.NADIR_LAT, sat_table.DISTANCE,
+                                                                    sat_table.FOV_RADIUS,
+                                                                    sat_table.INCLINATION_ANGLE, sat_table.FLAG_ASC_DESC,
+                                                                    sat_table.ROLL, sat_table.PITCH, sat_table.YAW)
 
     metadata = [
-        {"name": "SAT_ID", "label": "SAT ID", "datatype": "double", "editable": "true"},
-        {"name": "NADIR_LAT", "label": "Nadir Lat", "datatype": "double", "editable": "true"},
-        {"name": "NADIR_LON", "label": "Nadir Lon", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "DISTANCE", "label": "Altitude", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "FOV_RADIUS", "label": "Field of View Radius", "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "INCLINATION_ANGLE", "label": "Incl. Angle.", "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "FLAG_ASC_DESC", "label": "ASC/DESC Flag", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "ROLL", "label": "Roll", "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "PTCH", "label": "Pitch", "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "YAW", "label": "Yaw", "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
-    	{"name":"action","label":"","datatype":"html","editable":'false'}
+        {"name": "SAT_ID", "label": "SAT ID",
+            "datatype": "double", "editable": "true"},
+        {"name": "NADIR_LAT", "label": "Nadir Lat",
+            "datatype": "double", "editable": "true"},
+        {"name": "NADIR_LON", "label": "Nadir Lon",
+            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "DISTANCE", "label": "Altitude",
+            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "FOV_RADIUS", "label": "Field of View Radius",
+            "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "INCLINATION_ANGLE", "label": "Incl. Angle.",
+            "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "FLAG_ASC_DESC", "label": "ASC/DESC Flag",
+            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "ROLL", "label": "Roll",
+            "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "PTCH", "label": "Pitch",
+            "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "YAW", "label": "Yaw",
+            "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "action", "label": "", "datatype": "html", "editable": 'false'}
     ]
 
     data = [{"id": row["id"],
@@ -240,23 +268,26 @@ def satellite_table_JSON():
                         "ROLL": row["ROLL"],
                         "PITCH": row["ROLL"],
                         "YAW": row["ROLL"]
-    }} for row in rows]
+                        }} for row in rows]
     return response.json({"metadata": metadata, 'data': data})
-
 
 
 def gw_table_JSON():
     job_id = request.args(0)
     gw_table = dbLinkBudget.Earth_coord_GW
     rows = dbLinkBudget(gw_table.Job_ID == request.args(0)).select(gw_table.id, gw_table.LAT, gw_table.LON,
-                                                                gw_table.ALT, gw_table.GW_ID)
+                                                                   gw_table.ALT, gw_table.GW_ID)
 
     metadata = [
-        {"name": "GW_ID", "label": "Gateway ID", "datatype": "string", "editable": "true"},
-        {"name": "LAT", "label": "Latitude", "datatype": "double", "editable": "true"},
-        {"name": "LON", "label": "Longitude", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "ALT", "label": "Altitude", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-    	{"name":"action","label":"","datatype":"html","editable":'false'}
+        {"name": "GW_ID", "label": "Gateway ID",
+            "datatype": "string", "editable": "true"},
+        {"name": "LAT", "label": "Latitude",
+            "datatype": "double", "editable": "true"},
+        {"name": "LON", "label": "Longitude",
+            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "ALT", "label": "Altitude",
+            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "action", "label": "", "datatype": "html", "editable": 'false'}
     ]
 
     data = [{"id": row["id"],
@@ -264,7 +295,7 @@ def gw_table_JSON():
                         "LON": row["LON"],
                         "LAT": row["LAT"],
                         "ALT": row["ALT"]
-    }} for row in rows]
+                        }} for row in rows]
     return response.json({"metadata": metadata, 'data': data})
 
 
@@ -323,6 +354,7 @@ def create_download():
         processed_file=dbLinkBudget.Calculate.processed_file.store(stream, filepath))
     redirect(URL('download', args=dbLinkBudget.Calculate(
         dbLinkBudget.Calculate.id == request.args(0)).processed_file))
+
 
 def SAT_FOV_to_JSON():
     job_id = request.args(0)
