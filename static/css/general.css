@@ -11,3 +11,9 @@ body {
 body {
   font-family: "PT Sans";
 }
+
+.hero-unit {
+  position: absolute;
+  top: 25%;
+  text-align: left;
+}

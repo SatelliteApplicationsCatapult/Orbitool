@@ -3,15 +3,16 @@
 
 {{block header}}
     <header class="container-fluid background">
-        <a href= "/"><img style="margin-top: 30px" src="{{=URL("static", "images/orbitool.png" )}}"/></a>
-        {{pass}}
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </header>
 {{end}}
 
 {{response.title='Input Form'}}
 {{extend 'layout.html'}}
 <body>
-    <div style="float:left;padding:10px;height:750px;overflow: auto">
+  <div class="container">
+    <div class="hero-unit">
+      <a href= "/"><img src="{{=URL("static", "images/orbitool.png" )}}"/></a>
         <h1>
             Input Data
         </h1>
@@ -21,5 +22,6 @@
         </p><p>
           <a href="{{=URL("static","excel/two_sats_6000_coverage.xlsx")}}" target="_blank">Two Satellites Sample File</a>
       </p>
+    </div>
     </div>
 </body>

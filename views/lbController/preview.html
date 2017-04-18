@@ -11,7 +11,8 @@
     </script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-    <title>Hello World!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview</title>
     <script src="{{=URL("static","cesium/Build/Cesium/Cesium.js")}}"></script>
     <link rel="stylesheet"  href="{{=URL("static","/cesium/Build/Cesium/Widgets/widgets.css")}}">
     <link rel="stylesheet" href="{{=URL("static","css/jquery-ui.css")}}">
@@ -32,8 +33,11 @@
 </head>
 <body>
 <h1>Preview</h1>
+<div class="container">
+  <div class="row">
+    <div class="col-6">
 <div  id="cesiumContainer" style="margin-left:auto; margin-right:auto; width:50%;padding:10px;height:500px;overflow: auto"></div>
-
+</div>
 <script>
 var viewer = new Cesium.Viewer('cesiumContainer', {
 timeline: false,
@@ -95,6 +99,8 @@ viewer.dataSources.add(TRSP_FOV_CIRCLE);
 
 </script>
 
+<div class="col-6">
+
 <div id="tabs">
   <ul>
   <li><a href="#tabs-1">Satellites</a></li>
@@ -150,6 +156,8 @@ viewer.dataSources.add(TRSP_FOV_CIRCLE);
       </button>
       {{pass}}
     </div>
+</div>
+</div>
 </div>
 </div>
 </body>
