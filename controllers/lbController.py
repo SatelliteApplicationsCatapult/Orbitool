@@ -98,6 +98,9 @@ def preview():
     return dict(form=form)
 
 def delete_row_editablegrid():
+    """
+    untested as I don't know how to link the delete button to this
+    """
     temparray = json.loads(request.post_vars.array)
     logger.error(temparray)
     if temparray["table"] == "TRSP":
@@ -154,6 +157,19 @@ def ajax_to_db():
             row.update_record(BEAM_TX_CENTER_EL_ANT=temparray["value"])
         elif temparray["columnname"] == "BEAM_TX_RADIUS":
             row.update_record(BEAM_TX_RADIUS=temparray["value"])
+        else:
+            raise Exception('There was a problem writing to the TRSP datatable')
+    if temparray["table"] == "GW":
+        # Get the row to insert into
+        row = dbLinkBudget(dbLinkBudget.Earth_coord_GW.id == temparray["rowid"]["rowId"]).select().first()
+        if temparray["columnname"] == "LON":
+            row.update_record(LON=temparray["value"])
+        elif temparray["columnname"] == "LAT":
+            row.update_record(LAT=temparray["value"])
+        elif temparray["columnname"] == "ALT":
+            row.update_record(ALT=temparray["value"])
+        elif temparray["columnname"] == "GW_ID":
+            row.update_record(GW_ID=temparray["value"])
         else:
             raise Exception('There was a problem writing to the TRSP datatable')
 
@@ -222,6 +238,30 @@ def satellite_table_JSON():
                         "ROLL": row["ROLL"],
                         "PITCH": row["ROLL"],
                         "YAW": row["ROLL"]
+    }} for row in rows]
+    return response.json({"metadata": metadata, 'data': data})
+
+
+
+def gw_table_JSON():
+    job_id = request.args(0)
+    gw_table = dbLinkBudget.Earth_coord_GW
+    rows = dbLinkBudget(gw_table.Job_ID == request.args(0)).select(gw_table.id, gw_table.LAT, gw_table.LON,
+                                                                gw_table.ALT, gw_table.GW_ID)
+
+    metadata = [
+        {"name": "GW_ID", "label": "GW ID", "datatype": "string", "editable": "true"},
+        {"name": "LAT", "label": "Lat", "datatype": "double", "editable": "true"},
+        {"name": "LON", "label": "Lon", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "ALT", "label": "Altitude", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+    	{"name":"action","label":"","datatype":"html","editable":'false'}
+    ]
+
+    data = [{"id": row["id"],
+             "values": {"GW_ID": row["GW_ID"],
+                        "LON": row["LON"],
+                        "LAT": row["LAT"],
+                        "ALT": row["ALT"]
     }} for row in rows]
     return response.json({"metadata": metadata, 'data': data})
 

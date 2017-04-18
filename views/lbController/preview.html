@@ -27,8 +27,9 @@
 
     <!-- include css and javascript sources for this demo -->
     <link rel="stylesheet" type="text/css" href="{{=URL("static","css/simple.css")}}"/>
-    <script src="{{=URL("static","js/simpletable.js")}}", json="{{=URL("transponder_JSON", args=[request.args(0)])}}"></script>
+    <script src="{{=URL("static","js/trsptable.js")}}", json="{{=URL("transponder_JSON", args=[request.args(0)])}}"></script>
     <script src="{{=URL("static","js/satellitetable.js")}}", jsons="{{=URL("satellite_table_JSON", args=[request.args(0)])}}"></script>
+    <script src="{{=URL("static","js/gwtable.js")}}", json3="{{=URL("gw_table_JSON", args=[request.args(0)])}}"></script>
 
 </head>
 <body>
@@ -124,6 +125,15 @@ viewer.dataSources.add(TRSP_FOV_CIRCLE);
   </div>
   </div>
 <div id="tabs-3">
+
+  <div id="wrap">
+    <!-- Feedback message zone -->
+    <div id="gw_message"></div>
+
+    <!-- Grid contents -->
+    <div id="gw_tablecontent"></div>
+
+  </div>
 </div>
 <div id="tabs-4">
         <h1>Calculations</h1>
