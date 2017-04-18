@@ -87,14 +87,16 @@ def add_excel_2_db():
 def preview():
     # SQL FORM
     job_id = request.args(0)
-    # enable these when in use. Having it off is good for debugging
     dbLinkBudget.Calculate.processed.readable = False
     dbLinkBudget.Calculate.processed.writable = False
     dbLinkBudget.Calculate.Job_ID.writable = False
     record = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
     form = SQLFORM(dbLinkBudget.Calculate, record, showid=False,
                    formstyle='table3cols', submit_button='Save')
-
+    if form.accepts(request,session):
+        response.flash = 'form accepted'
+    elif form.errors:
+        response.flash = 'form has errors'
     return dict(form=form)
 
 def delete_row_editablegrid():
@@ -250,9 +252,9 @@ def gw_table_JSON():
                                                                 gw_table.ALT, gw_table.GW_ID)
 
     metadata = [
-        {"name": "GW_ID", "label": "GW ID", "datatype": "string", "editable": "true"},
-        {"name": "LAT", "label": "Lat", "datatype": "double", "editable": "true"},
-        {"name": "LON", "label": "Lon", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "GW_ID", "label": "Gateway ID", "datatype": "string", "editable": "true"},
+        {"name": "LAT", "label": "Latitude", "datatype": "double", "editable": "true"},
+        {"name": "LON", "label": "Longitude", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "ALT", "label": "Altitude", "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
     	{"name":"action","label":"","datatype":"html","editable":'false'}
     ]

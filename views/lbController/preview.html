@@ -1,5 +1,6 @@
 {{response.title='Preview'}}
 {{extend 'layout.html'}}
+<html>
 <head>
     <script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.12.3.js">
     </script>
@@ -27,9 +28,6 @@
 
     <!-- include css and javascript sources for this demo -->
     <link rel="stylesheet" type="text/css" href="{{=URL("static","css/simple.css")}}"/>
-    <script src="{{=URL("static","js/trsptable.js")}}", json="{{=URL("transponder_JSON", args=[request.args(0)])}}"></script>
-    <script src="{{=URL("static","js/satellitetable.js")}}", jsons="{{=URL("satellite_table_JSON", args=[request.args(0)])}}"></script>
-    <script src="{{=URL("static","js/gwtable.js")}}", json3="{{=URL("gw_table_JSON", args=[request.args(0)])}}"></script>
 
 </head>
 <body>
@@ -191,3 +189,7 @@ $(function() {
 
 
 </body>
+<script src="{{=URL("static","js/trsptable.js")}}", json="{{=URL("transponder_JSON", args=[request.args(0)])}}"></script>
+<script src="{{=URL("static","js/satellitetable.js")}}", jsons="{{=URL("satellite_table_JSON", args=[request.args(0)])}}"></script>
+<script src="{{=URL("static","js/gwtable.js")}}", json3="{{=URL("gw_table_JSON", args=[request.args(0)])}}"></script>
+</html>
