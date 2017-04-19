@@ -14,9 +14,10 @@
     <table id="job_table" class="table table-striped hover display" cellspacing="0" width="100%">
         <thead>
              <tr>
-                <th>ID</th>
+                <th>Scenario ID</th>
                 <th>Name </th>
-                <th>Date</th>
+                <th>Description</th>
+                 <th>Date</th>
                 <th>Links</th>
             </tr>
         </thead>
@@ -31,6 +32,7 @@ $(document).ready(function(){
         columns: [
             { data: 'id' },
             { data: 'job_name' },
+            { data: 'description'},
             { data: 'Date'},
             {width: '70px', "defaultContent": '<button class="btn-update" type="button">Preview</button>'}
         ],
@@ -39,11 +41,7 @@ $(document).ready(function(){
     //Button links to the ID of the row
     $('#job_table tbody').on( 'click', '.btn-update',  function (e) {
         var data = job_table.row( $(this).parents('tr') ).data();
-        window.location = 'preview/' +data['id'];
+        window.location = '/preview/' + data['id'];
     } );
-//    job_table.on('click','tr',function(){
-//        var data = job_table.row(this).data();
-//        window.location = 'update/' +data['id'];
-//    });
 });
 </script>

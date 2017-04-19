@@ -90,12 +90,12 @@ def load_object(worksheet):
     Returns:
         object: dictionary
     """
+    #d = {}
+    #d = OrderedDict()
     d = OrderedDict()
     for curr_col in range(0, worksheet.ncols):
         liste_elts = worksheet.col_values(curr_col)
-
-        d[worksheet.cell_value(0, curr_col)] = np.array(liste_elts[1:len(liste_elts)])
-
+        d[worksheet.cell_value(0, curr_col)] = liste_elts[1:len(liste_elts)]
     return d
 
 def create_saving_worksheet(filename, my_dict, wksht_name, my_dict2, wksht_name2, my_dict3, wksht_name3, my_dict4,

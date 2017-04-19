@@ -29,7 +29,7 @@ SAT.load("{{=URL('lbController', 'get_geojson_sat',args=[request.args(0)])}}").t
     for (var i = 0; i < entities.length; i++) {
         var entity = entities[i];
         entity.billboard = new Cesium.BillboardGraphics({
-            image: "{{=URL("static","satellite1.gif")}}",
+            image: "{{=URL("static","images/satellite.gif")}}",
         })
     }
 });
@@ -115,7 +115,7 @@ viewer.entities.add({
 </script>
 
 
-<div style="margin-left:auto; margin-right:auto; width:1000px;padding:10px;height:500px;overflow: auto">
+<div style="margin-left:auto; margin-right:auto; width:1200px;padding:10px;height:500px;overflow: auto">
 {{=grid}}
 </div>
 

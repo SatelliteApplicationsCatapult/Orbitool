@@ -189,7 +189,7 @@ dbLinkBudget.define_table('TRSP',
                           Field('MAX_GAIN_TX', 'double'),
                           Field('MAX_GAIN_RX', 'double'))
 dbLinkBudget.define_table('SAT',
-                          Field('Job_ID', requires=IS_IN_DB(dbLinkBudget, 'Job.id')),
+                          Field('Job_ID', requires=IS_IN_DB(dbLinkBudget, 'Job.id'),  label = 'Scenario ID'),
                           Field('SAT_ID', 'double', requires=IS_NOT_EMPTY(), label = 'Satellite ID'), # ,unique = True),
                           Field('NADIR_LON', 'double', requires=IS_NOT_EMPTY(), label = 'Satellite Longitude'),
                           Field('NADIR_LAT', 'double', requires=IS_NOT_EMPTY(), label = 'Satellite Latitude'),
@@ -224,7 +224,7 @@ dbLinkBudget.define_table('Job',
                           )
 
 dbLinkBudget.define_table('Calculate',
-                          Field('Job_ID', label='Job ID',),
+                          Field('Job_ID', label='Scenario ID',),
                           Field('processed_file', 'upload', writable=False, readable=False, autodelete=True),
                           Field('simulator_mode', 'string', requires=IS_IN_SET(('FWD', 'RTN')), default='FWD',
                                 label='Simulation Mode (FWD or RTN)'),

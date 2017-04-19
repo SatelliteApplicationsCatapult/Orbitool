@@ -8,7 +8,6 @@
           content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
     <title>Orbitool Viewer / ID: {{=request.args(0)}}</title>
     <script src="{{=URL("static","cesium/Build/Cesium/Cesium.js")}}"></script>
-    <script src="{{=URL("static","js/lodash.core.js")}}"></script>
     <link rel="stylesheet" href="{{=URL("static","/cesium/Build/Cesium/Widgets/widgets.css")}}">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="{{=URL("static","/css/lbcesium.css")}}">
@@ -39,7 +38,7 @@
         </tr>
         <tr>
             <td><input type="checkbox" id="showFOVCheckbox"></td>
-            <td>Satellite Cone
+            <td>Satellite Beams
             </td>
         <tr>
             <td></td>
@@ -53,7 +52,7 @@
         </tr>
         <tr>
             <td><input type="checkbox" id="showFOVCIRCLECheckbox"></td>
-            <td>Satellite FOV Circles
+            <td>Satellite Field of Views
             </td>
             <td>
             </td>
@@ -61,7 +60,7 @@
 
         <tr>
             <td><input type="checkbox" id="showTRSPCheckbox"></td>
-            <td>Transponder FOV
+            <td>Transponder Field of Views
             </td>
             <td>
             </td>
@@ -111,8 +110,8 @@
         geojson_FOV="{{=URL('lbController', 'get_geojson_FOV',args=[request.args(0)])}}" ,
         geojson_FOV_circle="{{=URL('lbController', 'SAT_FOV_to_JSON',args=[request.args(0)])}}" ,
         geojson_TRSP_FOV="{{=URL('lbController', 'TRSP_FOV_to_JSON',args=[request.args(0)])}}" ,
-        satellite_img="{{=URL("static","satellite1.gif")}}" ,
-        ground_station_img="{{=URL("static","facility.gif")}}" ,
+        satellite_img="{{=URL("static","images/satellite.gif")}}" ,
+        ground_station_img="{{=URL("static","images/groundstation.gif")}}" ,
         catapult_logo="{{=URL("static","images/saWhite26.png")}}" ,
         performance_maxmin="{{=URL('lbController', 'performance_maxmin',args=[request.args(0)])}}">
 </script>
