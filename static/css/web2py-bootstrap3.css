@@ -104,18 +104,11 @@ select.autocomplete {
     padding-right: 15px;
     margin: 20px;
 }
-.background {
-    background: url(../images/background.jpg) no-repeat center center;
-}
 body {
     padding-top: 50px; /*padding-top: 60px; */
     margin-bottom: 60px;
 }
 header {
-    -webkit-box-shadow: 0 0 8px 2px #000;
-    -moz-box-shadow: 0 0 8px 2px #000;
-    box-shadow: 0 0 8px 2px #000;
-    margin-bottom: 10px;
 }
 html {
     position: relative;

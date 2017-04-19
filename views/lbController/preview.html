@@ -1,5 +1,6 @@
 {{response.title='Preview'}}
 {{extend 'layout.html'}}
+<html>
 <head>
     <script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.12.3.js">
     </script>
@@ -10,14 +11,33 @@
     </script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-    <title>Hello World!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview</title>
     <script src="{{=URL("static","cesium/Build/Cesium/Cesium.js")}}"></script>
     <link rel="stylesheet"  href="{{=URL("static","/cesium/Build/Cesium/Widgets/widgets.css")}}">
+    <link rel="stylesheet" href="{{=URL("static","css/jquery-ui.css")}}">
+
+    <script src="{{=URL("static","js/editablegrid/editablegrid.js")}}"></script>
+		<!-- [DO NOT DEPLOY] --> <script src="{{=URL("static","js/editablegrid/editablegrid_renderers.js")}}" ></script>
+		<!-- [DO NOT DEPLOY] --> <script src="{{=URL("static","js/editablegrid/editablegrid_editors.js")}}" ></script>
+		<!-- [DO NOT DEPLOY] --> <script src="{{=URL("static","js/editablegrid/editablegrid_validators.js")}}" ></script>
+		<!-- [DO NOT DEPLOY] --> <script src="{{=URL("static","js/editablegrid/editablegrid_utils.js")}}" ></script>
+		<link rel="stylesheet" href="{{=URL("static","css/editablegrid.css")}}" type="text/css" media="screen"/>
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <!-- include css and javascript sources for this demo -->
+    <link rel="stylesheet" type="text/css" href="{{=URL("static","css/simple.css")}}"/>
+
 </head>
 <body>
 <h1>Preview</h1>
+<div class="container">
+  <div class="row">
+    <div class="col-6">
 <div  id="cesiumContainer" style="margin-left:auto; margin-right:auto; width:50%;padding:10px;height:500px;overflow: auto"></div>
-
+</div>
 <script>
 var viewer = new Cesium.Viewer('cesiumContainer', {
 timeline: false,
@@ -77,71 +97,69 @@ viewer.dataSources.add(FOV);
 viewer.dataSources.add(FOV_CIRCLE);
 viewer.dataSources.add(TRSP_FOV_CIRCLE);
 
-var lon = -180;
-var lat = 0.;
-var lon2 = 0.;
-var lat2 = -90.;
-var pos = [];
-var pos2 = [];
-for (var i = 0; i < 360; i++) {
-    pos.push(Cesium.Cartesian3.fromDegrees(lon, lat));
-    lon++;
-}
-
-for (var i = 0; i < 180; i++) {
-    pos2.push(Cesium.Cartesian3.fromDegrees(lon2, lat2));
-    lat2++;
-}
-
-viewer.entities.add({
-    name: '0 Latitude',
-    polyline: {
-        followSurface: false,
-        width: 1,
-        material: Cesium.Color.BLACK,
-        positions: pos
-    }
-});
-
-viewer.entities.add({
-    polyline: {
-        followSurface: false,
-        width: 1,
-        material: Cesium.Color.BLACK,
-        positions: pos2
-    }
-});
-
 </script>
 
+<div class="col-6">
 
-<div style="margin-left:auto; margin-right:auto; width:1200px;padding:10px;height:500px;overflow: auto">
-{{=grid}}
+<div id="tabs">
+  <ul>
+  <li><a href="#tabs-1">Satellites</a></li>
+  <li><a href="#tabs-2">Transponders</a></li>
+  <li><a href="#tabs-3">Gateways</a></li>
+  <li><a href="#tabs-4">Calculate</a></li>
+  </ul>
+<div id="tabs-1">
+<div id="wrap">
+  <div id="sat_message"></div>
+  <div id="satellite_tablecontent"></div>
 </div>
 
 
-<div style="float:left; width:50%;padding:10px;height:750px;overflow: auto">
-    <h1>Calculations</h1>
-    {{=form}}
 </div>
+<div id="tabs-2">
+
+
+  <div id="wrap">
+    <!-- Feedback message zone -->
+    <div id="trsp_message"></div>
+
+    <!-- Grid contents -->
+    <div id="trsp_tablecontent"></div>
+
+  </div>
+  </div>
+<div id="tabs-3">
+
+  <div id="wrap">
+    <!-- Feedback message zone -->
+    <div id="gw_message"></div>
+
+    <!-- Grid contents -->
+    <div id="gw_tablecontent"></div>
+
+  </div>
+</div>
+<div id="tabs-4">
+        <h1>Calculations</h1>
+        {{=form}}
 
 
     <div class = "Bwidget">
-        <h1>Actions</h1>
-        <button id="run" class="btn">Launch calculation</button>
-        <button class="btn" id="processed">
-            Out to Spreadsheet
-        </button>
+      <h1>Actions</h1>
+      <button id="run" class="btn">Launch calculation</button>
+      <button class="btn" id="processed">
+          Out to Spreadsheet
+      </button>
 
-        <button class="btn" id="cesium">
-            Plot in Cesium
-        </button>
-        {{pass}}
-        </div>
-    <div id="selected"  style="float:right; width:50%;padding:30px;height:700px;overflow: auto">
-
-
+      <button class="btn" id="cesium">
+          Plot in Cesium
+      </button>
+      {{pass}}
     </div>
+</div>
+</div>
+</div>
+</div>
 </body>
 <script type="text/javascript" >
 
@@ -156,7 +174,30 @@ $(document).ready(function(){
         window.open("{{=URL('cesium',args = request.args(0))}}");
     });
 });
+
+$( function() {
+  $( "#tabs" ).tabs();
+} );
+$( ".selector" ).tabs({
+  heightStyle: "fill"
+});
+//next one keeps tabs visible on refresh
+$(function() {
+    var selectedTabId = sessionStorage.getItem("selectedTab");
+    selectedTabId = selectedTabId === null ? 0 : selectedTabId; //your default being 0
+    $("#tabs").tabs({
+        active: selectedTabId,
+        activate : function( event, ui ) {
+            selectedTabId = $("#tabs").tabs("option", "active");
+            sessionStorage.setItem("selectedTab", selectedTabId);
+        }
+    });
+});
 </script>
 
 
 </body>
+<script src="{{=URL("static","js/trsptable.js")}}", json="{{=URL("transponder_JSON", args=[request.args(0)])}}"></script>
+<script src="{{=URL("static","js/satellitetable.js")}}", jsons="{{=URL("satellite_table_JSON", args=[request.args(0)])}}"></script>
+<script src="{{=URL("static","js/gwtable.js")}}", json3="{{=URL("gw_table_JSON", args=[request.args(0)])}}"></script>
+</html>
