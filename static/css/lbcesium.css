@@ -15,7 +15,7 @@ table {
 	background-position: top;
 }
 
-button#screenshot {
+button#screenshot, button#centreCheckbox {
     background-color: #735078;
     color: white;
     text-align: center;

@@ -30,11 +30,6 @@
             <td><input type="checkbox" id="showSATCheckbox"></td>
             <td>Satellites
             </td>
-            <td>
-            <button class="btn" id="screenshot">
-                Screenshot
-            </button>
-            </td>
         </tr>
         <tr>
             <td><input type="checkbox" id="showLineCheckbox"></td>
@@ -78,12 +73,6 @@
         </td>
         <tr>
             <td>
-                <div id="ck-button">
-                    <label>
-                        <input type="checkbox" id="showVSATCheckbox"><span>Add</span>
-                    </label>
-                </div>
-
             </td>
             <td> Analytics:
                 <select id="performance" name="performance" selected="Analytics">
@@ -105,7 +94,13 @@
 
         </tr>
         <tr>
+          <td></td>
           <td>
+            <div id="ck-button">
+                <label>
+                    <input type="checkbox" id="showVSATCheckbox"><span>Add</span>
+                </label>
+            </div>
           <div id="ck-button">
               <label>
                   <input type="checkbox" id="clear"><span>Clear</span>
@@ -114,8 +109,17 @@
         </td>
         </tr>
         <tr>
-            <td><input type="checkbox" id="centreCheckbox"></td>
-            <td>Centre on SATs (dev)
+            <td></td>
+            <td>
+              <div>
+              <button style="float:left" style="margin-left:10px;" class="btn" id="centreCheckbox">
+                  Centre
+              </button>
+</div><div>
+            <button style="margin-left:5px;" class="btn" id="screenshot">
+                Screenshot
+            </button>
+          </div>
             </td>
             <td>
             </td>
