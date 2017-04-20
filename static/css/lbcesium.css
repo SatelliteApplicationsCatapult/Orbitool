@@ -38,6 +38,25 @@ html, body, #cesiumContainer {
     overflow: hidden;
 }
 
+.cesium-infoBox-defaultTable th {
+    font-weight: normal;
+    padding: 3px;
+    vertical-align: middle;
+    text-align: left;
+}
+
+.cesium-infoBox {
+  width: 300px;
+}
+.cesium-infoBox-description {
+    font-family: sans-serif;
+    font-size: 13px;
+    padding: 2px 5px 0px 8px;
+    margin-right: 0px;
+    color: #edffff;
+}
+
+
 #toolbar {
     display: block;
     position: absolute;

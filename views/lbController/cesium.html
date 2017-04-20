@@ -87,13 +87,17 @@
             </td>
             <td> Analytics:
                 <select id="performance" name="performance" selected="Analytics">
-                    <option value="Analytics">Pick a plot below..</option>
+                    <option value="Analytics">Pick a plot..</option>
                     <option value="EIRP">EIRP</option>
                     <option value="Elevation">Elevation</option>
                     <option value="GPT">GPT</option>
                     <option value="DIST">DIST</option>
                     <option value="FSL_UP">FSL_UP</option>
                     <option value="FSL_DN">FSL_DN</option>
+                    <option value="EFFICIENCY">EFFICIENCY</option>
+                    <option value="CSIM0">CSIM0</option>
+                    <option value="CSN0_DN">CSN0_DN</option>
+                    <option value="CSI0_DN">CSI0_DN</option>
                 </select>
 
             <td>Hue:
@@ -104,7 +108,7 @@
           <td>
           <div id="ck-button">
               <label>
-                  <input type="checkbox" id="clear"><span>Remove</span>
+                  <input type="checkbox" id="clear"><span>Clear</span>
               </label>
           </div>
         </td>
@@ -121,7 +125,6 @@
 </div>
 
 <script src="{{=URL("static","js/lbcesium.js")}}" type="text/javascript" ,
-        get_performance_json="{{=URL('lbController', 'get_performance_json',args=[request.args(0)])}}" ,
         geojson_sat="{{=URL('lbController', 'get_geojson_sat',args=[request.args(0)])}}" ,
         geojson_gw="{{=URL('lbController', 'get_geojson_gw',args=[request.args(0)])}}" ,
         geojson_FOV="{{=URL('lbController', 'get_geojson_FOV',args=[request.args(0)])}}" ,
@@ -131,6 +134,7 @@
         ground_station_img="{{=URL("static","images/groundstation.gif")}}" ,
         catapult_logo="{{=URL("static","images/saWhite26.png")}}" ,
         performance_maxmin="{{=URL('lbController', 'performance_maxmin',args=[request.args(0)])}}",
+        get_performance_json="{{=URL('lbController', 'get_performance_json',args=[request.args(0)])}}" ,
         json_subsatellite="{{=URL('lbController', 'json_subsatellite',args=[request.args(0)])}}">
 </script>
 
