@@ -80,7 +80,7 @@
             <td>
                 <div id="ck-button">
                     <label>
-                        <input type="checkbox" id="showVSATCheckbox"><span>Toggle</span>
+                        <input type="checkbox" id="showVSATCheckbox"><span>Add</span>
                     </label>
                 </div>
 
@@ -91,11 +91,21 @@
                     <option value="EIRP">EIRP</option>
                     <option value="Elevation">Elevation</option>
                     <option value="GPT">GPT</option>
+                    <option value="DIST">DIST</option>
                 </select>
 
             <td>Hue:
                 <select data-bind="options: hue_preset, value: hue_scale"></select></td>
 
+        </tr>
+        <tr>
+          <td>
+          <div id="ck-button">
+              <label>
+                  <input type="checkbox" id="clear"><span>Remove</span>
+              </label>
+          </div>
+        </td>
         </tr>
         <tr>
             <td><input type="checkbox" id="centreCheckbox"></td>

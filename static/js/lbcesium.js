@@ -36,6 +36,18 @@ $.getJSON(performance_maxmin, function(json) {
     ELEVATIONmax = maxminjson["ELEVATION"]["max"][0]
     SAT_GPTmin = maxminjson["SAT_GPT"]["min"][0]
     SAT_GPTmax = maxminjson["SAT_GPT"]["max"][0]
+    SAT_GAIN_TXmin = maxminjson["SAT_GAIN_TX"]["min"][0]
+    SAT_GAIN_TXmax = maxminjson["SAT_GAIN_TX"]["max"][0]
+    SAT_GAIN_RXmin = maxminjson["SAT_GAIN_RX"]["min"][0]
+    SAT_GAIN_RXmax = maxminjson["SAT_GAIN_RX"]["max"][0]
+    DISTmin = maxminjson["DIST"]["min"][0]
+    DISTmax = maxminjson["DIST"]["max"][0]
+    FSL_UPmin = maxminjson["FSL_UP"]["min"][0]
+    FSL_UPmax = maxminjson["FSL_UP"]["max"][0]
+    FSL_DNmin = maxminjson["FSL_DN"]["min"][0]
+    FSL_DNmax = maxminjson["FSL_DN"]["max"][0]
+    EFFICIENCYmin = maxminjson["EFFICIENCY"]["min"][0]
+    EFFICIENCYmax = maxminjson["EFFICIENCY"]["max"][0]
 });
 
 var EIRP = new Cesium.GeoJsonDataSource();
@@ -99,6 +111,33 @@ SAT_GPT.load(get_performance_json).then(function() {
         }
     );
 });
+
+var DIST = new Cesium.GeoJsonDataSource();
+DIST.load(get_performance_json).then(function() {
+    var entities = DIST.entities.values;
+    for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        entity.billboard = undefined;
+        entity.point = new Cesium.PointGraphics({
+            color: Cesium.Color.fromHsl(((entity.properties.DIST - DISTmin) / (DISTmax - DISTmin)), 1, .5, viewModel.perf_alpha),
+            pixelSize: 8,
+            scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
+        });
+    }
+    Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
+        function(newValue) {
+            for (var i = 0; i < entities.length; i++) {
+                entities[i].point.color = Cesium.Color.fromHsl(newValue * ((entities[i].properties.DIST - DISTmin) / (DISTmax - DISTmin)), 1, .5, viewModel.perf_alpha);
+            }
+        }
+    );
+});
+
+
+
+
+
+
 var GW = new Cesium.GeoJsonDataSource();
 GW.load(geojson_gw).then(function() {
     var entities = GW.entities.values;
@@ -299,33 +338,37 @@ $("#performance").change(function() {
             if (checkbox.checked) {
                 if (!viewer.dataSources.contains(EIRP)) {
                     viewer.dataSources.add(EIRP);
-                    viewer.dataSources.remove(SAT_GPT);
-                    viewer.dataSources.remove(ELEVATION);
+
                 }
             }
         } else if (el.val() === "Elevation") {
             if (checkbox.checked) {
                 if (!viewer.dataSources.contains(ELEVATION)) {
                     viewer.dataSources.add(ELEVATION);
-                    viewer.dataSources.remove(SAT_GPT);
-                    viewer.dataSources.remove(EIRP);
                 }
             }
         } else if (el.val() === "GPT") {
             if (checkbox.checked) {
                 if (!viewer.dataSources.contains(SAT_GPT)) {
                     viewer.dataSources.add(SAT_GPT);
-                    viewer.dataSources.remove(ELEVATION);
-                    viewer.dataSources.remove(EIRP);
                 }
             }
         }
-        if (checkbox.checked) {} else {
-            viewer.dataSources.remove(EIRP);
-            viewer.dataSources.remove(ELEVATION);
-            viewer.dataSources.remove(SAT_GPT);
+        else if (el.val() === "DIST") {
+            if (checkbox.checked) {
+                if (!viewer.dataSources.contains(DIST)) {
+                    viewer.dataSources.add(DIST);
+                }
+            }
         }
     }, false);
+});
+
+$("#clear").click(function() {
+  viewer.dataSources.remove(EIRP);
+  viewer.dataSources.remove(ELEVATION);
+  viewer.dataSources.remove(SAT_GPT);
+  viewer.dataSources.remove(DIST);
 });
 
 $("#screenshot").click(function() {

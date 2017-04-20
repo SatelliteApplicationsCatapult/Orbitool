@@ -552,13 +552,39 @@ def performance_maxmin():
     """
     earth_vsat = dbLinkBudget.EARTH_coord_VSAT
     rows = dbLinkBudget(earth_vsat.Job_ID == request.args(0)).select(earth_vsat.SAT_EIRP, earth_vsat.ELEVATION,
-                                                                     earth_vsat.SAT_GPT)
+                                                                     earth_vsat.SAT_GPT, earth_vsat.SAT_GAIN_TX,
+                                                                     earth_vsat.SAT_GAIN_RX, earth_vsat.DIST,
+                                                                     earth_vsat.FSL_UP, earth_vsat.FSL_DN,
+                                                                     earth_vsat.EFFICIENCY, earth_vsat.EFFICIENCY,
+                                                                     earth_vsat.CSIM0, earth_vsat.CSIM0,
+                                                                     earth_vsat.CSN0_DN, earth_vsat.CSN0_DN,
+                                                                     earth_vsat.CSI0_DN, earth_vsat.CSI0_DN)
     EIRP = [[row.SAT_EIRP] for row in rows]
     ELEVATION = [[row.ELEVATION] for row in rows]
     SAT_GPT = [[row.SAT_GPT] for row in rows]
+    SAT_GAIN_TX = [[row.SAT_GAIN_TX] for row in rows]
+    SAT_GAIN_RX = [[row.SAT_GAIN_RX] for row in rows]
+    DIST = [[row.DIST] for row in rows]
+    FSL_UP = [[row.FSL_UP] for row in rows]
+    FSL_DN = [[row.FSL_DN] for row in rows]
+    EFFICIENCY = [[row.EFFICIENCY] for row in rows]
+    CSIM0 = [[row.CSIM0] for row in rows]
+    CSN0_DN = [[row.CSN0_DN] for row in rows]
+    CSI0_DN = [[row.CSI0_DN] for row in rows]
+
     return json.dumps(
-        {"EIRP": {"max": max(EIRP), "min": min(EIRP)}, "ELEVATION": {"max": max(ELEVATION), "min": min(ELEVATION)},
-         "SAT_GPT": {"max": max(SAT_GPT), "min": min(SAT_GPT)}},
+        {"EIRP": {"max": max(EIRP), "min": min(EIRP)},
+         "ELEVATION": {"max": max(ELEVATION), "min": min(ELEVATION)},
+         "SAT_GPT": {"max": max(SAT_GPT), "min": min(SAT_GPT)},
+         "SAT_GAIN_TX": {"max": max(SAT_GAIN_TX), "min": min(SAT_GAIN_TX)},
+         "SAT_GAIN_RX": {"max": max(SAT_GAIN_RX), "min": min(SAT_GAIN_RX)},
+         "DIST": {"max": max(DIST), "min": min(DIST)},
+         "FSL_UP": {"max": max(FSL_UP), "min": min(FSL_UP)},
+         "FSL_DN": {"max": max(FSL_DN), "min": min(FSL_DN)},
+         "EFFICIENCY": {"max": max(EFFICIENCY), "min": min(EFFICIENCY)},
+         "CSIM0": {"max": max(CSIM0), "min": min(CSIM0)},
+         "CSN0_DN": {"max": max(CSN0_DN), "min": min(CSN0_DN)},
+         "CSI0_DN": {"max": max(CSI0_DN), "min": min(CSI0_DN)}},
         sort_keys=True, indent=4, separators=(',', ': '))
 
 
