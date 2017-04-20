@@ -39,7 +39,7 @@ def index():
     form = SQLFORM(dbLinkBudget.Job, record, deletable=True,
                    upload=URL('download'), formstyle='table3cols')
     if form.process().accepted:
-        session.flash = "Senario %s - %s has been uploaded!" % (
+        session.flash = "Scenario %s - %s has been uploaded!" % (
             form.vars.id, form.vars.job_name)
         session.job = form.vars.id
         add_excel_2_db()
@@ -332,29 +332,33 @@ def create_download():
     TODO: consider using lists instead of dictionaries so that the download excel is ordered.
     TODO: at RX fields
     """
-    sheets = []
-    for table in [dbLinkBudget.VSAT, dbLinkBudget.Gateway, dbLinkBudget.SAT, dbLinkBudget.TRSP,
-                  dbLinkBudget.Earth_coord_GW, dbLinkBudget.EARTH_coord_VSAT]:
-        keys = table.fields
-        keys.remove('id')
-        keys.remove('Job_ID')
-        output = OrderedDict.fromkeys(keys)
-        for key in keys:
-            output[key] = []
-        for row in dbLinkBudget(table.Job_ID == request.args(0)).iterselect(*keys):
+    if dbLinkBudget.Calculate(dbLinkBudget.Calculate.id == request.args(0)):
+        sheets = []
+        for table in [dbLinkBudget.VSAT, dbLinkBudget.Gateway, dbLinkBudget.SAT, dbLinkBudget.TRSP,
+                      dbLinkBudget.Earth_coord_GW, dbLinkBudget.EARTH_coord_VSAT]:
+            keys = table.fields
+            keys.remove('id')
+            keys.remove('Job_ID')
+            output = OrderedDict.fromkeys(keys)
             for key in keys:
-                output[key].append(row["_extra"][key])
-        sheets.append(output)
+                output[key] = []
+            for row in dbLinkBudget(table.Job_ID == request.args(0)).iterselect(*keys):
+                for key in keys:
+                    output[key].append(row["_extra"][key])
+            sheets.append(output)
 
-    filename = "Link Budget - Output Scenario " + request.args(0) + ".xlsx"
-    filepath = os.path.join(request.folder, 'uploads', filename)
-    create_saving_worksheet(filepath, sheets[0], "VSAT", sheets[1], "GATEWAY", sheets[2], "SAT", sheets[3], "TRSP",
-                            sheets[4], "EARTH_coord_GW", sheets[5], "EARTH_coord_VSAT")
-    stream = open(filepath, 'rb')
-    dbLinkBudget(dbLinkBudget.Calculate.id == request.args(0)).update(
-        processed_file=dbLinkBudget.Calculate.processed_file.store(stream, filepath))
-    redirect(URL('download', args=dbLinkBudget.Calculate(
-        dbLinkBudget.Calculate.id == request.args(0)).processed_file))
+        filename = "Link Budget - Output Scenario " + request.args(0) + ".xlsx"
+        filepath = os.path.join(request.folder, 'uploads', filename)
+        create_saving_worksheet(filepath, sheets[0], "VSAT", sheets[1], "GATEWAY", sheets[2], "SAT", sheets[3], "TRSP",
+                                sheets[4], "EARTH_coord_GW", sheets[5], "EARTH_coord_VSAT")
+        stream = open(filepath, 'rb')
+        dbLinkBudget(dbLinkBudget.Calculate.id == request.args(0)).update(
+            processed_file=dbLinkBudget.Calculate.processed_file.store(stream, filepath))
+        redirect(URL('download', args=dbLinkBudget.Calculate(
+            dbLinkBudget.Calculate.id == request.args(0)).processed_file))
+    else:
+        redirect(URL('download', args=dbLinkBudget.Job(
+            dbLinkBudget.Job.id == request.args(0)).file_up))
 
 
 def SAT_FOV_to_JSON():
@@ -611,42 +615,48 @@ def get_performance_json():
     earth_vsat = dbLinkBudget.EARTH_coord_VSAT
     # I think putting the fields in the brackets will speed up the query
     earth_vsat_rows = dbLinkBudget(earth_vsat.Job_ID == request.args(
-        0)).select(earth_vsat.LON, earth_vsat.LAT, earth_vsat.VSAT_ID, earth_vsat.Job_ID, earth_vsat.SAT_EIRP,
-                   earth_vsat.ELEVATION,
-                   earth_vsat.SAT_GPT)  # TODO : test if iterselect is better than regular select, time and memory
+        0)).select()  # TODO : test if iterselect is better than regular select, time and memory
     # resources.
     features = []
+    i=0
     for row in earth_vsat_rows:
-        if row[earth_vsat.SAT_EIRP] and not row[earth_vsat.SAT_GPT]:
-            features.append({"type": "Feature",
-                             "geometry": {
-                                 "type": "Point",
-                                 "coordinates": [row[earth_vsat.LON], row[earth_vsat.LAT]]
-                             },
-                             "properties": {
-                                 "title": [str(row[earth_vsat.VSAT_ID])],
-                                 "Job ID": row[earth_vsat.Job_ID],
-                                 "EIRP": round(row[earth_vsat.SAT_EIRP], 2),
-                                 "ELEVATION": round(row[earth_vsat.ELEVATION], 2),
-                                 "Lon, Lat": str(row[earth_vsat.LON]) + ", " + str(row[earth_vsat.LAT]),
-                             }
-                             })  # TODO : Extend to include more information form
-            # database #hacky way to ignore NONEs
-        elif row[earth_vsat.SAT_GPT] and not row[earth_vsat.SAT_EIRP]:
-            features.append({"type": "Feature",
-                             "geometry": {
-                                 "type": "Point",
-                                 "coordinates": [row[earth_vsat.LON], row[earth_vsat.LAT]]
-                             },
-                             "properties": {
-                                 "title": [str(row[earth_vsat.VSAT_ID])],
-                                 "Job ID": row[earth_vsat.Job_ID],
-                                 "ELEVATION": round(row[earth_vsat.ELEVATION], 2),
-                                 "SAT_GPT": round(row[earth_vsat.SAT_GPT], 2),
-                                 "Lon, Lat": str(row[earth_vsat.LON]) + ", " + str(row[earth_vsat.LAT]),
-                             }
-                             })  # TODO : Extend to include more information form
-            # database #hacky way to ignore NONEs
+        features.append({"type": "Feature",
+                         "geometry": {
+                             "type": "Point",
+                             "coordinates": [row[earth_vsat.LON], row[earth_vsat.LAT]]
+                         },
+                         "properties": OrderedDict({
+                             "Job ID": row[earth_vsat.Job_ID],
+                             "title": [str(row[earth_vsat.VSAT_ID])],
+                             "Lon, Lat": str(row[earth_vsat.LON]) + ", " + str(row[earth_vsat.LAT]),
+                         })
+                         })  # TODO : Extend to include more information from db
+        features[i]["properties"].update({"SAT_ID, TRSP_ID, PAYLOAD_ID": str(row[earth_vsat.SAT_ID]) + ", " + str(row[earth_vsat.TRSP_ID]) + ", " + str(row[earth_vsat.PAYLOAD_ID])})
+        if row[earth_vsat.ELEVATION]:
+            features[i]["properties"].update({"ELEVATION": round(row[earth_vsat.ELEVATION], 2)})
+        if row[earth_vsat.SAT_EIRP]:
+            features[i]["properties"].update({"EIRP": round(row[earth_vsat.SAT_EIRP], 2)})
+        if row[earth_vsat.SAT_GPT]:
+            features[i]["properties"].update({ "SAT_GPT": round(row[earth_vsat.SAT_GPT], 2)})
+        if row[earth_vsat.SAT_GAIN_TX]:
+            features[i]["properties"].update({ "SAT_GAIN_TX": round(row[earth_vsat.SAT_GAIN_TX], 2)})
+        if row[earth_vsat.SAT_GAIN_RX]:
+            features[i]["properties"].update({ "SAT_GAIN_RX": round(row[earth_vsat.SAT_GAIN_RX], 2)})
+        if row[earth_vsat.DIST]:
+            features[i]["properties"].update({ "DIST": round(row[earth_vsat.DIST], 2)})
+        if row[earth_vsat.FSL_UP]:
+            features[i]["properties"].update({ "FSL_UP": round(row[earth_vsat.FSL_UP], 2)})
+        if row[earth_vsat.FSL_DN]:
+            features[i]["properties"].update({ "FSL_DN": round(row[earth_vsat.FSL_DN], 2)})
+        if row[earth_vsat.EFFICIENCY]:
+            features[i]["properties"].update({ "EFFICIENCY": round(row[earth_vsat.EFFICIENCY], 2)})
+        if row[earth_vsat.CSIM0]:
+            features[i]["properties"].update({ "CSIM0": round(row[earth_vsat.CSIM0], 2)})
+        if row[earth_vsat.CSN0_DN]:
+            features[i]["properties"].update({ "CSN0_DN": round(row[earth_vsat.CSN0_DN], 2)})
+        if row[earth_vsat.CSI0_DN]:
+            features[i]["properties"].update({ "CSI0_DN": round(row[earth_vsat.CSI0_DN], 2)})
+        i+=1
     return response.json({"type": "FeatureCollection", 'features': features})
 
 

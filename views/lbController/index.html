@@ -11,8 +11,13 @@
 {{extend 'layout.html'}}
 <body>
   <div class="container">
-    <div class="hero-unit">
-      <a href= "/"><img src="{{=URL("static", "images/orbitool.png" )}}"/></a>
+    <div class= "row">
+    <div class="col-lg-12">
+      <a href= "/"><img id = "hero-logo" src="{{=URL("static", "images/orbitool.png" )}}"/></a>
+    </div>
+      </div>
+    <div class= "row">
+      <div class="col-lg-6">
         <h1>
             Input Data
         </h1>
@@ -22,6 +27,14 @@
         </p><p>
           <a href="{{=URL("static","excel/two_sats_6000_coverage.xlsx")}}" target="_blank">Two Satellites Sample File</a>
       </p>
+      </div>
+    <div class="col-lg-6">
+      </div>
+      <div class="col-lg-4">
+      <div class="hero-unit">
+      <h3>Orbitool is a 3D visualiser for Satellites.</h3>
     </div>
     </div>
+    </div>
+  </div>
 </body>
