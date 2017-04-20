@@ -159,6 +159,30 @@ FSL_UP.load(get_performance_json).then(function() {
 
 
 
+var FSL_DN = new Cesium.GeoJsonDataSource();
+FSL_DN.load(get_performance_json).then(function() {
+    var entities = FSL_DN.entities.values;
+    for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        entity.billboard = undefined;
+        entity.point = new Cesium.PointGraphics({
+            color: Cesium.Color.fromHsl(((entity.properties.FSL_DN -FSL_DNmin) / (FSL_DNmax - FSL_DNmin)), 1, .5, viewModel.perf_alpha),
+            pixelSize: 8,
+            outlineWidth: 0.5,
+            scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
+        })
+    }
+    Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
+        function(newValue) {
+            for (var i = 0; i < entities.length; i++) {
+                entities[i].point.color = Cesium.Color.fromHsl(newValue * ((entities[i].properties.FSL_DN - FSL_DNmin) / (FSL_DNmax - FSL_DNmin)), 1, .5, viewModel.perf_alpha);
+            }
+        }
+    );
+});
+
+
+
 var GW = new Cesium.GeoJsonDataSource();
 GW.load(geojson_gw).then(function() {
     var entities = GW.entities.values;
@@ -388,6 +412,13 @@ $("#performance").change(function() {
                 }
             }
         }
+        else if (el.val() === "FSL_DN") {
+            if (checkbox.checked) {
+                if (!viewer.dataSources.contains(FSL_DN)) {
+                    viewer.dataSources.add(FSL_DN);
+                }
+            }
+        }
     }, false);
 });
 
@@ -397,6 +428,7 @@ $("#clear").click(function() {
   viewer.dataSources.remove(SAT_GPT);
   viewer.dataSources.remove(DIST);
   viewer.dataSources.remove(FSL_UP);
+  viewer.dataSources.remove(FSL_DN);
 });
 
 $("#screenshot").click(function() {
