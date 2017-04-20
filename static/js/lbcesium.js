@@ -48,7 +48,6 @@ $.getJSON(performance_maxmin, function(json) {
     FSL_DNmax = maxminjson["FSL_DN"]["max"][0]
     EFFICIENCYmin = maxminjson["EFFICIENCY"]["min"][0]
     EFFICIENCYmax = maxminjson["EFFICIENCY"]["max"][0]
-});
 
 var EIRP = new Cesium.GeoJsonDataSource();
 EIRP.load(get_performance_json).then(function() {
@@ -80,6 +79,7 @@ ELEVATION.load(get_performance_json).then(function() {
         entity.point = new Cesium.PointGraphics({
             color: Cesium.Color.fromHsl(((entity.properties.ELEVATION - ELEVATIONmin) / (ELEVATIONmax - ELEVATIONmin)), 1, .5, viewModel.perf_alpha),
             pixelSize: 8,
+            outlineWidth: 0.5,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
         })
     }
@@ -100,8 +100,9 @@ SAT_GPT.load(get_performance_json).then(function() {
         entity.point = new Cesium.PointGraphics({
             color: Cesium.Color.fromHsl(((entity.properties.SAT_GPT - SAT_GPTmin) / (SAT_GPTmax - SAT_GPTmin)), 1, .5, viewModel.perf_alpha),
             pixelSize: 8,
+            outlineWidth: 0.5,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
-        });
+        })
     }
     Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
         function(newValue) {
@@ -121,8 +122,9 @@ DIST.load(get_performance_json).then(function() {
         entity.point = new Cesium.PointGraphics({
             color: Cesium.Color.fromHsl(((entity.properties.DIST - DISTmin) / (DISTmax - DISTmin)), 1, .5, viewModel.perf_alpha),
             pixelSize: 8,
+            outlineWidth: 0.5,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
-        });
+        })
     }
     Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
         function(newValue) {
@@ -133,8 +135,27 @@ DIST.load(get_performance_json).then(function() {
     );
 });
 
-
-
+var FSL_UP = new Cesium.GeoJsonDataSource();
+FSL_UP.load(get_performance_json).then(function() {
+    var entities = FSL_UP.entities.values;
+    for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        entity.billboard = undefined;
+        entity.point = new Cesium.PointGraphics({
+            color: Cesium.Color.fromHsl(((entity.properties.FSL_UP -FSL_UPmin) / (FSL_UPmax - FSL_UPmin)), 1, .5, viewModel.perf_alpha),
+            pixelSize: 8,
+            outlineWidth: 0.5,
+            scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
+        })
+    }
+    Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
+        function(newValue) {
+            for (var i = 0; i < entities.length; i++) {
+                entities[i].point.color = Cesium.Color.fromHsl(newValue * ((entities[i].properties.FSL_UP - FSL_UPmin) / (FSL_UPmax - FSL_UPmin)), 1, .5, viewModel.perf_alpha);
+            }
+        }
+    );
+});
 
 
 
@@ -338,7 +359,6 @@ $("#performance").change(function() {
             if (checkbox.checked) {
                 if (!viewer.dataSources.contains(EIRP)) {
                     viewer.dataSources.add(EIRP);
-
                 }
             }
         } else if (el.val() === "Elevation") {
@@ -361,6 +381,13 @@ $("#performance").change(function() {
                 }
             }
         }
+        else if (el.val() === "FSL_UP") {
+            if (checkbox.checked) {
+                if (!viewer.dataSources.contains(FSL_UP)) {
+                    viewer.dataSources.add(FSL_UP);
+                }
+            }
+        }
     }, false);
 });
 
@@ -369,6 +396,7 @@ $("#clear").click(function() {
   viewer.dataSources.remove(ELEVATION);
   viewer.dataSources.remove(SAT_GPT);
   viewer.dataSources.remove(DIST);
+  viewer.dataSources.remove(FSL_UP);
 });
 
 $("#screenshot").click(function() {
@@ -379,3 +407,4 @@ $("#screenshot").click(function() {
 viewer.zoomTo(EIRP, new Cesium.HeadingPitchRange(40, -90, 9000000));
 var credit = new Cesium.Credit('Catapult', catapult_logo, 'http://sa.catapult.org.uk');
 viewer.scene.frameState.creditDisplay.addDefaultCredit(credit);
+});
