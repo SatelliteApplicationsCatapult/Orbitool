@@ -371,7 +371,6 @@ checkbox1.addEventListener('change', function() {
         // Show if not shown.
         if (!viewer.dataSources.contains(SAT)) {
             viewer.dataSources.add(SAT);
-            // viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40,-90,9000000));
         }
     } else {
         // Hide if currently shown.
@@ -387,7 +386,6 @@ checkboxline.addEventListener('change', function() {
         // Show if not shown.
         if (!viewer.dataSources.contains(SUBSAT)) {
             viewer.dataSources.add(SUBSAT);
-            // viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40,-90,9000000));
         }
     } else {
         // Hide if currently shown.
@@ -403,7 +401,6 @@ checkbox2.addEventListener('change', function() {
         // Show if not shown.
         if (!viewer.dataSources.contains(GW)) {
             viewer.dataSources.add(GW);
-            //viewer.zoomTo(GW, new Cesium.HeadingPitchRange(40,-90,9000000));
         }
     } else {
         // Hide if currently shown.
