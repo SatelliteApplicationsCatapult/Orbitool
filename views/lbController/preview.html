@@ -36,7 +36,7 @@
 <div class="container">
   <div class="row">
     <div class="col-6">
-<div  id="cesiumContainer" style="margin-left:auto; margin-right:auto; width:50%;padding:10px;height:500px;overflow: auto"></div>
+<div  id="cesiumContainer" style="margin-left:auto; margin-right:auto; width:100%;padding:10px;height:500px;overflow: auto"></div>
 </div>
 <script>
 var viewer = new Cesium.Viewer('cesiumContainer', {
@@ -96,7 +96,7 @@ viewer.dataSources.add(SAT);
 viewer.dataSources.add(FOV);
 viewer.dataSources.add(FOV_CIRCLE);
 viewer.dataSources.add(TRSP_FOV_CIRCLE);
-
+viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40, -90, 9000000));
 </script>
 
 <div class="col-6">
