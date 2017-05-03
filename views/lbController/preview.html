@@ -39,10 +39,53 @@
 <div  id="cesiumContainer" style="margin-left:auto; margin-right:auto; width:100%;padding:10px;height:500px;overflow: auto"></div>
 </div>
 <script>
+Cesium.BingMapsApi.defaultKey = '***REMOVED***'
 var viewer = new Cesium.Viewer('cesiumContainer', {
-timeline: false,
-animation: false
+    timeline: false,
+    animation: false,
+    sceneModePicker: false,
+    fullscreenButton: false,
+    homeButton : false,
+    selectionIndicator : false,
+    infoBox : false
+
 });
+
+var scene = viewer.scene;
+var handler;
+
+var entity = viewer.entities.add({
+    label : {
+        show : false,
+        showBackground : true,
+        font : '14px monospace',
+        horizontalOrigin : Cesium.HorizontalOrigin.LEFT,
+        verticalOrigin : Cesium.VerticalOrigin.TOP,
+        pixelOffset : new Cesium.Cartesian2(15, 0)
+    }
+});
+
+// Mouse over the globe to see the cartographic position
+handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+handler.setInputAction(function(movement) {
+    var cartesian = viewer.camera.pickEllipsoid(movement.endPosition, scene.globe.ellipsoid);
+    if (cartesian) {
+        var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+        var longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2);
+        var latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(2);
+
+        entity.position = cartesian;
+        entity.label.show = true;
+        entity.label.text =
+            'Lon: ' + (' ' + longitudeString).slice(-7) + '\u00B0' +
+            '\nLat: ' + ('   ' + latitudeString).slice(-7) + '\u00B0';
+    } else {
+        entity.label.show = false;
+    }
+}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+
+
 var SAT = new Cesium.GeoJsonDataSource();
 SAT.load("{{=URL('lbController', 'get_geojson_sat',args=[request.args(0)])}}").then(function () {
     var entities = SAT.entities.values;
