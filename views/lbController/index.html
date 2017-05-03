@@ -54,12 +54,16 @@
             Begin below
         </h3>
           <div id = "form">
-              <h4>Scenario details</h4>
+              <h4>Input scenario details</h4>
         {{=form}}
-        <p>
-          <a href="{{=URL("static","excel/single_sat_2500_coverage.xlsx")}}" target="_blank">Single Satellite Sample File</a>
-        </p><p>
-          <a href="{{=URL("static","excel/two_sats_6000_coverage.xlsx")}}" target="_blank">Two Satellites Sample File</a>
+              <p> Sample files:</p><p>
+          <a href="{{=URL("static","excel/single_sat_2500_coverage.xlsx")}}" target="_blank">Single Satellite FWD</a>
+        </p>
+              <p>
+          <a href="{{=URL("static","excel/single_sat_RTN_2500_coverage.xlsx")}}" target="_blank">Single Satellite RTN</a>
+      </p>
+              <p>
+          <a href="{{=URL("static","excel/two_sats_6000_coverage.xlsx")}}" target="_blank">Two Satellites FWD</a>
       </p>
       </div></div>
     <div class="col-lg-9" id="image_earth">

@@ -5,6 +5,14 @@
     font-size: 22px;
 }
 
+input {
+    color: black
+}
+
+input.upload {
+    color: white
+}
+
 .navbar-nav {
     float: left;
     margin: 9px;
