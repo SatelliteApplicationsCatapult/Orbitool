@@ -142,7 +142,20 @@ TRSP_FOV_CIRCLE.load("{{=URL('lbController', 'TRSP_FOV_to_JSON',args=[request.ar
     }
 });
 
+
+var GW = new Cesium.GeoJsonDataSource();
+GW.load("{{=URL('lbController', 'get_geojson_gw',args=[request.args(0)])}}").then(function() {
+    var entities = GW.entities.values;
+    for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        entity.billboard = new Cesium.BillboardGraphics({
+            image: "{{=URL("static","images/groundstation.gif")}}", //This image ships with cesium I believe
+        });
+    }
+});
+
 viewer.dataSources.add(SAT);
+viewer.dataSources.add(GW);
 viewer.dataSources.add(FOV);
 viewer.dataSources.add(FOV_CIRCLE);
 viewer.dataSources.add(TRSP_FOV_CIRCLE);
