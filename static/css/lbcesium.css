@@ -63,7 +63,7 @@ html, body, #cesiumContainer {
     color: white;
     top: 5px;
     left: 5px;
-    background: rgba(42, 42, 42, 0.8);
+    background: rgba(141, 187, 187, 0.5);
     padding: 4px;
     border-radius: 4px;
 }
