@@ -1,3 +1,19 @@
+.navbar-inverse {
+    background-color: #8DBBBB;
+    color: white;
+    border-color: #8DBBBB;
+    font-size: 22px;
+}
+
+.navbar-nav {
+    float: left;
+    margin: 9px;
+}
+
+.navbar-inverse .navbar-nav>li>a {
+    color: white;
+}
+
 body {
   background-color: #eeeeee
 }

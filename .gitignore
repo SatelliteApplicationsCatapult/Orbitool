@@ -7,8 +7,6 @@ logs/*
 *.table
 *.log
 *.sqlite
-#Ignore uploaded Excel files
-*.xlsx
 #Ignore Backup files
 *.bak
 *.bk
