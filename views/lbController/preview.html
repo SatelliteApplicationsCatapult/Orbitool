@@ -85,7 +85,6 @@ handler.setInputAction(function(movement) {
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
 
-
 var SAT = new Cesium.GeoJsonDataSource();
 SAT.load("{{=URL('lbController', 'get_geojson_sat',args=[request.args(0)])}}").then(function () {
     var entities = SAT.entities.values;
