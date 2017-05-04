@@ -11,11 +11,13 @@ var performance_maxmin = lbcesium.attr('performance_maxmin');
 var get_performance_json = lbcesium.attr('get_performance_json');
 var json_subsatellite = lbcesium.attr('json_subsatellite');
 
+Cesium.BingMapsApi.defaultKey = '***REMOVED***'
 var viewer = new Cesium.Viewer('cesiumContainer', {
     timeline: false,
-    animation: false
-});
+    animation: false,
+    fullscreenButton: false,
 
+});
 var viewModel = {
     FOVcolors: Cesium.knockout.observable(['735078', '3c8d87', 'd26f52', '923d50', 'FFFFFF', '000000', 'adadad']),
     FOVcolor: "735078",
