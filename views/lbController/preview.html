@@ -206,13 +206,14 @@ viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40, -90, 9000000));
 <div id="tabs-4">
         <h1>Calculations</h1>
         {{=form}}
+        Note that 1) compute sat params is performed on load.
 
 
     <div class = "Bwidget">
       <h1>Actions</h1>
       <button id="run" class="btn">Launch calculation</button>
       <button class="btn" id="processed">
-          Out to Spreadsheet
+          Download spreadsheet
       </button>
 
       <button class="btn" id="cesium">
