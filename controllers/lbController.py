@@ -91,6 +91,19 @@ def preview():
     dbLinkBudget.Calculate.processed.readable = False
     dbLinkBudget.Calculate.processed.writable = False
     dbLinkBudget.Calculate.Job_ID.writable = False
+
+    dbLinkBudget.Calculate.comp_link_budget.readable = False
+    dbLinkBudget.Calculate.comp_link_budget.writable = False
+    dbLinkBudget.Calculate.csn0_up_flag.readable = False
+    dbLinkBudget.Calculate.csn0_up_flag.writable = False
+    dbLinkBudget.Calculate.csi0_up_flag.readable = False
+    dbLinkBudget.Calculate.csi0_up_flag.writable = False
+    dbLinkBudget.Calculate.csim0_flag.readable = False
+    dbLinkBudget.Calculate.csim0_flag.writable = False
+    dbLinkBudget.Calculate.csn0_dn_flag.readable = False
+    dbLinkBudget.Calculate.csn0_dn_flag.writable = False
+    dbLinkBudget.Calculate.csi0_dn_flag.readable = False
+    dbLinkBudget.Calculate.csi0_dn_flag.writable = False
     record = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
     form = SQLFORM(dbLinkBudget.Calculate, record, showid=False,
                    formstyle='table3cols', submit_button='Save')

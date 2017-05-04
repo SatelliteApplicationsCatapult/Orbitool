@@ -16,6 +16,8 @@ var viewer = new Cesium.Viewer('cesiumContainer', {
     timeline: false,
     animation: false,
     fullscreenButton: false,
+    homeButton : false,
+    geocoder: false
 
 });
 var viewModel = {
@@ -23,8 +25,8 @@ var viewModel = {
     FOVcolor: "735078",
     FOValpha: "42",
     perf_alpha: 0.6,
-    hue_scale: 1.0,
-    hue_preset: [0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1],
+    hue_scale: 1.0  ,
+    hue_preset: [1.0,0.9,0.8,0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1],
 };
 Cesium.knockout.track(viewModel);
 var toolbar = document.getElementById('toolbar');
@@ -142,7 +144,7 @@ EIRP.load(get_performance_json).then(function() {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(viewModel.hue_scale * ((EIRPmax - entity.properties.EIRP) / (EIRPmax - EIRPmin)), 1, .5, viewModel.perf_alpha),
+            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((EIRPmax - entity.properties.EIRP) / (EIRPmax - EIRPmin)), 1, .5, viewModel.perf_alpha),
             pixelSize: 8,
             outlineWidth: 0.5,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -151,7 +153,7 @@ EIRP.load(get_performance_json).then(function() {
     Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
         function(newValue) {
             for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(newValue * ((EIRPmax - entities[i].properties.EIRP) / (EIRPmax - EIRPmin)), 1, .5, viewModel.perf_alpha);
+                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((EIRPmax - entities[i].properties.EIRP) / (EIRPmax - EIRPmin)), 1, .5, viewModel.perf_alpha);
             }
         }
     );
@@ -163,7 +165,7 @@ ELEVATION.load(get_performance_json).then(function() {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(viewModel.hue_scale * ((ELEVATIONmax - entity.properties.ELEVATION) / (ELEVATIONmax - ELEVATIONmin)), 1, .5, viewModel.perf_alpha),
+            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((ELEVATIONmax - entity.properties.ELEVATION) / (ELEVATIONmax - ELEVATIONmin)), 1, .5, viewModel.perf_alpha),
             pixelSize: 8,
             outlineWidth: 0.5,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -172,7 +174,7 @@ ELEVATION.load(get_performance_json).then(function() {
     Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
         function(newValue) {
             for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(newValue * ((ELEVATIONmax - entities[i].properties.ELEVATION) / (ELEVATIONmax - ELEVATIONmin)), 1, .5, viewModel.perf_alpha);
+                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((ELEVATIONmax - entities[i].properties.ELEVATION) / (ELEVATIONmax - ELEVATIONmin)), 1, .5, viewModel.perf_alpha);
             }
         }
     );
@@ -184,7 +186,7 @@ SAT_GPT.load(get_performance_json).then(function() {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(viewModel.hue_scale * ((SAT_GPTmax - entity.properties.SAT_GPT) / (SAT_GPTmax - SAT_GPTmin)), 1, .5, viewModel.perf_alpha),
+            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((SAT_GPTmax - entity.properties.SAT_GPT) / (SAT_GPTmax - SAT_GPTmin)), 1, .5, viewModel.perf_alpha),
             pixelSize: 8,
             outlineWidth: 0.5,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -193,7 +195,7 @@ SAT_GPT.load(get_performance_json).then(function() {
     Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
         function(newValue) {
             for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(newValue * ((SAT_GPTmax - entities[i].properties.SAT_GPT) / (SAT_GPTmax - SAT_GPTmin)), 1, .5, viewModel.perf_alpha);
+                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((SAT_GPTmax - entities[i].properties.SAT_GPT) / (SAT_GPTmax - SAT_GPTmin)), 1, .5, viewModel.perf_alpha);
             }
         }
     );
@@ -206,7 +208,7 @@ DIST.load(get_performance_json).then(function() {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(viewModel.hue_scale * ((DISTmax - entity.properties.DIST) / (DISTmax - DISTmin)), 1, .5, viewModel.perf_alpha),
+            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((DISTmax - entity.properties.DIST) / (DISTmax - DISTmin)), 1, .5, viewModel.perf_alpha),
             pixelSize: 8,
             outlineWidth: 0.5,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -215,7 +217,7 @@ DIST.load(get_performance_json).then(function() {
     Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
         function(newValue) {
             for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(newValue * ((DISTmax - entities[i].properties.DIST) / (DISTmax - DISTmin)), 1, .5, viewModel.perf_alpha);
+                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((DISTmax - entities[i].properties.DIST) / (DISTmax - DISTmin)), 1, .5, viewModel.perf_alpha);
             }
         }
     );
@@ -228,7 +230,7 @@ FSL_UP.load(get_performance_json).then(function() {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(viewModel.hue_scale * ((FSL_UPmax - entity.properties.FSL_UP) / (FSL_UPmax - FSL_UPmin)), 1, .5, viewModel.perf_alpha),
+            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((FSL_UPmax - entity.properties.FSL_UP) / (FSL_UPmax - FSL_UPmin)), 1, .5, viewModel.perf_alpha),
             pixelSize: 8,
             outlineWidth: 0.5,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -237,7 +239,7 @@ FSL_UP.load(get_performance_json).then(function() {
     Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
         function(newValue) {
             for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(newValue * ((FSL_UPmax - entities[i].properties.FSL_UP) / (FSL_UPmax - FSL_UPmin)), 1, .5, viewModel.perf_alpha);
+                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((FSL_UPmax - entities[i].properties.FSL_UP) / (FSL_UPmax - FSL_UPmin)), 1, .5, viewModel.perf_alpha);
             }
         }
     );
@@ -252,7 +254,7 @@ FSL_DN.load(get_performance_json).then(function() {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(viewModel.hue_scale * ((FSL_DNmax - entity.properties.FSL_DN) / (FSL_DNmax - FSL_DNmin)), 1, .5, viewModel.perf_alpha),
+            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((FSL_DNmax - entity.properties.FSL_DN) / (FSL_DNmax - FSL_DNmin)), 1, .5, viewModel.perf_alpha),
             pixelSize: 8,
             outlineWidth: 0.5,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -261,7 +263,7 @@ FSL_DN.load(get_performance_json).then(function() {
     Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
         function(newValue) {
             for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(newValue * ((FSL_DNmax - entities[i].properties.FSL_DN) / (FSL_DNmax - FSL_DNmin)), 1, .5, viewModel.perf_alpha);
+                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((FSL_DNmax - entities[i].properties.FSL_DN) / (FSL_DNmax - FSL_DNmin)), 1, .5, viewModel.perf_alpha);
             }
         }
     );
@@ -274,7 +276,7 @@ EFFICIENCY.load(get_performance_json).then(function() {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(viewModel.hue_scale * ((EFFICIENCYmax - entity.properties.EFFICIENCY) / (EFFICIENCYmax - EFFICIENCYmin)), 1, .5, viewModel.perf_alpha),
+            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((EFFICIENCYmax - entity.properties.EFFICIENCY) / (EFFICIENCYmax - EFFICIENCYmin)), 1, .5, viewModel.perf_alpha),
             pixelSize: 8,
             outlineWidth: 0.5,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -283,7 +285,7 @@ EFFICIENCY.load(get_performance_json).then(function() {
     Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
         function(newValue) {
             for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(newValue * ((EFFICIENCYmax - entities[i].properties.EFFICIENCY) / (EFFICIENCYmax - EFFICIENCYmin)), 1, .5, viewModel.perf_alpha);
+                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((EFFICIENCYmax - entities[i].properties.EFFICIENCY) / (EFFICIENCYmax - EFFICIENCYmin)), 1, .5, viewModel.perf_alpha);
             }
         }
     );
@@ -296,7 +298,7 @@ CSIM0.load(get_performance_json).then(function() {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(viewModel.hue_scale * ((CSIM0max - entity.properties.CSIM0) / (CSIM0max - CSIM0min)), 1, .5, viewModel.perf_alpha),
+            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((CSIM0max - entity.properties.CSIM0) / (CSIM0max - CSIM0min)), 1, .5, viewModel.perf_alpha),
             pixelSize: 8,
             outlineWidth: 0.5,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -305,7 +307,7 @@ CSIM0.load(get_performance_json).then(function() {
     Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
         function(newValue) {
             for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(newValue * ((CSIM0max - entities[i].properties.CSIM0) / (CSIM0max - CSIM0min)), 1, .5, viewModel.perf_alpha);
+                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((CSIM0max - entities[i].properties.CSIM0) / (CSIM0max - CSIM0min)), 1, .5, viewModel.perf_alpha);
             }
         }
     );
@@ -318,7 +320,7 @@ CSN0_DN.load(get_performance_json).then(function() {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(viewModel.hue_scale * ((CSIM0max - entity.properties.CSN0_DN) / (CSIM0max - CSN0_DNmin)), 1, .5, viewModel.perf_alpha),
+            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((CSIM0max - entity.properties.CSN0_DN) / (CSIM0max - CSN0_DNmin)), 1, .5, viewModel.perf_alpha),
             pixelSize: 8,
             outlineWidth: 0.5,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -327,7 +329,7 @@ CSN0_DN.load(get_performance_json).then(function() {
     Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
         function(newValue) {
             for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(newValue * ((CSN0_DNmax - entities[i].properties.CSN0_DN) / (CSN0_DNmax - CSN0_DNmin)), 1, .5, viewModel.perf_alpha);
+                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((CSN0_DNmax - entities[i].properties.CSN0_DN) / (CSN0_DNmax - CSN0_DNmin)), 1, .5, viewModel.perf_alpha);
             }
         }
     );
@@ -340,7 +342,7 @@ CSI0_DN.load(get_performance_json).then(function() {
         var entity = entities[i];
         entity.billboard = undefined;
         entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(viewModel.hue_scale * ((CSI0_DNmax - entity.properties.CSI0_DN) / (CSI0_DNmax - CSI0_DNmin)), 1, .5, viewModel.perf_alpha),
+            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((CSI0_DNmax - entity.properties.CSI0_DN) / (CSI0_DNmax - CSI0_DNmin)), 1, .5, viewModel.perf_alpha),
             pixelSize: 8,
             outlineWidth: 0.5,
             scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -349,7 +351,7 @@ CSI0_DN.load(get_performance_json).then(function() {
     Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
         function(newValue) {
             for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(newValue * ((CSI0_DNmax - entities[i].properties.CSI0_DN) / (CSI0_DNmax - CSI0_DNmin)), 1, .5, viewModel.perf_alpha);
+                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((CSI0_DNmax - entities[i].properties.CSI0_DN) / (CSI0_DNmax - CSI0_DNmin)), 1, .5, viewModel.perf_alpha);
             }
         }
     );
