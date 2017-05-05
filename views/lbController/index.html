@@ -3,44 +3,75 @@
 
 {{block header}}
     <header class="container-fluid background">
-      <div class="jumbotron text-center">
-          <h1>
-              Link Budget
-          </h1>
-        {{pass}}
-      </div>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{=URL('static','css/general.css')}}"/>
+        <style>
+            container-fluid main-container {
+                background-color: black;
+            }
+            body {
+                background-color: black;
+                background-image: url({{=URL("static","images/home_image.jpg")}});
+                background-repeat: no-repeat;
+                background-position: right;
+                background-size: contain;
+            }
+
+            * {
+                color: white;
+            }
+            #form {
+                padding-top: 50px;
+            }
+            h4 {
+                font-weight: bold;
+            }
+            .main-container {
+                margin-top: 10%;
+            }
+            a {
+                color: white;
+                text-decoration: none;
+            }
+            #credit {
+                position: fixed;
+                bottom: 25px;
+                right: 25px;
+            }
+        </style>
     </header>
 {{end}}
 
-{{if 'message' in globals():}}
-<h2>{{=message}}</h2>
-<!--<p class="lead">{{=T('How did you get here?')}}</p>>-->
-<p>
-    <br>
-    Click on the <a href=/input>input form</a> at the top to begin.<br>
-    You require an excel file to input data.
-</p>
-{{elif 'content' in globals():}}
-{{=content}}
-{{else:}}
-{{=BEAUTIFY(response._vars)}}
-{{pass}}
-
-<!--{{block right_sidebar}}
-<div class="panel panel-info">
-  <div class="panel-heading"><h3 class="panel-title"><a class="btn-block"
-      href="{{=URL('admin','default','index')}}">
-      <i class="glyphicon glyphicon-cog"></i>
-      {{=T("admin")}}
-    </a></h3></div>
-  <div class="panel-body">
-    {{=T("Don't know what to do?")}}
+{{response.title='Input Form'}}
+{{extend 'layout.html'}}
+<body>
+  <div class="container">
+    <div class= "row">
+      <div class="col-lg-5 col-xs-4">
+          <h3>Orbitool is a 3D visualiser for Satellites.</h3>
+          <h3>It performs link budget calculations and displays the output using cesiumjs.</h3>
+        <h3>
+            Begin below
+        </h3>
+          <div id = "form">
+              <h4>Input scenario details</h4>
+        {{=form}}
+              <p> Sample files:</p><p>
+          <a href="{{=URL("static","excel/single_sat_FWD_2500_coverage.xlsx")}}" target="_blank">Single Satellite FWD</a>
+        </p>
+              <p>
+          <a href="{{=URL("static","excel/single_sat_RTN_2500_coverage.xlsx")}}" target="_blank">Single Satellite RTN</a>
+      </p>
+              <p>
+          <a href="{{=URL("static","excel/two_sats_6000_coverage.xlsx")}}" target="_blank">Two Satellites FWD</a>
+      </p>
+      </div></div>
+    <div class="col-lg-9" id="image_earth">
+    </div>
+    </div>
+    </div>
   </div>
-  <ul class="list-group">
-    <li class="list-group-item">{{=A(T("Online examples"), _href=URL('examples','default','index'))}}</li>
-    <li class="list-group-item"><a href="http://web2py.com">web2py.com</a></li>
-    <li class="list-group-item"><a href="http://web2py.com/book">{{=T('Documentation')}}</a></li>
-  </ul>
-</div>-->
-
-{{end}}
+<footer id = "credit">
+    <img src="{{=URL("static", "images/saWhite.png")}}">
+</footer>
+</body>

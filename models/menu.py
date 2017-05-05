@@ -8,7 +8,7 @@
 #response.logo = A(B('web', SPAN(2), 'py'), XML('&trade;&nbsp;'),
                  # _class="navbar-brand", _href="http://www.web2py.com/",
                   #_id="web2py-logo")
-response.logo = A(IMG(_src=URL('static','images/saWhite.png'),_style="height:40px; width:auto;margin-top: 7px"),_href=URL('index'))
+response.logo = A(IMG(_src=URL('static','images/orbitool_new.png'),_style="height:62px; width:auto;margin: 3px"),_href=URL('index'))
 response.title = request.application.replace('_', ' ').title()
 response.subtitle = ''
 
@@ -31,10 +31,7 @@ response.google_analytics_id = None
 
 response.menu = [
     (T('Home'), False, URL('lbController', 'index'), []),
-    (T('Input Form'), False, URL('lbController', 'input')),
-    (T('Select'), False, URL('lbController', 'select')),
-    (T('About'), False, URL('lbController', 'about')),
-    (T('My Sites'), False, URL('admin', 'default', 'site')),
+    (T('Scenarios'), False, URL('lbController', 'select')),
 
 ]
 
