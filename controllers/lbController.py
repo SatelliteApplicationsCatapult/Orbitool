@@ -39,6 +39,7 @@ def index():
     form = SQLFORM(dbLinkBudget.Job, record, deletable=True,
                    upload=URL('download'), formstyle='table3cols')
     if form.process().accepted:
+        dbLinkBudget.Calculate.insert(Job_ID=form.vars.id)
         session.flash = "Scenario %s - %s has been uploaded!" % (
             form.vars.id, form.vars.job_name)
         session.job = form.vars.id
@@ -345,7 +346,7 @@ def create_download():
     TODO: consider using lists instead of dictionaries so that the download excel is ordered.
     TODO: at RX fields
     """
-    if dbLinkBudget.Calculate(dbLinkBudget.Calculate.id == request.args(0)):
+    if dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == request.args(0)):
         sheets = []
         for table in [dbLinkBudget.VSAT, dbLinkBudget.Gateway, dbLinkBudget.SAT, dbLinkBudget.TRSP,
                       dbLinkBudget.Earth_coord_GW, dbLinkBudget.EARTH_coord_VSAT]:
@@ -365,10 +366,10 @@ def create_download():
         create_saving_worksheet(filepath, sheets[0], "VSAT", sheets[1], "GATEWAY", sheets[2], "SAT", sheets[3], "TRSP",
                                 sheets[4], "EARTH_coord_GW", sheets[5], "EARTH_coord_VSAT")
         stream = open(filepath, 'rb')
-        dbLinkBudget(dbLinkBudget.Calculate.id == request.args(0)).update(
+        dbLinkBudget(dbLinkBudget.Calculate.Job_ID == request.args(0)).update(
             processed_file=dbLinkBudget.Calculate.processed_file.store(stream, filepath))
         redirect(URL('download', args=dbLinkBudget.Calculate(
-            dbLinkBudget.Calculate.id == request.args(0)).processed_file))
+            dbLinkBudget.Calculate.Job_ID == request.args(0)).processed_file))
     else:
         redirect(URL('download', args=dbLinkBudget.Job(
             dbLinkBudget.Job.id == request.args(0)).file_up))
@@ -518,7 +519,7 @@ def run():
     write_dict_to_table(dbLinkBudget.Earth_coord_GW,
                         EARTH_COORD_GW_dict, job_id, dbLinkBudget)
 
-    dbLinkBudget(dbLinkBudget.Calculate.id ==
+    dbLinkBudget(dbLinkBudget.Calculate.Job_ID ==
                  request.args(0)).update(processed=True)
     redirect(URL('preview', args=request.args(0)))
 
