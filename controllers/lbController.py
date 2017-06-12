@@ -429,18 +429,21 @@ def TRSP_FOV_to_JSON():
         SAT_dict, True)
     coordinates = {}
     for SAT_ID in SAT_dict['SAT_ID']:
-        beam_centers_lonlat, beam_contour_ll = display_2D_sat_and_beams_for_cesium(SAT_ID, SAT_dict['SAT_ID'],
+        beam_contour_ll = display_2D_sat_and_beams_for_cesium(SAT_ID, SAT_dict['SAT_ID'],
                                                                                    SAT_dict['PAYLOAD_ID'],
                                                                                    nadir_ecef, pos_ecef,
                                                                                    normal_vector,
+                                                                                   SAT_dict['ROLL']* np.pi/180,
+                                                                                   SAT_dict['PITCH']* np.pi/180,
+                                                                                   SAT_dict['YAW']* np.pi/180,
                                                                                    TRSP_dict['PAYLOAD_ID'],
                                                                                    TRSP_dict[
-                                                                                       'BEAM_TX_CENTER_X_ANT'],
+                                                                                       'BEAM_TX_CENTER_X_ANT']* np.pi/180,
                                                                                    TRSP_dict[
-                                                                                       'BEAM_TX_CENTER_Y_ANT'],
+                                                                                       'BEAM_TX_CENTER_Y_ANT']* np.pi/180,
                                                                                    TRSP_dict[
-                                                                                       'BEAM_TX_CENTER_Z_ANT'],
-                                                                                   TRSP_dict['BEAM_TX_RADIUS'])
+                                                                                       'BEAM_TX_CENTER_Z_ANT']* np.pi/180,
+                                                                                   TRSP_dict['BEAM_TX_RADIUS']* np.pi/180)
         for TRSP_ID in np.arange(0, np.size(beam_contour_ll, 0) / 2):
             coordinates[SAT_ID, TRSP_ID] = []
             lon = beam_contour_ll[2 * TRSP_ID, :]
@@ -496,11 +499,11 @@ def run():
     # ----------------- 3/ Compute RX/TX COV geometric params ----------------
     if element.comp_point_cover:
         EARTH_COORD_VSAT_dict = compute_coverage_points_geo_params(
-            SAT_dict, EARTH_COORD_VSAT_dict)
+            SAT_dict, EARTH_COORD_VSAT_dict, TRSP_dict, 'UP' if element.simulator_mode == 'FWD' else 'DN')
 
     if element.comp_gw_cover:
         EARTH_COORD_GW_dict = compute_coverage_points_geo_params(
-            SAT_dict, EARTH_COORD_GW_dict)
+            SAT_dict, EARTH_COORD_GW_dict, TRSP_dict, 'UP' if element.simulator_mode == 'FWD' else 'DN')
 
     # ----------------- 4/ Compute propag params -------------------
     if element.propa_feeder_link:
