@@ -51,8 +51,7 @@ def compute_sat_ant_gain(az_elev, ant_diam, freq, max_gain, flag_calc_type, thet
     This is just a wrapper that allows to input az-elev arguments for computing antenna gain in a given direction
     '''
 # TODO : ERROR DB AND NO DB
-    values = 0    
-    
+    values = 0
     # compute angle to beam center (since radiation pattern is symmetrical)
     angles_beam = az_elev[1,:] # only elevation is used : assumption that radiation pattern is symmetric
     

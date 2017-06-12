@@ -120,7 +120,6 @@ def delete_row_editablegrid():
     untested as I don't know how to link the delete button to this
     """
     temparray = json.loads(request.post_vars.array)
-    logger.error(temparray)
     if temparray["table"] == "TRSP":
         row = dbLinkBudget(dbLinkBudget.TRSP.id ==
                            temparray["rowid"]["rowId"]).select().first()
@@ -499,12 +498,11 @@ def run():
     # ----------------- 3/ Compute RX/TX COV geometric params ----------------
     if element.comp_point_cover:
         EARTH_COORD_VSAT_dict = compute_coverage_points_geo_params(
-            SAT_dict, EARTH_COORD_VSAT_dict, TRSP_dict, 'UP' if element.simulator_mode == 'FWD' else 'DN')
+            SAT_dict, EARTH_COORD_VSAT_dict, TRSP_dict, 'DN' if element.simulator_mode == 'FWD' else 'UP')
 
     if element.comp_gw_cover:
         EARTH_COORD_GW_dict = compute_coverage_points_geo_params(
             SAT_dict, EARTH_COORD_GW_dict, TRSP_dict, 'UP' if element.simulator_mode == 'FWD' else 'DN')
-
     # ----------------- 4/ Compute propag params -------------------
     if element.propa_feeder_link:
         EARTH_COORD_GW_dict = compute_lkb_propag_params(EARTH_COORD_GW_dict, SAT_dict, TRSP_dict, GW_dict,

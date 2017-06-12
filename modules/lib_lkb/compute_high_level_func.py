@@ -253,14 +253,12 @@ def compute_coverage_points_geo_params(SAT_dict, EARTH_COORD_dict, TRSP_dict, fl
     #                                                    sat_pos_ecef_per_cov_point, \
     #                                                    normal_vect_ecef_per_cov_point)
     #
-
     if (flag_uplink_downlink == 'DN'):
         EARTH_COORD_dict['AZ_ANT_DN'] = az_elev_points[0]
         EARTH_COORD_dict['ELEV_ANT_DN'] = az_elev_points[1]
     else:
         EARTH_COORD_dict['AZ_ANT_UP'] = az_elev_points[0]
         EARTH_COORD_dict['ELEV_ANT_UP'] = az_elev_points[1]
-
     return EARTH_COORD_dict
 
 

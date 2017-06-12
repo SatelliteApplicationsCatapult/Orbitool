@@ -378,6 +378,14 @@ dbLinkBudget.define_table('EARTH_coord_VSAT',
                           Field('FSL_UP', 'double'),
                           Field('SYS_TEMP', 'double'),
                           Field('BEAM_RX_ANT_DIAM', 'double'),
-                          Field('MAX_GAIN_RX', 'double'))
+                          Field('MAX_GAIN_RX', 'double'),
+                          Field('AZ_ANT_UP', 'double'),
+                          Field('ELEV_ANT_UP', 'double'),
+                          Field('AZ_ANT_DN', 'double'),
+                          Field('ELEV_ANT_DN', 'double'),
+                          Field('BEAM_RX_CENTER_AZ_ANT', 'double'),
+                          Field('BEAM_RX_CENTER_EL_ANT', 'double'),
+                          Field('BEAM_TX_CENTER_AZ_ANT', 'double'),
+                          Field('BEAM_TX_CENTER_EL_ANT', 'double'))
 dbLinkBudget.executesql('CREATE INDEX IF NOT EXISTS VSAT_index ON EARTH_coord_VSAT (Job_ID);')
 dbLinkBudget.executesql('CREATE INDEX IF NOT EXISTS GW_index ON Earth_coord_GW (Job_ID);')
