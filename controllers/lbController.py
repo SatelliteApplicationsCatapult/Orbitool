@@ -93,8 +93,6 @@ def preview():
     dbLinkBudget.Calculate.processed.writable = False
     dbLinkBudget.Calculate.Job_ID.writable = False
 
-    dbLinkBudget.Calculate.comp_link_budget.readable = False
-    dbLinkBudget.Calculate.comp_link_budget.writable = False
     dbLinkBudget.Calculate.csn0_up_flag.readable = False
     dbLinkBudget.Calculate.csn0_up_flag.writable = False
     dbLinkBudget.Calculate.csi0_up_flag.readable = False
@@ -521,10 +519,13 @@ def run():
     if element.sat_dwn_perf:
         EARTH_COORD_VSAT_dict = compute_satellite_perfos(
             EARTH_COORD_VSAT_dict, TRSP_dict, 'DN')
-    # else:
-    #    session.flash = "You need to choose a calculation to launch"
-    #    redirect(URL('launch', args=request.args(0)))
-    # at the moment these write to new lines
+    #------------------ 6/ Link Budget
+    if element.comp_link_budget:
+        compute_lkb_perfos(EARTH_COORD_GW_dict, EARTH_COORD_VSAT_dict, GW_dict, VSAT_dict, 'FWD', 'disregard',
+                           'disregard', 'disregard', 'compute', 'disregard')
+
+
+
     write_dict_to_table(dbLinkBudget.TRSP, TRSP_dict, job_id, dbLinkBudget)
     write_dict_to_table(dbLinkBudget.SAT, SAT_dict, job_id, dbLinkBudget)
     write_dict_to_table(dbLinkBudget.EARTH_coord_VSAT,
