@@ -167,16 +167,20 @@ def ajax_to_db():
             row.update_record(TRSP_ID=temparray["value"])
         elif temparray["columnname"] == "PAYLOAD_ID":
             row.update_record(PAYLOAD_ID=temparray["value"])
-        elif temparray["columnname"] == "BEAM_RX_CENTER_AZ_ANT":
-            row.update_record(BEAM_RX_CENTER_AZ_ANT=temparray["value"])
-        elif temparray["columnname"] == "BEAM_RX_CENTER_EL_ANT":
-            row.update_record(BEAM_RX_CENTER_EL_ANT=temparray["value"])
+        elif temparray["columnname"] == "BEAM_RX_CENTER_X_ANT":
+            row.update_record(BEAM_RX_CENTER_X_ANT=temparray["value"])
+        elif temparray["columnname"] == "BEAM_RX_CENTER_Y_ANT":
+            row.update_record(BEAM_RX_CENTER_Y_ANT=temparray["value"])
+        elif temparray["columnname"] == "BEAM_RX_CENTER_Z_ANT":
+            row.update_record(BEAM_RX_CENTER_Z_ANT=temparray["value"])
         elif temparray["columnname"] == "BEAM_RX_RADIUS":
             row.update_record(BEAM_RX_RADIUS=temparray["value"])
-        elif temparray["columnname"] == "BEAM_TX_CENTER_AZ_ANT":
-            row.update_record(BEAM_TX_CENTER_AZ_ANT=temparray["value"])
-        elif temparray["columnname"] == "BEAM_TX_CENTER_EL_ANT":
-            row.update_record(BEAM_TX_CENTER_EL_ANT=temparray["value"])
+        elif temparray["columnname"] == "BEAM_TX_CENTER_X_ANT":
+            row.update_record(BEAM_TX_CENTER_X_ANT=temparray["value"])
+        elif temparray["columnname"] == "BEAM_TX_CENTER_Y_ANT":
+            row.update_record(BEAM_TX_CENTER_Y_ANT=temparray["value"])
+        elif temparray["columnname"] == "BEAM_TX_CENTER_Z_ANT":
+            row.update_record(BEAM_TX_CENTER_Z_ANT=temparray["value"])
         elif temparray["columnname"] == "BEAM_TX_RADIUS":
             row.update_record(BEAM_TX_RADIUS=temparray["value"])
         else:
@@ -203,24 +207,28 @@ def transponder_JSON():
     job_id = request.args(0)
     trsp_table = dbLinkBudget.TRSP
     rows = dbLinkBudget(trsp_table.Job_ID == request.args(0)).select(trsp_table.id, trsp_table.PAYLOAD_ID, trsp_table.TRSP_ID,
-                                                                     trsp_table.BEAM_RX_CENTER_AZ_ANT, trsp_table.BEAM_RX_CENTER_EL_ANT,                                                                trsp_table.BEAM_RX_RADIUS, trsp_table.BEAM_TX_CENTER_AZ_ANT,
-                                                                     trsp_table.BEAM_TX_CENTER_EL_ANT, trsp_table.BEAM_TX_RADIUS)
+                                                                     trsp_table.BEAM_RX_CENTER_X_ANT, trsp_table.BEAM_RX_CENTER_Y_ANT, trsp_table.BEAM_RX_CENTER_Z_ANT,                                                                trsp_table.BEAM_RX_RADIUS, trsp_table.BEAM_TX_CENTER_X_ANT,
+                                                                     trsp_table.BEAM_TX_CENTER_Y_ANT, trsp_table.BEAM_TX_CENTER_Z_ANT, trsp_table.BEAM_TX_RADIUS)
 
     metadata = [
         {"name": "PAYLOAD_ID", "label": "Payload ID",
             "datatype": "double", "editable": "true"},
         {"name": "TRSP_ID", "label": "Transponder ID",
             "datatype": "double", "editable": "true"},
-        {"name": "BEAM_RX_CENTER_AZ_ANT", "label": "Beam RX Center AZ ANT",
+        {"name": "BEAM_RX_CENTER_X_ANT", "label": "Beam RX Center X ANT",
             "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "BEAM_RX_CENTER_EL_ANT", "label": "Beam RX Center EL ANT",
+        {"name": "BEAM_RX_CENTER_Y_ANT", "label": "Beam RX Center Y ANT",
             "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "BEAM_RX_CENTER_Z_ANT", "label": "Beam RX Center Z ANT",
+         "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "BEAM_RX_RADIUS", "label": "Beam RX Radius",
             "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "BEAM_TX_CENTER_AZ_ANT", "label": "Beam TX Center AZ ANT",
+        {"name": "BEAM_TX_CENTER_X_ANT", "label": "Beam TX Center X ANT",
             "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "BEAM_TX_CENTER_EL_ANT", "label": "Beam TX Center EL ANT",
+        {"name": "BEAM_TX_CENTER_Y_ANT", "label": "Beam TX Center Y ANT",
             "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+        {"name": "BEAM_TX_CENTER_Z_ANT", "label": "Beam TX Center Z ANT",
+         "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "BEAM_TX_RADIUS", "label": "Beam TX Radius",
             "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "action", "label": "", "datatype": "html", "editable": 'false'}
@@ -229,11 +237,13 @@ def transponder_JSON():
     data = [{"id": row["id"],
              "values": {"PAYLOAD_ID": row["PAYLOAD_ID"],
                         "TRSP_ID": row["TRSP_ID"],
-                        "BEAM_RX_CENTER_AZ_ANT": row["BEAM_RX_CENTER_AZ_ANT"],
-                        "BEAM_RX_CENTER_EL_ANT": row["BEAM_RX_CENTER_EL_ANT"],
+                        "BEAM_RX_CENTER_X_ANT": row["BEAM_RX_CENTER_X_ANT"],
+                        "BEAM_RX_CENTER_Y_ANT": row["BEAM_RX_CENTER_Y_ANT"],
+                        "BEAM_RX_CENTER_Z_ANT": row["BEAM_RX_CENTER_Z_ANT"],
                         "BEAM_RX_RADIUS": row["BEAM_RX_RADIUS"],
-                        "BEAM_TX_CENTER_AZ_ANT": row["BEAM_TX_CENTER_AZ_ANT"],
-                        "BEAM_TX_CENTER_EL_ANT": row["BEAM_TX_CENTER_EL_ANT"],
+                        "BEAM_TX_CENTER_X_ANT": row["BEAM_TX_CENTER_X_ANT"],
+                        "BEAM_TX_CENTER_Y_ANT": row["BEAM_TX_CENTER_Y_ANT"],
+                        "BEAM_TX_CENTER_Z_ANT": row["BEAM_TX_CENTER_Z_ANT"],
                         "BEAM_TX_RADIUS": row["BEAM_TX_RADIUS"]
                         }} for row in rows]
     return response.json({"metadata": metadata, 'data': data})
@@ -425,9 +435,11 @@ def TRSP_FOV_to_JSON():
                                                                                    normal_vector,
                                                                                    TRSP_dict['PAYLOAD_ID'],
                                                                                    TRSP_dict[
-                                                                                       'BEAM_TX_CENTER_AZ_ANT'],
+                                                                                       'BEAM_TX_CENTER_X_ANT'],
                                                                                    TRSP_dict[
-                                                                                       'BEAM_TX_CENTER_EL_ANT'],
+                                                                                       'BEAM_TX_CENTER_Y_ANT'],
+                                                                                   TRSP_dict[
+                                                                                       'BEAM_TX_CENTER_Z_ANT'],
                                                                                    TRSP_dict['BEAM_TX_RADIUS'])
         for TRSP_ID in np.arange(0, np.size(beam_contour_ll, 0) / 2):
             coordinates[SAT_ID, TRSP_ID] = []
