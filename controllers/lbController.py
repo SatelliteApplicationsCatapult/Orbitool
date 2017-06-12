@@ -207,8 +207,8 @@ def transponder_JSON():
     job_id = request.args(0)
     trsp_table = dbLinkBudget.TRSP
     rows = dbLinkBudget(trsp_table.Job_ID == request.args(0)).select(trsp_table.id, trsp_table.PAYLOAD_ID, trsp_table.TRSP_ID,
-                                                                     trsp_table.BEAM_RX_CENTER_X_ANT, trsp_table.BEAM_RX_CENTER_Y_ANT, trsp_table.BEAM_RX_CENTER_Z_ANT,                                                                trsp_table.BEAM_RX_RADIUS, trsp_table.BEAM_TX_CENTER_X_ANT,
-                                                                     trsp_table.BEAM_TX_CENTER_Y_ANT, trsp_table.BEAM_TX_CENTER_Z_ANT, trsp_table.BEAM_TX_RADIUS)
+                                                                     trsp_table.BEAM_RX_CENTER_X_ANT, trsp_table.BEAM_RX_CENTER_Y_ANT, trsp_table.BEAM_RX_CENTER_Z_ANT, trsp_table.BEAM_RX_RADIUS,                                                                trsp_table.BEAM_RX_RADIUS, trsp_table.BEAM_TX_CENTER_X_ANT,
+                                                                     trsp_table.BEAM_TX_CENTER_X_ANT, trsp_table.BEAM_TX_CENTER_Y_ANT, trsp_table.BEAM_TX_CENTER_Z_ANT, trsp_table.BEAM_TX_RADIUS)
 
     metadata = [
         {"name": "PAYLOAD_ID", "label": "Payload ID",
