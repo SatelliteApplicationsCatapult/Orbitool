@@ -238,9 +238,9 @@ def display_2D_sat_and_beams_for_cesium(SAT_ID, sat_ids, sat_pl_ids, nadir_ecef,
                                         trsp_pl_ids, trsp_rot_x, trsp_rot_y, trsp_rot_z, trsp_beams_radius):
     '''
     display nadir and beam centers and contours of ONE satellite
-    
+
     CAREFUL : SAT_ID is a string !!! Only works for integer sat IDs though
-    
+
     '''
     # first convert to string if not already done the various IDs
     if not (sat_ids.dtype.char == 'S'):
@@ -266,6 +266,9 @@ def display_2D_sat_and_beams_for_cesium(SAT_ID, sat_ids, sat_pl_ids, nadir_ecef,
 
     # extract from TRSP_dict the parameters corresponding to this transponder
     payload_id_of_sat = sat_pl_ids[index_satellite]
+    roll = roll[index_satellite]
+    pitch = pitch[index_satellite]
+    yaw = yaw[index_satellite]
     beam_radius = trsp_beams_radius[trsp_pl_ids == payload_id_of_sat]
     rot_x = trsp_rot_x[trsp_pl_ids == payload_id_of_sat]
     rot_y = trsp_rot_y[trsp_pl_ids == payload_id_of_sat]

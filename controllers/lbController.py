@@ -117,8 +117,15 @@ def delete_row_editablegrid():
     untested as I don't know how to link the delete button to this
     """
     temparray = json.loads(request.post_vars.array)
+    print temparray["rowid"]
     if temparray["table"] == "SAT":
         dbLinkBudget(dbLinkBudget.SAT.id == temparray["rowid"]).delete()
+        print "delete successfull"
+    if temparray["table"] == "GW":
+        dbLinkBudget(dbLinkBudget.Gateway.id == temparray["rowid"]).delete()
+        print "delete successfull"
+    if temparray["table"] == "TRSP":
+        dbLinkBudget(dbLinkBudget.TRSP.id == temparray["rowid"]).delete()
         print "delete successfull"
 
 
@@ -127,7 +134,17 @@ def copy():  # TODO: Add all of the new fields to this list
     if data['table'] == 'SAT':
         row = dbLinkBudget(dbLinkBudget.SAT.id == data['rowid']).select(dbLinkBudget.SAT.ALL).first()
         dbLinkBudget.SAT.insert(**dbLinkBudget.SAT._filter_fields(row))
-        print "copy successfull"
+        print "copy successfull sat"
+    if data['table'] == 'TRSP':
+        row = dbLinkBudget(dbLinkBudget.TRSP.id == data['rowid']).select(dbLinkBudget.TRSP.ALL).first()
+        dbLinkBudget.TRSP.insert(**dbLinkBudget.TRSP._filter_fields(row))
+        print "copy successfull trsp"
+    if data['table'] == 'GW':
+        print data['rowid']
+        row = dbLinkBudget(dbLinkBudget.Earth_coord_GW.id == data['rowid']).select(dbLinkBudget.Earth_coord_GW.ALL).first()
+        print row
+        dbLinkBudget.Earth_coord_GW.insert(**dbLinkBudget.Earth_coord_GW._filter_fields(row))
+        print "copy successfull gw"
 
 
 def ajax_to_db():
