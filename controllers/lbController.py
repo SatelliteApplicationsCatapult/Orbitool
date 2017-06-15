@@ -11,7 +11,6 @@ import logging
 logger = logging.getLogger("web2py.app.myweb2pyapplication")
 logger.setLevel(logging.DEBUG)
 
-import time
 
 from dbhandling import*
 from excelHandling import *
@@ -118,10 +117,17 @@ def delete_row_editablegrid():
     untested as I don't know how to link the delete button to this
     """
     temparray = json.loads(request.post_vars.array)
-    if temparray["table"] == "TRSP":
-        row = dbLinkBudget(dbLinkBudget.TRSP.id ==
-                           temparray["rowid"]["rowId"]).select().first()
-        row.delete()
+    if temparray["table"] == "SAT":
+        dbLinkBudget(dbLinkBudget.SAT.id == temparray["rowid"]).delete()
+        print "delete successfull"
+
+
+def copy():  # TODO: Add all of the new fields to this list
+    data = json.loads(request.post_vars.array)
+    if data['table'] == 'SAT':
+        row = dbLinkBudget(dbLinkBudget.SAT.id == data['rowid']).select(dbLinkBudget.SAT.ALL).first()
+        dbLinkBudget.SAT.insert(**dbLinkBudget.SAT._filter_fields(row))
+        print "copy successfull"
 
 
 def ajax_to_db():
@@ -541,35 +547,6 @@ def run():
 def cesium():
     """    Cesium viewing page cesium.html    """
     return dict(a=1)
-
-
-def copy():  # TODO: Add all of the new fields to this list
-    """
-    Function for a copy button on update.html.
-    It copies the currently viewed data entry to a new row and renames it _copy
-
-    """
-    a = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0))
-    filename, stream = dbLinkBudget.Job.file_up.retrieve(a.file_up)
-    dbLinkBudget.Job.insert(job_name='%s_copy' % (a.job_name),
-                            Date=request.now,
-                            file_up=dbLinkBudget.Job.file_up.store(
-                                stream, filename),  # this needs to be renamed
-                            simulator_mode=a.simulator_mode,
-                            sat_geo_params=a.sat_geo_params,
-                            points2trsp=a.points2trsp,
-                            gw2trsp=a.gw2trsp,
-                            comp_point_cover=a.comp_point_cover,
-                            comp_gw_cover=a.comp_gw_cover,
-                            propa_feeder_link=a.propa_feeder_link,
-                            propa_user_link=a.propa_user_link,
-                            sat_up_perf=a.sat_up_perf,
-                            sat_dwn_perf=a.sat_dwn_perf,
-                            comp_link_budget=a.comp_link_budget,
-                            description=a.description,
-                            processed=a.processed)
-    session.flash = "%s has been copied" % (request.args(0))
-    redirect(URL('select'))
 
 
 def performance_maxmin():
