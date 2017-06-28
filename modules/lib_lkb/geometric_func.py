@@ -10,14 +10,13 @@ import numpy as np
 # -----------------------------------------------------------------------------
 def ll_geoc2ecef(lon_lat_vect):
     '''
-    THis function converts GEOCENTRIC lon/lat points into ECEF (x,y,z) system of coordinates, for X points
-    simultaneously
-    
-    Input  : 
-        - lon_lat_vect : [2,X] array of lon, lat IN DEGREES 
-    Output : 
+    THis function converts GEOCENTRIC lon/lat points into ECEF (x,y,z) system of coordinates, for X points simultaneously
+
+    Input  :
+        - lon_lat_vect : [2,X] array of lon, lat IN DEGREES
+    Output :
         - position of points in ECEF : [3,X] array of (x,y,z)ecef in kms
-    
+
     '''
 
     # 	Constant definitions
@@ -49,19 +48,19 @@ def ecef2ll_geoc(points_list):
     """
     This functions converts ECEF coordinates into lon/lat GEOCENTRIC, under the assumption
     that points are at altitude 0, for X points simultaneously
-    Input  : 
+    Input  :
         - points_list : [3,X] array of (x,y,z)ecef in kms
-    Output : 
+    Output :
         - position of points in lon/lat : [2,X] array of (lon,lat) in degrees
-    
+
     """
 
     x = points_list[0]
     y = points_list[1]
     z = points_list[2]
 
-    lat = np.arcsin(z / np.sqrt(x * x + y * y + z * z))
-    lon = np.arctan2(y, x)
+    lat = np.arcsin(z / np.sqrt(x * x + y * y + z * z)) * 180 / np.pi  # TODO : check degrees vs rad
+    lon = np.arctan2(y, x) * 180 / np.pi
 
     return np.array([lon, lat])
 
@@ -71,20 +70,16 @@ def ecef2ll_geoc(points_list):
 # -----------------------------------------------------------------------------
 
 
-
-
-
 # -----------------------------------------------------------------------------
 def ll_geod2ecef(lon_lat_vect):
     '''
-    THis function converts GEODETIC (WGS84) lon/lat point into ECEF (x,y,z) system of coordinates, for X points
-    simultaneously
-    
-    Input  : 
-        - lon_lat_vect : [2,X] array of lon, lat IN DEGREES 
-    Output : 
+    THis function converts GEODETIC (WGS84) lon/lat point into ECEF (x,y,z) system of coordinates, for X points simultaneously
+
+    Input  :
+        - lon_lat_vect : [2,X] array of lon, lat IN DEGREES
+    Output :
         - position of points in ECEF : [3,X] array of (x,y,z)ecef in kms
-    
+
     '''
 
     # 	Constant definitions
@@ -117,12 +112,12 @@ def ecef2ll_geod(points_list):
     """
     This functions converts ECEF coordinates into lon/lat GEODETIC (WGS 84), under the assumption
     that points are at altitude 0, for X points simultaneously
-    
-    Input  : 
+
+    Input  :
         - points_list : [3,X] array of (x,y,z)ecef in kms
-    Output : 
+    Output :
         - position of points in lon/lat : [2,X] array of (lon,lat) in degrees
-    
+
     """
     RTE = 6378.1370  # e3	#				% equatorial radius RTE (km)
     RTP = 6356.7523  # e3	#			% pole radius RTP (km)
@@ -153,15 +148,369 @@ def ecef2ll_geod(points_list):
 
 
 # -----------------------------------------------------------------------------
+def compute_ecef_2_sc_nominal(vect_ecef, nadir_ecef, sat_pos_ecef, normal_vector):
+    '''
+    Description TODO: switch from ECEF to SC nominal
+
+    Note : also works with one satellite only
+    '''
+
+    # compute matrix to go to SC coord. system
+    # TODO : create optional parameter for matrix (if has been computed already)
+    mat_ecef2sat = compute_ecef_2_sc_rot_matrix(nadir_ecef, sat_pos_ecef,
+                                                normal_vector)  # rotation matrix to go to SAT coordinate system
+
+    vect_to_mult = (vect_ecef.T - sat_pos_ecef.T).T  # apply translation
+    # TODO : change the ugly tranpose (this is to handle 1D vectors)
+
+    return multi_matrix_product(mat_ecef2sat, vect_to_mult)
+
+
+# -----------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
+def compute_coord_system_rotation(points_to_rotate, x_angle, y_angle, z_angle, transpose_flag=False):
+    '''
+    Description : TODO go grom sc_nominal to sc_tilted coord. system
+    '''
+    # TODO : handle here additional cases where we already have a matrix
+    # (therefore no need for angles and no need to compute it)
+    rot_mat = compute_xyz_rot_matrices(x_angle, y_angle, z_angle)
+
+    if transpose_flag:
+        if rot_mat.ndim == 2:
+            rot_mat = rot_mat.T
+        else:
+            rot_mat = np.transpose(rot_mat, (1, 0, 2))
+
+    # matrix product of many matrices
+    points_rotated = multi_matrix_product(rot_mat, points_to_rotate)
+
+    return points_rotated
+
+
+# -----------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
+def compute_az_elev(point_list):
+    """
+    compute azimuth and elevation of X points compared to axis z (0,0,1)
+
+    Input  :
+        - point_list : [3,X] array of (x,y,z) 3D coord values (e.g. (sc) for satellite antenna, e.g. in kms)
+    Output :
+        - [2,X] array of (az, elev)  in radians
+
+    """
+
+    az = np.arctan2(point_list[1], point_list[0])
+
+    elev = np.arccos(point_list[2] / (np.sum(point_list * point_list, axis=0) ** 0.5))
+    #    az = np.arctan2(point_list[0], point_list[2])
+
+    #   treatment of elevations > 180 deg.    ==> should not be useful
+    #   elev(elev > (np.pi/2)) = np.pi - elev(elev > (np.pi/2))
+
+    return np.array([az, elev])
+
+
+# -----------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------
+def az_elev_2_unitary_uvw(az_elev_list):
+    """computes X unitary vectors (u,v,w) from azimuth and elevation
+    Note that vectors have to be unitary since 'depth' info is lost with az_elev
+    Input  :
+        - az_elev_list : [2,X] array of (azimuth, elevation) in radians
+
+    Output :
+        - [3,X] array of unitary vectors (u,v,w) in 3D coord. system (e.g. SC for sat_antenna or ECEF for ground antennas, e.g. in kms)
+    """
+
+    # get back to x,y,z
+
+
+    x = np.tan(az_elev_list[1]) * np.cos(az_elev_list[0])
+    y = np.tan(az_elev_list[1]) * np.sin(az_elev_list[0])
+
+    if np.ndim(az_elev_list) == 1:
+        z = 1.0
+    else:
+        z = np.ones(np.size(az_elev_list, 1)) * 1.0
+
+    return np.array([x, y, z])
+
+
+# ----------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
+def compute_unitary_uvw_2_ecef(vect_sat, nadir_ecef, sat_pos_ecef, normal_vector):
+    '''
+    Description TODO: switch from uvw to ecef
+    '''
+
+    # first compute the UVW vectors coord. in ecef coordinates (note that this is NOT the position in ECEF)
+    vect_unit_ecef = compute_uvw_sc_nominal_2_unitary_ecef(vect_sat, nadir_ecef, sat_pos_ecef, normal_vector)
+
+    # then compute points position by taking the intersection with the ellipsoid (or sphere)
+    # TODO : add option for sphere
+    return compute_intersection_WGS84_ecef(vect_unit_ecef, sat_pos_ecef)
+
+
+# -----------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
+def compute_elev_grd(pos_station, pos_sat):
+    """
+    Computes elevation of X ground stations, pointing at X satellites  :
+    (Note : this works also if only one satellite is used for the X points)
+
+    Input :
+        - pos_station : [3,X] stations positions in 3D coord. system (e.g. ECEF, in kms)
+        - pos_sat : [3,X] OR [3,1] ARRAY of satellite position in 3D coord. system (e.g. ECEF, in kms)
+
+
+    Output :
+        - [X] vector of elevations in degrees (?)
+    """
+
+    # TODO : one day : actually define the coord systen of the user station (note that then the az/elev functions are already defined)
+    vect_dir_sat = (pos_sat.transpose() - pos_station.transpose()).transpose()
+
+    cos_angle = np.atleast_1d(
+        np.sum(pos_station * vect_dir_sat, axis=0) / (np.sum(pos_station * pos_station, axis=0) ** 0.5 * \
+                                                      np.sum(vect_dir_sat * vect_dir_sat, axis=0) ** 0.5))
+
+    # round to avoid extreme cases
+    cos_angle = np.round(cos_angle, decimals=8)
+    #    cos_angle[cos_angle<-1]= -1.0
+
+    arcos_angle = np.arccos(cos_angle)
+    arcos_angle[np.isnan(arcos_angle)] = 0
+
+    elev = (np.pi / 2 - arcos_angle) * 180 / np.pi
+
+    elev[elev < 0] = 0
+
+    return elev
+
+
+# -----------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------
+def compute_beam_contour(beamwidth):
+    """ computes a circle of radius equal to "beamwidth" in radians, around a center
+        Input  :
+
+            - beamwidth : [X] array of beamwidths
+
+        Output :
+            - [2,X] ??? array of (az,elev) points on the circle in radians
+
+    """
+
+    azimuth = np.arange(0, 2 * np.pi, 0.1)
+    elevation = np.ones(np.size(azimuth)) * beamwidth
+
+    beam = np.array([azimuth, elevation])
+
+    # TODO : what is returned eventually ???
+    return beam
+
+
+# ----------------------------------------------------------------------------
+
+
+##----------------------------------------------------------------------------
+# def compute_beam_contour_ab2(ab_angle, beamwidth):
+#    ''' test computation of ab contours
+#    '''
+#
+#    iter_az = np.arange(0,2*np.pi,0.1)
+#    beam = np.zeros([2,np.size(iter_az)])
+#
+#    ctr = 0
+#
+#    for theta in iter_az:
+#        a_angle = np.arctan(np.cos(theta) * np.tan(beamwidth))
+#        b_angle = np.arctan(np.sin(theta) * np.tan(beamwidth))
+#
+#        beam[:,ctr] = np.array([a_angle, b_angle])
+#        ctr += 1
+#
+#    return beam
+##----------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------
+def compute_ecef_to_az_elev(vect_ecef, \
+                            nadir_ecef, \
+                            sat_pos_ecef, \
+                            normal_vector, \
+                            roll=np.nan, \
+                            pitch=np.nan, \
+                            yaw=np.nan, \
+                            Rx=np.nan, \
+                            Ry=np.nan, \
+                            Rz=np.nan \
+                            ):
+    ''' Computes all the steps to convert ecef coord. points to azimuth/elevation in Spacecraft (SC) coord.
+    NOTE : Two intermediate steps are assumed to be already computed :
+        - normal vector of satellite(s) orbit has been computed
+        - nadir of satellite(s) has been computed
+        Inputs :
+             - vect_ecef : [3,X] array representing ECEF coord. in kms of points to convert
+             - sat_pos_ecef : [3, X] array representing ECEF coord. in kms of satellite position
+             - nadir_ecef : [3,X] array representing ECEF coord. in kms of nadir
+             - normal_vector : [3,X] array representing the vector normal to satellite orbit
+             - roll, pitch, yaw : OPTIONAL : [X] vectors of roll, pitch, yaw if any, in radians
+             - Rx, Ry, Rz  :  OPTIONAL : [X] vectors of Rx, Ry, Rz Euler angles to switch to antenna coord. system
+
+        Output :
+             - [2,X] array of az/elev points
+    '''
+
+    # TODO : use different flags and optional params for speed (if matrices are already computed, etc.)
+
+    #     first size arrays as 2D arrays    IS IT USEFUL ? not anymore...
+    #    [vect_ecef, nadir_ecef, normal_vector, sat_pos_ecef] = homogenize_arrays_dimensions([vect_ecef, nadir_ecef, normal_vector, sat_pos_ecef])
+
+    #     Go from ECEF to Nominal SpaceCraft Coord. system (without Roll, Pitch, Yaw)
+    points_sat_coord = compute_ecef_2_sc_nominal(vect_ecef, nadir_ecef, sat_pos_ecef, normal_vector)
+
+    #    Perform roll,pitch, yaw rotation IF any is specified
+    if np.any(np.isnan(roll)):
+        points_sat_coord_tilted = points_sat_coord
+    else:
+        points_sat_coord_tilted = compute_coord_system_rotation(points_sat_coord, roll, pitch, yaw)
+
+    # Perform rotation to go to Antenna Coordinate System IF any is specified (otherwise it is considered that antenna coord. system is the same as the satellite one)
+    if np.any(np.isnan(Rx)):
+        points_ant_coord = points_sat_coord_tilted
+    else:
+        points_ant_coord = compute_coord_system_rotation(points_sat_coord_tilted, Rx, Ry, Rz)
+
+    # Azimuth, elevation of points
+    az_elev_points = compute_az_elev(points_ant_coord)
+
+    return az_elev_points
+
+
+# ----------------------------------------------------------------------------
+
+
+
+
+# ----------------------------------------------------------------------------
+
+def compute_az_elev_to_ecef(az_elev, \
+                            nadir_ecef, \
+                            sat_pos_ecef, \
+                            normal_vector, \
+                            roll=np.nan, \
+                            pitch=np.nan, \
+                            yaw=np.nan, \
+                            Rx=np.nan, \
+                            Ry=np.nan, \
+                            Rz=np.nan \
+                            ):
+    '''
+    This function converts points from (az, elev) coordinates in Spacecraft (SC) coordinate system, back to ECEF
+
+    NOTE : Two intermediate steps are assumed to be already computed :
+        - normal vector of satellite(s) orbit has been computed
+        - nadir of satellite(s) has been computed
+        Inputs :
+             - az_elev : [2,X] array representing azimuth and elevation of points on Earth in (SC) coordinates
+             - sat_pos_ecef : [3,X] array representing ECEF coord. in kms of satellite positions
+             - nadir_ecef : [3,X] array representing ECEF coord. in kms of nadir
+             - normal_vector : [3,X] array representing the vector normal to satellite orbit
+             - roll, pitch, yaw : OPTIONAL : [X] vector of roll, pitch, yaw if any, in radians
+
+        Output :
+            - [3,X] array of positions in ECEF (in kms). Note that points are assumed to be ON EARTH (no altitude)
+
+    '''
+
+    # switch back from az_elev to unitary UVW
+    points_uvw_ant = az_elev_2_unitary_uvw(az_elev)
+
+    #   Perform rotation to go to Antenna Coordinate System IF any is specified (otherwise it is considered that antenna coord. system is the same as the satellite one)
+    if np.any(np.isnan(Rx)):
+        points_uvw_tilted = points_uvw_ant
+    else:
+        points_uvw_tilted = compute_coord_system_rotation(points_uvw_ant, Rx, Ry, Rz, transpose_flag=True)
+
+
+        #    Perform roll,pitch, yaw rotation IF any is specified
+    if np.any(np.isnan(roll)):
+        points_uvw_nominal = points_uvw_tilted
+    else:
+        points_uvw_nominal = compute_coord_system_rotation(points_uvw_tilted, roll, pitch, yaw, transpose_flag=True)
+
+    return compute_unitary_uvw_2_ecef(points_uvw_nominal, nadir_ecef, sat_pos_ecef, normal_vector)
+
+
+# ----------------------------------------------------------------------------
+
+
+# ======================================================================================================================
+#   SECONDARY FUNCTIONS
+# ======================================================================================================================
+
+# ----------------------------------------------------------------------------
+def homogenize_arrays_dimensions(list_variables):
+    '''
+    Checks applied :
+    - transform every array into 2D-array
+    '''
+    counter = 0
+
+    flag_1_elt_is_2D = False
+
+    # check whether one element is in 2D
+    for elt in list_variables:
+        if elt.ndim == 1:
+            flag_1_elt_is_2D = True
+
+    # if one is in 2D, convert the ones not in 2D if any
+    if flag_1_elt_is_2D:
+        for elt in list_variables:
+            if elt.ndim == 1:
+                list_variables[counter] = np.reshape(elt, (np.size(elt), 1))
+            counter += 1
+
+    return list_variables
+
+
+# ----------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------
+def check_array_size_consistency(list_variables):
+    pass
+    # TODO : check all arrays are consistent in terms of size
+
+
+# ----------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
 def compute_sat_position(nadir, distance):
     ''' returns satellite positions of X satellites
-    Input  : 
+    Input  :
        - nadir    :  [3,X] array of (x,y,z)ecef in kms
        - distance :  [X] array of distances in kms
-    Output : 
+    Output :
        - satellite positions as a [3,X] array of (x,y,z)ecef
-    
-    NOTE : if only one distance is given (scalar), then the same distance is applied to all nadir points    
+
+    NOTE : if only one distance is given (scalar), then the same distance is applied to all nadir points
     '''
 
     norm_nadir = np.sum(nadir * nadir, axis=0) ** 0.5
@@ -174,14 +523,14 @@ def compute_sat_position(nadir, distance):
 
 # -----------------------------------------------------------------------------
 def compute_normal_vector(inclination_angle, nadir_ecef, flag_asc_desc):
-    ''' this functions computes, for X satellites, the vector normal to the elliptic plan in the case 
+    ''' this functions computes, for X satellites, the vector normal to the elliptic plan in the case
     of GEO or meridian orbit. It should be seen as a possible help to build satellite characteristics
-    
+
     Input :
         - inclination_angle : [X] array of inclination angles in radians (?)
         - nadir_ecef : [3,X] array of (x,y,z) nadir_ecef
-        - flag_asc_desc : [X] array of flag determining the satellite direction on his orbit ('ASC' or 'DESC')    
-    
+        - flag_asc_desc : [X] array of flag determining the satellite direction on his orbit ('ASC' or 'DESC')
+
     Output :
         - normal vector to the orbit (for each satellite) : [3, X] array of normalized vectors
         Note : output is always a 2D array ([3,X] shape)
@@ -191,8 +540,7 @@ def compute_normal_vector(inclination_angle, nadir_ecef, flag_asc_desc):
     # TODO : works only if flag_asc_desc is embedded in an array
 
 
-    # ------------------ Consistency checks -----------------------------------
-
+    # <><><><><><><><><><><><> Consistency checks <><><><><><><><><><><><><><><><>
     # check if flag_asc_desc is just a string, therefore converts it into numpy array:
     if not (isinstance(flag_asc_desc, np.ndarray)):
         flag_asc_desc = np.array([flag_asc_desc])
@@ -207,7 +555,12 @@ def compute_normal_vector(inclination_angle, nadir_ecef, flag_asc_desc):
         flag_output_1D = True
         nadir_ecef = np.reshape(nadir_ecef, (3, 1))
 
-    # ---------------------------------------------------------------------------
+    # check if all vectors have same size
+    if np.logical_or(np.size(inclination_angle) != np.size(nadir_ecef, 1),
+                     np.size(inclination_angle) != np.size(flag_asc_desc)):
+        raise NameError('parameters do not have all the same size')
+
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
     # first define 90 deg inclination.
     vect = np.zeros((3, np.size(inclination_angle)))
@@ -249,8 +602,7 @@ def compute_normal_vector(inclination_angle, nadir_ecef, flag_asc_desc):
 
         counter += 1
 
-
-    #       #TODO : clean reshaped stuff
+    # #TODO : clean reshaped stuff
     # if vector is 1D then output must 1D as well
     if flag_output_1D:
         vect_result = vect_result.reshape((3,))
@@ -262,158 +614,120 @@ def compute_normal_vector(inclination_angle, nadir_ecef, flag_asc_desc):
 
 
 # -----------------------------------------------------------------------------
-def compute_ecef_2_sc_nominal(vect_ecef, nadir_ecef, sat_pos_ecef, normal_vector):
+def compute_ecef_2_sc_rot_matrix(nadir, sat_pos, normal_vector):
+    ''' This function compute the vectors, in ECEF,  of the spacecraft coordinate system, for X satellites
+    This is used to derive matrices to switch from (ecef) to (sc) coordinates system
+    Note : can be used "vector-like" to compute matrices for several satellites at a time
+    Input  :
+        - nadir : [3,X] array of nadir positions (e.g. in ECEF) in kms
+        - sat_pos : [3,X] array of satellite positions (e.g. in ECEF) in kms
+        - normal_vector : [3,X] vectors normal to the orbital plan of each satellite
+
+    Output :
+        - set of matrices from (ecef) to (sc). Output has the form [3,3,X]
+
     '''
-    Description TODO: switch from ECEF to SC nominal
-    '''
 
-    # compute matrix to go to SC coord. system
-    mat_sat = compute_sc_coord_vectors(nadir_ecef, sat_pos_ecef,
-                                       normal_vector)  # rotation matrix to go to SAT coordinate system
+    z = nadir - sat_pos
+    z = z / np.sum(z * z, axis=0) ** 0.5
 
-    # case with 1D vectors
-    if sat_pos_ecef.ndim == 1:
-        points_sat_coord = np.dot(mat_sat, vect_ecef - sat_pos_ecef)
+    y = normal_vector
+    y = y / np.sum(y * y, axis=0) ** 0.5
 
+    x = np.cross(y, z, axis=0)
+    x = x / np.sum(x * x, axis=0) ** 0.5
 
-    else:
-
-        # matrix calculation (smartly done with code found on Internet :
-        # https://jameshensman.wordpress.com/2010/06/14/multiple-matrix-multiplication-in-numpy/)
-        vect_to_mult = vect_ecef - sat_pos_ecef
-        points_sat_coord = np.einsum('ij...,j...', mat_sat, vect_to_mult).T
-
-    return points_sat_coord
+    return np.array([x, y, z])  # return les 3 vecteurs normalisés, qui
+    # forment aussi la matrice de passage de ECEF vers SC
+    # TODO : make sure form is [3,3,X]
 
 
 # -----------------------------------------------------------------------------
 
 
 # -----------------------------------------------------------------------------
-def compute_sc_nominal_2_sc_tilted(points_sat_coord, roll, pitch, yaw):
-    '''
-    Description : TODO go grom sc_nominal to sc_tilted coord. system
-    '''
-    # Note : minus because the rotation matrix defines rotation and not change of coord. system
-    rpy_mat = compute_roll_pitch_yaw(roll, pitch, yaw)
-    points_sat_coord_tilted = np.einsum('ij...,j...', rpy_mat, points_sat_coord).T
-
-    # <><><><><><> Consistency <><><><><><><>
-    if points_sat_coord.ndim == 1:
-        points_sat_coord_tilted = np.reshape(points_sat_coord_tilted, (3))
-    # <><><><><><> Consistency <><><><><><><>
-
-    return points_sat_coord_tilted
-
-
-# -----------------------------------------------------------------------------
-
-
-# -----------------------------------------------------------------------------
-def compute_az_elev(point_list):
-    """
-    compute azimuth and elevation of X points compared to axis z (0,0,1)
-    
-    Input  : 
-        - point_list : [3,X] array of (x,y,z )3D coord values (e.g. (sc) for satellite antenna, e.g. in kms) 
-    Output : 
-        - [2,X] array of (az, elev)  in radians
-    
-    """
-
-    elev = np.arcsin(point_list[1] / (np.sum(point_list * point_list, axis=0) ** 0.5))
-    az = np.arctan2(point_list[0], point_list[2])
-
-    #    # treatment of elevations > 180 deg.    ==> should not be useful
-    #    elev(elev > (np.pi/2)) = np.pi - elev(elev > (np.pi/2))
-
-    return np.array([az, elev])
-
-
-# -----------------------------------------------------------------------------
-
-# -----------------------------------------------------------------------------
-def compute_elev_grd(pos_station, pos_sat):
-    """
-    Computes elevation of X ground stations, pointing at X satellites  : 
-    (Note : this works also if only one satellite is used for the X points)
-    
+def compute_xyz_rot_matrices(x_angle, y_angle, z_angle):
+    ''' This function computes the x_angle, y_angle, z_angle, rotation matrix, for X satellites simultaneously
+    NOTE : This is a RxRyRz type rotation
     Input :
-        - pos_station : [3,X] stations positions in 3D coord. system (e.g. ECEF, in kms)
-        - pos_sat : [3,X] OR [3,1] ARRAY of satellite position in 3D coord. system (e.g. ECEF, in kms)
-  
-    
-    Output : 
-        - [X] vector of elevations in degrees (?)
-    """
+        - x_angle  : [X] vector or x_angle angles in radian
+        - y_angle : [X] vector or y_angle angles in radian
+        - z_angle   : [X] vector or z_angle angles in radian
 
-    # TODO : merge with function above
-    vect_dir_sat = (pos_sat.transpose() - pos_station.transpose()).transpose()
+    Output :
+        - [3,3,X] array representing the X (3,3) matrices of rotation (one per satellite)
 
-    cos_angle = np.atleast_1d(
-        np.sum(pos_station * vect_dir_sat, axis=0) / (np.sum(pos_station * pos_station, axis=0) ** 0.5 * \
-                                                      np.sum(vect_dir_sat * vect_dir_sat, axis=0) ** 0.5))
+    formula source : https://www.geometrictools.com/Documentation/EulerAngles.pdf
+    '''
 
-    # round to avoid extreme cases
-    cos_angle = np.round(cos_angle, decimals=8)
-    #    cos_angle[cos_angle<-1]= -1.0
+    Cx = np.cos(x_angle)
+    Cy = np.cos(y_angle)
+    Cz = np.cos(z_angle)
 
-    arcos_angle = np.arccos(cos_angle)
-    arcos_angle[np.isnan(arcos_angle)] = 0
+    Sx = np.sin(x_angle)
+    Sy = np.sin(y_angle)
+    Sz = np.sin(z_angle)
 
-    elev = (np.pi / 2 - arcos_angle) * 180 / np.pi
+    #    # RzRyRx
+    #    first_col  =   np.array([Cz * Cy, Cz * Sy * Sx - Sz * Cx, Cz * Sy * Cx + Sz * Sx])
+    #
+    #    second_col =   np.array([Sz * Cy, Sz * Cy * Sx + Cz * Cx, Sz * Sy * Cx - Cz * Sx])
+    #    #TODO : check middle term with website source
+    #
+    #    third_col  =   np.array([-Sy, Cy * Sx, Cy * Cx])
 
-    elev[elev < 0] = 0
+    # RxRyRz
+    first_col = np.array([Cz * Cy, -Cy * Sz, Sy])
 
-    return elev
+    second_col = np.array([Cz * Sx * Sy + Cx * Sz, Cx * Cz - Sx * Sy * Sz, - Cy * Sx])
+    # TODO : check middle term with website source
+
+    third_col = np.array([- Cx * Cz * Sy + Sx * Sz, Cz * Sx + Cx * Sy * Sz, Cx * Cy])
+
+    #    first_col = np.array([np.cos(z_angle) * np.cos(y_angle), np.cos(z_angle) * np.sin(y_angle) * np.sin(x_angle) - np.sin(z_angle) * np.cos(x_angle), np.cos(z_angle) * np.sin(y_angle) * np.cos(x_angle) + np.sin(z_angle) * np.sin(x_angle)])
+    #
+    #    second_col = np.array([np.sin(z_angle) * np.cos(y_angle), np.sin(z_angle) * np.cos(y_angle) * np.sin(x_angle) + np.cos(z_angle) * np.cos(x_angle), np.sin(z_angle) * np.sin(y_angle) * np.cos(x_angle) - np.cos(z_angle) * np.sin(x_angle)])
+    #
+    #    third_col = np.array([-np.sin(y_angle), np.cos(y_angle)*np.sin(x_angle), np.cos(y_angle) * np.cos(x_angle)])
+
+    rotation_mat = np.array([first_col, second_col, third_col])
+
+    return rotation_mat
 
 
 # -----------------------------------------------------------------------------
 
-# ----------------------------------------------------------------------------
-def az_elev_2_unitary_uvw(az_elev_list):
-    """computes X unitary vectors (u,v,w) from azimuth and elevation
-    Note that vectors have to be unitary since 'depth' info is lost with az_elev
-    Input  : 
-        - az_elev_list : [2,X] array of (azimuth, elevation) in radians
-        
-    Output : 
-        - [3,X] array of unitary vectors (u,v,w) in 3D coord. system (e.g. SC for sat_antenna or ECEF for ground
-        antennas, e.g. in kms)
-    """
 
-    # get back to x,y,z
-    z = 1
-    x = np.tan(az_elev_list[0])
-    y = np.tan(az_elev_list[1]) * np.sqrt(x ** 2 + z ** 2)
-
-    # norm the vector
-    norm_xyz = (x ** 2 + y ** 2 + z ** 2) ** 0.5
-    x = x / norm_xyz
-    y = y / norm_xyz
-    z = z / norm_xyz
-
-    return np.array([x, y, z])
+# -----------------------------------------------------------------------------
+def multi_matrix_product(rot_mat, points_to_rotate):
+    '''
+    This function applies one or many rotation matrices onto points to rotate
+    (simple numpy matrix product cannot be directly applied)
+    description to be enhanced
+    '''
+    return np.einsum('ij...,j...', rot_mat, points_to_rotate).T  # TODO : rethink and remove final tranpose
 
 
-# ----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
+
 
 # ----------------------------------------------------------------------------
 def compute_intersection_WGS84_ecef(vectors, sat_pos):
     """ computes intersection of a line (defined by directing vector in ECEF coord. system, starting from a satellite)
     with the WGS84 ellipsoid
     Note : This is for X lines with X satellites, but works also if only one satellite is used (broadcasting)
-    
-    Input : 
+
+    Input :
         - vectors : [3,X] array of (x,y,z)ecef vectors (e.g. unitary vectors)
         - sat_pos : [3,X] array of (x,y,z)ecef satellite positions in kms
-    
+
     Output :
         - [3,X] array of (x,y,z)ecef points on WGS 84 ellipsoid in kms
     """
 
     RTE_2 = 6378.1370 ** 2  # % equatorial radius RTE (km)
-    RTP_2 = 6356.7523 ** 2  # % pole radius RTP (km)
+    RTP_2 = RTE_2  # 6356.7523**2	#			% pole radius RTP (km)
 
     # Intersection between line and ellipsoide consists in solving a 2nd degree equation
 
@@ -435,16 +749,115 @@ def compute_intersection_WGS84_ecef(vectors, sat_pos):
 # ----------------------------------------------------------------------------
 
 
+
+# -----------------------------------------------------------------------------
+def compute_uvw_sc_nominal_2_unitary_ecef(vect_sat, nadir_ecef, sat_pos_ecef, normal_vector):
+    '''
+    Description TODO: switch from SC nominal to unitary ECEF
+
+    '''
+    # TODO : perform the checks
+
+    # compute matrix to go to SC coord. system
+    # TODO : create optional parameter for matrix (if has been computed already)
+    mat_ecef2sat = compute_ecef_2_sc_rot_matrix(nadir_ecef, sat_pos_ecef,
+                                                normal_vector)  # rotation matrix to go to SAT coordinate system
+
+    if np.ndim(mat_ecef2sat) == 3:
+        mat_sat_2_ecef = np.transpose(mat_ecef2sat, (1, 0, 2))
+    else:
+        mat_sat_2_ecef = np.transpose(mat_ecef2sat)
+
+    return multi_matrix_product(mat_sat_2_ecef, vect_sat)
+
+
+# -----------------------------------------------------------------------------
+
+
+################################################################################
+# TEST
+##################################################################################
+
+
 # ----------------------------------------------------------------------------
-def compute_beam_contour(az_elev, beamwidth):
-    """ computes a circle of radius equal to "beamwidth" in radians, around a center 
-        Input  : 
+def a_b_2_unitary_uvw(ab_list):
+    """computes X unitary vectors (u,v,w) from azimuth and elevation
+    Note that vectors have to be unitary since 'depth' info is lost with az_elev
+    Input  :
+        - az_elev_list : [2,X] array of (azimuth, elevation) in radians
+
+    Output :
+        - [3,X] array of unitary vectors (u,v,w) in 3D coord. system (e.g. SC for sat_antenna or ECEF for ground antennas, e.g. in kms)
+    """
+
+    # get back to x,y,z
+
+
+
+    if np.ndim(ab_list) == 1:
+        z = 1.0
+    else:
+        z = np.ones(np.size(ab_list, 1)) * 1.0
+
+    # x = np.tan(ab_list[1])
+    #    y = np.tan(ab_list[0]) * np.sqrt(x**2 + z**2)
+
+    y = np.tan(ab_list[0])
+    x = np.tan(ab_list[1]) * np.sqrt(y ** 2 + z ** 2)
+
+    #    x = np.cos(az_elev_list[1]) * np.sin(az_elev_list[0])
+    #    y = np.sin(az_elev_list[1])
+    #    z = np.cos(az_elev_list[1]) * np.cos(az_elev_list[0])
+
+
+
+    #     norm the vector
+    #    norm_xyz = (x**2+y**2+z**2)**0.5
+    #    x = x/norm_xyz
+    #    y = y/norm_xyz
+    #    z = z/norm_xyz
+    #
+    return np.array([x, y, z])
+
+
+# ----------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
+def compute_sat_2_ab(point_list):
+    """
+    compute azimuth and elevation of X points compared to axis z (0,0,1)
+
+    Input  :
+        - point_list : [3,X] array of (x,y,z) 3D coord values (e.g. (sc) for satellite antenna, e.g. in kms)
+    Output :
+        - [2,X] array of (az, elev)  in radians
+
+    """
+
+    #    elev = np.arcsin(point_list[0] / (np.sum(point_list*point_list,axis=0)**0.5))
+    elev = np.arcsin(point_list[1] / (np.sum(point_list * point_list, axis=0) ** 0.5))
+    az = np.arctan2(point_list[0], point_list[2])
+    #    az = np.arctan2(point_list[1], point_list[2])
+
+    #   treatment of elevations > 180 deg.    ==> should not be useful
+    #   elev(elev > (np.pi/2)) = np.pi - elev(elev > (np.pi/2))
+
+    return np.array([az, elev])
+
+
+# -----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+def compute_beam_contour_ab(ab_vect, beamwidth):
+    """ computes a circle of radius equal to "beamwidth" in radians, around a center
+        Input  :
             - az_elev : [2,X] array of (azimuth, elevation) in radians (?)
             - beamwidth : [X] array of beamwidths
-            
+
         Output :
             - [2,X] ??? array of (az,elev) points on the circle in radians
-            
+
     """
     iter_vect = np.arange(0, 2 * np.pi, 0.1)
     #    iter_vect = np.arange(0,0.1,0.1)
@@ -452,284 +865,12 @@ def compute_beam_contour(az_elev, beamwidth):
     ctr = 0
 
     for theta in iter_vect:
-        coord_a = az_elev[0] + beamwidth * np.cos(theta)
-        coord_b = az_elev[1] + beamwidth * np.sin(theta)
+        coord_a = ab_vect[0] + beamwidth * np.cos(theta)
+        coord_b = ab_vect[1] + beamwidth * np.sin(theta)
 
         beam[:, ctr] = np.array([coord_a, coord_b])
         ctr += 1
 
     # TODO : what is returned eventually ???
     return beam
-
-
-# ----------------------------------------------------------------------------
-
-
-
-
-# ----------------------------------------------------------------------------
-def compute_ecef_to_az_elev(vect_ecef, \
-                            nadir_ecef, \
-                            sat_pos_ecef, \
-                            normal_vector, \
-                            roll=np.nan, \
-                            pitch=np.nan, \
-                            yaw=np.nan \
-                            ):
-    ''' Computes all the steps to convert ecef coord. points to azimuth/elevation in Spacecraft (SC) coord.
-    NOTE : Two intermediate steps are assumed to be already computed :
-        - normal vector of satellite(s) orbit has been computed
-        - nadir of satellite(s) has been computed
-        Inputs : 
-             - vect_ecef : [3,X] array representing ECEF coord. in kms of points to convert
-             - sat_pos_ecef : [3, X] array representing ECEF coord. in kms of satellite position
-             - nadir_ecef : [3,X] array representing ECEF coord. in kms of nadir
-             - normal_vector : [3,X] array representing the vector normal to satellite orbit
-             - roll, pitch, yaw : OPTIONAL : [X] vector of roll, pitch, yaw if any, in radians
-        
-        Output : 
-             - [2,X] array of az/elev points
-    '''
-
-    #     first size arrays as 2D arrays
-    [vect_ecef, nadir_ecef, normal_vector, sat_pos_ecef] = resize_arrays(
-        [vect_ecef, nadir_ecef, normal_vector, sat_pos_ecef])
-
-    #     Go from ECEF to Nominal SpaceCraft Coord. system (without Roll, Pitch, Yaw)
-    points_sat_coord = compute_ecef_2_sc_nominal(vect_ecef, nadir_ecef, sat_pos_ecef, normal_vector)
-
-    ##     compute matrix to go to SC coord. system
-    #    mat_sat = compute_sc_coord_vectors(nadir_ecef, sat_pos_ecef, normal_vector) # rotation matrix to go to SAT
-    # coordinate system
-    #
-    #
-    ##    # case with 1D vectors
-    #    if sat_pos_ecef.ndim == 1:
-    #        #TODO : is this sufficient to cover all dimension cases ?
-    #        points_sat_coord = np.dot(mat_sat, vect_ecef-np.atleast_2d(sat_pos_ecef).T)
-    ##        roll = np.zeros(np.size(points_sat_coord)/3)
-    ##        pitch = np.zeros(np.size(points_sat_coord)/3)
-    ##        yaw = np.zeros(np.size(points_sat_coord)/3)
-    ###        rpy_mat = compute_roll_pitch_yaw(points_sat_coord, roll, pitch, yaw)
-    ###        points_sat_coord_tilted = np.dot(rpy_mat,points_sat_coord)
-    #
-    #    else:
-    #
-    #        # matrix calculation (smartly done with code found on Internet :
-    # https://jameshensman.wordpress.com/2010/06/14/multiple-matrix-multiplication-in-numpy/)
-    #        #TODO : replace with :
-    #        # vect_ecef_bis = vect_ecef - sat_pos_ecef
-    #        # points_sat_coord = np.einsum('ij...,j...',mat_sat,vect_to_mult)
-    #        mat_to_use = np.transpose(mat_sat,(2,0,1))
-    #        vect_ecef_bis = vect_ecef - sat_pos_ecef
-    #        vect_ecef_bis = vect_ecef_bis.transpose()
-    #        vect_ecef_bis = vect_ecef_bis.reshape(np.size(nadir_ecef)/3,3,1)
-    #        points_sat_coord = np.sum(np.transpose(mat_to_use,(0,2,1)).reshape(np.size(nadir_ecef,1),3,3,
-    # 1) * vect_ecef_bis.reshape(np.size(nadir_ecef,1),3,1,1),-3)
-    #        points_sat_coord = points_sat_coord.reshape(np.size(nadir_ecef,1),3).transpose()
-
-    # Perform roll,pitch, yaw rotation
-    if np.any(np.isnan(roll)):
-        points_sat_coord_tilted = points_sat_coord
-    else:
-        points_sat_coord_tilted = compute_sc_nominal_2_sc_tilted(points_sat_coord, roll, pitch, yaw)
-
-    # Azimuth, elevation of points and beam centers
-    az_elev_points = compute_az_elev(points_sat_coord_tilted)
-
-    return az_elev_points
-
-
-# ----------------------------------------------------------------------------
-
-
-
-
-# ----------------------------------------------------------------------------
-
-def compute_az_elev_to_ecef(az_elev, \
-                            nadir_ecef, \
-                            sat_pos_ecef, \
-                            normal_vector, \
-                            roll=np.nan, \
-                            pitch=np.nan, \
-                            yaw=np.nan \
-                            ):
-    ''' 
-    This function converts points from (az, elev) coordinates in Spacecraft (SC) coordinate system, back to ECEF    
-
-    NOTE : Two intermediate steps are assumed to be already computed :
-        - normal vector of satellite(s) orbit has been computed
-        - nadir of satellite(s) has been computed
-        Inputs : 
-             - az_elev : [2,X] array representing azimuth and elevation of points on Earth in (SC) coordinates
-             - sat_pos_ecef : [3,X] array representing ECEF coord. in kms of satellite positions
-             - nadir_ecef : [3,X] array representing ECEF coord. in kms of nadir
-             - normal_vector : [3,X] array representing the vector normal to satellite orbit
-             - roll, pitch, yaw : OPTIONAL : [X] vector of roll, pitch, yaw if any, in radians
-    
-        Output :
-            - [3,X] array of positions in ECEF (in kms). Note that points are assumed to be ON EARTH (no altitude)
-    
-    '''
-
-    # compute matrix to go to SC coord. system
-    mat_sat = compute_sc_coord_vectors(nadir_ecef, sat_pos_ecef,
-                                       normal_vector)  # rotation matrix to go to SAT coordinate system
-
-    # case with 1D vectors
-    if nadir_ecef.ndim == 1:
-
-        uvw = az_elev_2_unitary_uvw(az_elev)
-
-        if np.any(np.isnan(roll)):
-            uvw_untilted = uvw
-        else:
-            rpy_mat = compute_roll_pitch_yaw(-roll, -pitch, -yaw)
-            uvw_untilted = np.dot(np.transpose(rpy_mat, (1, 0, 2)), uvw)
-
-        ecef_unit = np.dot(mat_sat.transpose(), uvw_untilted)  # + np.array([sat_pos]).transpose()
-        ecef_unit = ecef_unit / sum(ecef_unit * ecef_unit) ** 0.5
-        points_ecef = compute_intersection_WGS84_ecef(ecef_unit.transpose(), sat_pos_ecef)
-
-    else:
-
-        vect_uvw = az_elev_2_unitary_uvw(az_elev)
-
-        if np.any(np.isnan(roll)):
-            vect_uvw_untilted = vect_uvw
-        else:
-            rpy_mat = compute_roll_pitch_yaw(-roll, -pitch, -yaw)
-            # transpose matrix of RPY
-            rpy_mat = np.transpose(rpy_mat, (1, 0, 2))
-            vect_uvw_untilted = np.einsum('ij...,j...', rpy_mat, vect_uvw).T
-
-        # transpose to go from SAT to ECEF
-        mat_sat = np.transpose(mat_sat, (1, 0, 2))
-
-        # matrix calculation (smartly done with code found on Internet)
-        # WARNING : the following only works with 2D-defined vectors ! 
-        mat_to_use = np.transpose(mat_sat, (2, 0, 1))
-        vect_uvw_untilted = vect_uvw_untilted.transpose()
-
-        vect_uvw_untilted = vect_uvw_untilted.reshape(np.size(nadir_ecef) / 3, 3, 1)
-        points_ecef_unit = np.sum(
-            np.transpose(mat_to_use, (0, 2, 1)).reshape(np.size(nadir_ecef, 1), 3, 3, 1) * vect_uvw_untilted.reshape(
-                np.size(nadir_ecef, 1), 3, 1, 1), -3)
-        points_ecef_unit = points_ecef_unit.reshape(np.size(nadir_ecef, 1), 3).transpose()
-
-        # compute intersection with WGS 84
-        points_ecef = compute_intersection_WGS84_ecef(points_ecef_unit, sat_pos_ecef)
-
-    return points_ecef
-
-
-# ----------------------------------------------------------------------------
-
-
-# ----------------------------------------------------------------------------
-def translate_az_elev_sc_to_az_elev_ant(az_elev_beam_centers, az_elev_points):
-    ''' This function switches from (A,B)SC to (A,B)ANT coordinate system, by setting the center of the
-    set of coordinates, which is the satellite nadir in the case of SC, to the center of the beam (which is the
-    center of
-    the ANT cood. system). This is a simple translation. 
-    Note : the function is vectorized for improved fastness'''
-    return az_elev_points - az_elev_beam_centers
-
-
-# ----------------------------------------------------------------------------
-
-
-# ----------------------------------------------------------------------------
-def translate_az_elev_ant_to_az_elev_sc(az_elev_beam_centers, az_elev_points):
-    ''' This function switches from (A,B)ANT to (A,B)SC coordinate system. see opposite function (
-    translate_az_elev_sc_to_az_elev_ant)
-    for more explanations'''
-    return az_elev_points + az_elev_beam_centers
-
-
-# ----------------------------------------------------------------------------
-
-# ======================================================================================================================
-#   SECONDARY FUNCTIONS
-# ======================================================================================================================
-
-# ----------------------------------------------------------------------------
-def resize_arrays(list_variables):
-    '''
-    Checks applied :
-    - transform every array into 2D-array
-    '''
-    counter = 0
-    for elt in list_variables:
-        if elt.ndim == 1:
-            list_variables[counter] = np.reshape(elt, (np.size(elt), 1))
-        counter += 1
-
-    return list_variables
-
-
-# ----------------------------------------------------------------------------
-
-# -----------------------------------------------------------------------------
-def compute_sc_coord_vectors(nadir, sat_pos, normal_vector):
-    ''' This function compute the vectors, in ECEF,  of the spacecraft coordinate system, for X satellites
-    This is used to derive matrices to switch from (ecef) to (sc) coordinates system
-    Note : can be used "vector-like" to compute matrices for several satellites at a time
-    Input  : 
-        - nadir : [3,X] array of nadir positions (e.g. in ECEF) in kms
-        - sat_pos : [3,X] array of satellite positions (e.g. in ECEF) in kms
-        - normal_vector : [3,X] vectors normal to the orbital plan of each satellite
-    
-    Output : 
-        - set of matrices from (ecef) to (sc). Output has the form [3,3,X]
-    
-    '''
-
-    z = nadir - sat_pos
-    z = z / np.sum(z * z, axis=0) ** 0.5
-
-    y = normal_vector
-    y = y / np.sum(y * y, axis=0) ** 0.5
-
-    x = np.cross(y, z, axis=0)
-    x = x / np.sum(x * x, axis=0) ** 0.5
-
-    return np.array([x, y, z])  # return les 3 vecteurs normalisés, qui
-    # forment aussi la matrice de passage de ECEF vers SC
-    # TODO : make sure form is [3,3,X]
-
-
-# -----------------------------------------------------------------------------
-
-
-# -----------------------------------------------------------------------------
-def compute_roll_pitch_yaw(roll, pitch, yaw):
-    ''' This function computes the roll, pitch, yaw, rotation matrix, for X satellites simultaneously
-    
-    Input :
-        - roll  : [X] vector or roll angles in radian
-        - pitch : [X] vector or pitch angles in radian
-        - yaw   : [X] vector or yaw angles in radian
-        
-    Output :
-        - [3,3,X] array representing the X (3,3) matrices of rotation (one per satellite)
-    
-    
-    '''
-
-    first_col = np.array(
-        [np.cos(yaw) * np.cos(pitch), np.cos(yaw) * np.sin(pitch) * np.sin(roll) - np.sin(yaw) * np.cos(roll),
-         np.cos(yaw) * np.sin(pitch) * np.cos(roll) + np.sin(yaw) * np.sin(roll)])
-
-    second_col = np.array(
-        [np.sin(yaw) * np.cos(pitch), np.sin(yaw) * np.cos(pitch) * np.sin(roll) + np.cos(yaw) * np.cos(roll),
-         np.sin(yaw) * np.sin(pitch) * np.cos(roll) - np.cos(yaw) * np.sin(roll)])
-
-    third_col = np.array([-np.sin(pitch), np.cos(pitch) * np.sin(roll), np.cos(pitch) * np.cos(roll)])
-
-    rotation_mat = np.array([first_col, second_col, third_col])
-
-    return rotation_mat
-
-# -----------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------

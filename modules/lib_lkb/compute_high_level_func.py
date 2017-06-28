@@ -61,6 +61,7 @@ def compute_transponder_assignment(EARTH_COORD_dict, SAT_dict, TRSP_dict, flag_f
     ''' This function wraps the function allowing to assign a transponder to each point on Earth
     '''
 
+    # first select the right transponders depending on FWD_RTN
     if (flag_fwd_return == 'FWD'):
 
         mask_trsp_to_use = (TRSP_dict['FWD_RTN_FLAG'] == 'FWD')
@@ -70,12 +71,12 @@ def compute_transponder_assignment(EARTH_COORD_dict, SAT_dict, TRSP_dict, flag_f
         mask_trsp_to_use = (TRSP_dict['FWD_RTN_FLAG'] == 'RTN')
 
     if (flag_uplink_downlink == 'UP'):
-        az_beam_ctrs = TRSP_dict['BEAM_RX_CENTER_AZ_ANT'][mask_trsp_to_use] * np.pi / 180
-        elev_beam_ctrs = TRSP_dict['BEAM_RX_CENTER_EL_ANT'][mask_trsp_to_use] * np.pi / 180
+        az_beam_ctrs = TRSP_dict['BEAM_RX_CENTER_Y_ANT'][mask_trsp_to_use] * -1 * np.pi / 180
+        elev_beam_ctrs = TRSP_dict['BEAM_RX_CENTER_X_ANT'][mask_trsp_to_use] * np.pi / 180
 
     else:
-        az_beam_ctrs = TRSP_dict['BEAM_TX_CENTER_AZ_ANT'][mask_trsp_to_use] * np.pi / 180
-        elev_beam_ctrs = TRSP_dict['BEAM_TX_CENTER_EL_ANT'][mask_trsp_to_use] * np.pi / 180
+        az_beam_ctrs = TRSP_dict['BEAM_TX_CENTER_Y_ANT'][mask_trsp_to_use] * -1 * np.pi / 180
+        elev_beam_ctrs = TRSP_dict['BEAM_TX_CENTER_X_ANT'][mask_trsp_to_use] * np.pi / 180
 
     # we only select here the satellites that are not considered as interferers
     mask_no_interf = (SAT_dict['INTERF_FLAG'] == 'NO')
@@ -111,23 +112,30 @@ def compute_transponder_assignment(EARTH_COORD_dict, SAT_dict, TRSP_dict, flag_f
                                                       trsp_el_ant=elev_beam_ctrs, \
                                                       trsp_id=TRSP_dict['TRSP_ID'], \
                                                       trsp_pl_id=TRSP_dict['PAYLOAD_ID'])
+
+    #    assign_transponder_test(vect_ecef, \
+    #                            pos, \
+    #                            nadir_ecef, \
+    #                            normal_vector, \
+    #                            SAT_dict['SAT_ID'][mask_no_interf], \
+    #                            sat_pl_id = SAT_dict['PAYLOAD_ID'][mask_no_interf], \
+    #                            trsp_x_angle = TRSP_dict['PAYLOAD_ID'], \
+    #                            trsp_y_angle = np.array([0.0]), \
+    #                            trsp_z_angle = np.array([0.0]), \
+    #                            trsp_id = TRSP_dict['TRSP_ID'], \
+    #                            trsp_pl_id = TRSP_dict['PAYLOAD_ID'])
     #    EARTH_COORD_dict['SAT_ID'], EARTH_COORD_dict['TRSP_ID'], el    =   assign_transponder2(vect_ecef, \
     #                                                                                      pos, \
     #                                                                                      SAT_dict['SAT_ID'], \
     #                                                                                      trsp_az_ant = az_beam_ctrs, \
-    #                                                                                      trsp_el_ant =
-    # elev_beam_ctrs, \
-    #                                                                                      trsp_id = TRSP_dict[
-    # 'TRSP_ID'])
-    #    EARTH_COORD_dict['SAT_ID'], EARTH_COORD_dict['TRSP_ID']    =   assign_transponder(EARTH_COORD_dict['LON'],
-    # EARTH_COORD_dict['LAT'], \
+    #                                                                                      trsp_el_ant = elev_beam_ctrs, \
+    #                                                                                      trsp_id = TRSP_dict['TRSP_ID'])
+    #    EARTH_COORD_dict['SAT_ID'], EARTH_COORD_dict['TRSP_ID']    =   assign_transponder(EARTH_COORD_dict['LON'], EARTH_COORD_dict['LAT'], \
     #                                                                                      pos, \
-    #                                                                                      nadir_ecef, normal_vector,
-    #  SAT_dict['SAT_ID'], \
-    #                                                                                      az_beam_ctrs,
-    # elev_beam_ctrs, TRSP_dict['TRSP_ID'])
+    #                                                                                      nadir_ecef, normal_vector, SAT_dict['SAT_ID'], \
+    #                                                                                      az_beam_ctrs, elev_beam_ctrs, TRSP_dict['TRSP_ID'])
 
-    # add payload id                                                            
+    # add payload id
     EARTH_COORD_dict['PAYLOAD_ID'] = db_join(EARTH_COORD_dict, SAT_dict, 'PAYLOAD_ID', 'SAT_ID')
 
     return EARTH_COORD_dict
@@ -138,7 +146,7 @@ def compute_transponder_assignment(EARTH_COORD_dict, SAT_dict, TRSP_dict, flag_f
 
 
 ############################################################################################################################
-def compute_coverage_points_geo_params(SAT_dict, EARTH_COORD_dict):
+def compute_coverage_points_geo_params(SAT_dict, EARTH_COORD_dict, TRSP_dict, flag_uplink_downlink):
     ''' This function computes geometric parameters of coverage points,
     that are needed for most calculations :
     - coord
@@ -146,7 +154,20 @@ def compute_coverage_points_geo_params(SAT_dict, EARTH_COORD_dict):
     - elevation
     -
     '''
+
+    #    # first select the right transponders depending on FWD_RTN
+    #    if (flag_fwd_return == 'FWD'):
+    #
+    #        mask_trsp_to_use = (TRSP_dict['FWD_RTN_FLAG'] == 'FWD')
+    #
+    #    else:
+    #
+    #        mask_trsp_to_use = (TRSP_dict['FWD_RTN_FLAG'] == 'RTN')
+    #
+
+
     vect_ecef = ll_geod2ecef(np.array([EARTH_COORD_dict['LON'], EARTH_COORD_dict['LAT']]))
+
     EARTH_COORD_dict['POS_X_ECEF'] = vect_ecef[0]
     EARTH_COORD_dict['POS_Y_ECEF'] = vect_ecef[1]
     EARTH_COORD_dict['POS_Z_ECEF'] = vect_ecef[2]
@@ -168,8 +189,9 @@ def compute_coverage_points_geo_params(SAT_dict, EARTH_COORD_dict):
                                                           EARTH_COORD_dict['SAT_POS_X_ECEF'], \
                                                           EARTH_COORD_dict['SAT_POS_Y_ECEF'], \
                                                           EARTH_COORD_dict['SAT_POS_Z_ECEF'])
+    # TODO : remove function compute_elev_grd_wrap to simplify code
 
-    # compute points of coverage in sc coordinate system ******************************************************
+    # compute points of coverage in antenna coordinate system, in az/elev ******************************************************
     EARTH_COORD_dict['NADIR_X_ECEF'] = db_join(EARTH_COORD_dict, SAT_dict, 'NADIR_X_ECEF', 'SAT_ID')
     EARTH_COORD_dict['NADIR_Y_ECEF'] = db_join(EARTH_COORD_dict, SAT_dict, 'NADIR_Y_ECEF', 'SAT_ID')
     EARTH_COORD_dict['NADIR_Z_ECEF'] = db_join(EARTH_COORD_dict, SAT_dict, 'NADIR_Z_ECEF', 'SAT_ID')
@@ -182,17 +204,31 @@ def compute_coverage_points_geo_params(SAT_dict, EARTH_COORD_dict):
     EARTH_COORD_dict['PITCH'] = db_join(EARTH_COORD_dict, SAT_dict, 'PITCH', 'SAT_ID')
     EARTH_COORD_dict['YAW'] = db_join(EARTH_COORD_dict, SAT_dict, 'YAW', 'SAT_ID')
 
-    nadir_ecef_per_cov_point = np.array([EARTH_COORD_dict['NADIR_X_ECEF'], \
-                                         EARTH_COORD_dict['NADIR_Y_ECEF'], \
-                                         EARTH_COORD_dict['NADIR_Z_ECEF']])
+    nadir_ecef_per_cov_point = np.array(
+        [EARTH_COORD_dict['NADIR_X_ECEF'], EARTH_COORD_dict['NADIR_Y_ECEF'], EARTH_COORD_dict['NADIR_Z_ECEF']])
 
     sat_pos_ecef_per_cov_point = np.array(
         [EARTH_COORD_dict['SAT_POS_X_ECEF'], EARTH_COORD_dict['SAT_POS_Y_ECEF'], EARTH_COORD_dict['SAT_POS_Z_ECEF']])
 
     normal_vect_ecef_per_cov_point = np.array(
         [EARTH_COORD_dict['NORMAL_VECT_X'], EARTH_COORD_dict['NORMAL_VECT_Y'], EARTH_COORD_dict['NORMAL_VECT_Z']])
-    # TODO :  more efficient to do it by satellite ?
 
+    if (flag_uplink_downlink == 'DN'):
+
+        ROT_X_ANT = db_join(EARTH_COORD_dict, TRSP_dict, 'BEAM_TX_CENTER_X_ANT', ['PAYLOAD_ID', 'TRSP_ID'])
+        ROT_Y_ANT = db_join(EARTH_COORD_dict, TRSP_dict, 'BEAM_TX_CENTER_Y_ANT', ['PAYLOAD_ID', 'TRSP_ID'])
+        ROT_Z_ANT = db_join(EARTH_COORD_dict, TRSP_dict, 'BEAM_TX_CENTER_Z_ANT', ['PAYLOAD_ID', 'TRSP_ID'])
+
+    else:
+
+        ROT_X_ANT = db_join(EARTH_COORD_dict, TRSP_dict, 'BEAM_RX_CENTER_X_ANT', ['PAYLOAD_ID', 'TRSP_ID'])
+        ROT_Y_ANT = db_join(EARTH_COORD_dict, TRSP_dict, 'BEAM_RX_CENTER_Y_ANT', ['PAYLOAD_ID', 'TRSP_ID'])
+        ROT_Z_ANT = db_join(EARTH_COORD_dict, TRSP_dict, 'BEAM_RX_CENTER_Z_ANT', ['PAYLOAD_ID', 'TRSP_ID'])
+
+
+
+
+        # TODO :  more efficient to do it by satellite ?
 
     ecef_points = ll_geod2ecef(np.array([EARTH_COORD_dict['LON'], EARTH_COORD_dict['LAT']]))
 
@@ -200,9 +236,13 @@ def compute_coverage_points_geo_params(SAT_dict, EARTH_COORD_dict):
                                              nadir_ecef_per_cov_point, \
                                              sat_pos_ecef_per_cov_point, \
                                              normal_vect_ecef_per_cov_point, \
-                                             roll=EARTH_COORD_dict['ROLL'], \
-                                             pitch=EARTH_COORD_dict['PITCH'], \
-                                             yaw=EARTH_COORD_dict['YAW'])
+                                             roll=EARTH_COORD_dict['ROLL'] * np.pi / 180, \
+                                             pitch=EARTH_COORD_dict['PITCH'] * np.pi / 180, \
+                                             yaw=EARTH_COORD_dict['YAW'] * np.pi / 180, \
+                                             Rx=ROT_X_ANT * np.pi / 180, \
+                                             Ry=ROT_Y_ANT * np.pi / 180, \
+                                             Rz=ROT_Z_ANT * np.pi / 180)  # TODO : add Rx, Ry, Rz
+
     #                                                roll = EARTH_COORD_dict['ROLL'], \
     #                                                pitch = EARTH_COORD_dict['PITCH'], \
     #                                                yaw = EARTH_COORD_dict['YAW'])
@@ -213,16 +253,18 @@ def compute_coverage_points_geo_params(SAT_dict, EARTH_COORD_dict):
     #                                                    sat_pos_ecef_per_cov_point, \
     #                                                    normal_vect_ecef_per_cov_point)
     #
-
-    EARTH_COORD_dict['AZ_SC'] = az_elev_points[0]
-    EARTH_COORD_dict['ELEV_SC'] = az_elev_points[1]
-
+    if (flag_uplink_downlink == 'DN'):
+        EARTH_COORD_dict['AZ_ANT_DN'] = az_elev_points[0]
+        EARTH_COORD_dict['ELEV_ANT_DN'] = az_elev_points[1]
+    else:
+        EARTH_COORD_dict['AZ_ANT_UP'] = az_elev_points[0]
+        EARTH_COORD_dict['ELEV_ANT_UP'] = az_elev_points[1]
     return EARTH_COORD_dict
 
 
 ############################################################################################################################
 
-############################################################################################################################    
+############################################################################################################################
 def compute_lkb_propag_params(EARTH_COORD_dict, SAT_dict, TRSP_dict, TERMINAL_dict, flag_uplink_downlink, flag_propag,
                               flag_fwd_rtn):
     '''
@@ -231,7 +273,7 @@ def compute_lkb_propag_params(EARTH_COORD_dict, SAT_dict, TRSP_dict, TERMINAL_di
     - Propag (based on CNES dll)
     - Satellite Gain
     - + (TODO) G/T // EIRP ???
-    
+
     '''
 
     # ------------------------------   CALCULATIONS OF PROPAG + FSL PARAMS -----------------------------------------
@@ -244,22 +286,21 @@ def compute_lkb_propag_params(EARTH_COORD_dict, SAT_dict, TRSP_dict, TERMINAL_di
 
 
 
-    elif (flag_uplink_downlink == 'UP'):
+    else:
         EARTH_COORD_dict['CENTRAL_FQ_UP'] = db_join(EARTH_COORD_dict, TRSP_dict, 'CENTRAL_FQ_UP',
                                                     ['PAYLOAD_ID', 'TRSP_ID'])
         EARTH_COORD_dict['FSL_UP'] = compute_fsl(EARTH_COORD_dict['DIST'], EARTH_COORD_dict['CENTRAL_FQ_UP'])
 
     if (flag_propag == True):
         if ((flag_fwd_rtn == 'FWD' and flag_uplink_downlink == 'DN') or (
-                flag_fwd_rtn == 'RTN' and flag_uplink_downlink == 'UP')):  # this implies that VSAT is always Tx for
-            # RTN...
-            EARTH_COORD_dict['POLAR'] = db_join(EARTH_COORD_dict, TERMINAL_dict, 'POLAR', 'VSAT_ID')  # @!!! BUG #the error here is caused by not having VSAT_ID in both sheets corresponding
+                flag_fwd_rtn == 'RTN' and flag_uplink_downlink == 'UP')):  # this implies that VSAT is always Rx for RTN...
+            EARTH_COORD_dict['POLAR'] = db_join(EARTH_COORD_dict, TERMINAL_dict, 'POLAR', 'VSAT_ID')  # @!!! BUG
             EARTH_COORD_dict['DIAMETER'] = db_join(EARTH_COORD_dict, TERMINAL_dict, 'DIAMETER', 'VSAT_ID')  # @!!! BUG
             EARTH_COORD_dict['EFFICIENCY'] = db_join(EARTH_COORD_dict, TERMINAL_dict, 'EFFICIENCY',
                                                      'VSAT_ID')  # @!!! BUG
             EARTH_COORD_dict['POLAR_TILT_ANGLE'] = compute_polar_tilt_angle(EARTH_COORD_dict['POLAR'])
 
-        else:  # this implies that GW is always Rx for RTN // Tx for FWD...
+        else:  # this implies that GW is always Tx for RTN // Rx for FWD...
             EARTH_COORD_dict['POLAR'] = db_join(EARTH_COORD_dict, TERMINAL_dict, 'POLAR', 'GW_ID')  # @!!! BUG
             EARTH_COORD_dict['DIAMETER'] = db_join(EARTH_COORD_dict, TERMINAL_dict, 'DIAMETER', 'GW_ID')  # @!!! BUG
             EARTH_COORD_dict['EFFICIENCY'] = db_join(EARTH_COORD_dict, TERMINAL_dict, 'EFFICIENCY', 'GW_ID')  # @!!! BUG
@@ -291,37 +332,36 @@ def compute_lkb_propag_params(EARTH_COORD_dict, SAT_dict, TRSP_dict, TERMINAL_di
                                                            )
 
         return EARTH_COORD_dict
-    ############################################################################################################################
+        ############################################################################################################################
 
 
-############################################################################################################################   
+############################################################################################################################
 def compute_satellite_perfos(EARTH_COORD_dict, TRSP_dict, flag_uplink_downlink):
-    ''' This function computes the satellite performances on either uplink or downlink (need to be called twice if
-    both link need to be computed)
+    ''' This function computes the satellite performances on either uplink or downlink (need to be called twice if both link need to be computed)
     It will compute and output the satellite EIRP / or G/T on every point on Earth defined by the EARTH_COORD_dict
     '''
 
-    # ------------------------------   CALCULATION ON SAT GAIN Rx (GW side) or Tx (VSAT side), and then EIRP or G/T
-    # -----------------------------------------
+    # ------------------------------   CALCULATION ON SAT GAIN Rx or Tx, and then EIRP or G/T  -----------------------------------------
 
-    az_elev_points = np.array([EARTH_COORD_dict['AZ_SC'], EARTH_COORD_dict['ELEV_SC']])
+    if flag_uplink_downlink == 'UP':
+        az_elev_points = np.array([EARTH_COORD_dict['AZ_ANT_UP'], EARTH_COORD_dict['ELEV_ANT_UP']])
+    else:
+        az_elev_points = np.array([EARTH_COORD_dict['AZ_ANT_DN'], EARTH_COORD_dict['ELEV_ANT_DN']])
 
     if (flag_uplink_downlink == 'DN'):
 
-        # Join centers of beams in (az,elev)
-        EARTH_COORD_dict['BEAM_TX_CENTER_AZ_ANT'] = db_join(EARTH_COORD_dict, TRSP_dict, 'BEAM_TX_CENTER_AZ_ANT',
-                                                            ['PAYLOAD_ID', 'TRSP_ID'])
-        EARTH_COORD_dict['BEAM_TX_CENTER_EL_ANT'] = db_join(EARTH_COORD_dict, TRSP_dict, 'BEAM_TX_CENTER_EL_ANT',
-                                                            ['PAYLOAD_ID', 'TRSP_ID'])
-        # TODO : option LONLAT
-        # EARTH_COORD_dict = db_join(EARTH_COORD_dict, SAT_dict, 'BEAM_RX_CENTER_LON', 'TRSP_ID')
-        # EARTH_COORD_dict = db_join(EARTH_COORD_dict, SAT_dict, 'BEAM_RX_CENTER_LAT', 'TRSP_ID')
-
-        az_elev_beam_centers_tx = np.array([EARTH_COORD_dict['BEAM_TX_CENTER_AZ_ANT'] * np.pi / 180,
-                                            EARTH_COORD_dict['BEAM_TX_CENTER_EL_ANT'] * np.pi / 180])
+        #        # Join centers of beams in (az,elev)
+        #        EARTH_COORD_dict['BEAM_TX_CENTER_AZ_ANT']    =   db_join(EARTH_COORD_dict, TRSP_dict, 'BEAM_TX_CENTER_AZ_ANT', ['PAYLOAD_ID', 'TRSP_ID'])
+        #        EARTH_COORD_dict['BEAM_TX_CENTER_EL_ANT']    =   db_join(EARTH_COORD_dict, TRSP_dict, 'BEAM_TX_CENTER_EL_ANT', ['PAYLOAD_ID', 'TRSP_ID'])
+        #    #TODO : option LONLAT
+        #    #EARTH_COORD_dict = db_join(EARTH_COORD_dict, SAT_dict, 'BEAM_RX_CENTER_LON', 'TRSP_ID')
+        #    #EARTH_COORD_dict = db_join(EARTH_COORD_dict, SAT_dict, 'BEAM_RX_CENTER_LAT', 'TRSP_ID')
+        #
+        #        az_elev_beam_centers_tx                      =   np.array([EARTH_COORD_dict['BEAM_TX_CENTER_AZ_ANT']*np.pi/180,EARTH_COORD_dict['BEAM_TX_CENTER_EL_ANT']*np.pi/180])
+        #
 
         # compute points coord in antenna coordinates
-        points_ant_coord_tx = translate_az_elev_sc_to_az_elev_ant(az_elev_beam_centers_tx, az_elev_points)
+        points_ant_coord_tx = az_elev_points  # translate_az_elev_sc_to_az_elev_ant(az_elev_beam_centers_tx, az_elev_points)
 
         # compute maximum gain
         TRSP_dict['MAX_GAIN_TX'] = compute_max_gain(TRSP_dict['BEAM_TX_EFF'], TRSP_dict['BEAM_TX_ANT_DIAM'],
@@ -391,10 +431,10 @@ def compute_satellite_perfos(EARTH_COORD_dict, TRSP_dict, flag_uplink_downlink):
     return EARTH_COORD_dict
 
 
-############################################################################################################################   
+############################################################################################################################
 
 
-############################################################################################################################   
+############################################################################################################################
 def compute_lkb_perfos(EARTH_COORD_TX_dict, EARTH_COORD_RX_dict, TX_TERMINAL_dict, RX_terminal_dict, fwd_rtn_flag,
                        csn0_up_flag, \
                        csi0_up_flag, \
@@ -416,8 +456,7 @@ def compute_lkb_perfos(EARTH_COORD_TX_dict, EARTH_COORD_RX_dict, TX_TERMINAL_dic
     if csn0_up_flag == 'compute':
         # compute C/N0 uplink
         # Hypothesis: EIRP MAX !!!
-        if fwd_rtn_flag == 'FWD':  # !!! This line implies that GW is necessarily Tx in FWD // VSAT is necessarily Tx
-            #  in RTN
+        if fwd_rtn_flag == 'FWD':  # !!! This line implies that GW is necessarily Tx in FWD // VSAT is necessarily Tx in RTN
             EARTH_COORD_TX_dict['EIRP_MAX'] = db_join(EARTH_COORD_TX_dict, TX_TERMINAL_dict, 'EIRP_MAX', 'GW_ID')
         else:
             EARTH_COORD_TX_dict['EIRP_MAX'] = db_join(EARTH_COORD_TX_dict, TX_TERMINAL_dict, 'EIRP_MAX', 'VSAT_ID')
@@ -429,8 +468,7 @@ def compute_lkb_perfos(EARTH_COORD_TX_dict, EARTH_COORD_RX_dict, TX_TERMINAL_dic
 
     if csn0_dn_flag == 'compute':
         # compute C/N0 downlink
-        if fwd_rtn_flag == 'FWD':  # !!! This line implies that GW is necessarily Rx in RTN // VSAT is necessarily Rx
-            #  in FWD
+        if fwd_rtn_flag == 'FWD':  # !!! This line implies that GW is necessarily Rx in RTN // VSAT is necessarily Rx in FWD
             EARTH_COORD_RX_dict['GPT'] = db_join(EARTH_COORD_RX_dict, RX_terminal_dict, 'GPT', 'VSAT_ID')
         else:
             EARTH_COORD_RX_dict['GPT'] = db_join(EARTH_COORD_RX_dict, RX_terminal_dict, 'GPT', 'GW_ID')
@@ -438,35 +476,28 @@ def compute_lkb_perfos(EARTH_COORD_TX_dict, EARTH_COORD_RX_dict, TX_TERMINAL_dic
         EARTH_COORD_RX_dict['CSN0_DN'] = compute_CSN0_DN(EARTH_COORD_RX_dict['SAT_EIRP'], EARTH_COORD_RX_dict['FSL_DN'],
                                                          EARTH_COORD_RX_dict['PROPAG_DN'], EARTH_COORD_RX_dict['GPT'])
 
-
         # TODO : compute C/I // C/Im parameters
 
         ############# compute C/N0 total
         # TODO
-
-#    if fwd_rtn_flag == 'FWD':
-#        EARTH_COORD_RX_dict                          =   db_join(EARTH_COORD_RX_dict, EARTH_COORD_TX_dict,
-# 'CSN0_UP', 'GW_ID')
-#        EARTH_COORD_RX_dict                          =   db_join(EARTH_COORD_RX_dict, EARTH_COORD_TX_dict,
-# 'CSI0_UP', 'GW_ID')
-#
-#        EARTH_COORD_RX_dict['CSN0_TOTAL']            =   compute_csn0_total(EARTH_COORD_RX_dict['CSN0_UP'], \
-#                                                                    EARTH_COORD_RX_dict['CSI0_UP'], \
-#                                                                    EARTH_COORD_RX_dict['CSIM0'], \
-#                                                                    EARTH_COORD_RX_dict['CSN0_DN'], \
-#                                                                    EARTH_COORD_RX_dict['CSI0_DN'])
-#                                                                    
-#    else:
-#        EARTH_COORD_TX_dict                          =   db_join(EARTH_COORD_TX_dict, EARTH_COORD_RX_dict,
-# 'CSN0_DN', 'GW_ID')
-#        EARTH_COORD_TX_dict                          =   db_join(EARTH_COORD_TX_dict, EARTH_COORD_RX_dict,
-# 'CSI0_DN', 'GW_ID')
-#        EARTH_COORD_TX_dict                          =   db_join(EARTH_COORD_TX_dict, EARTH_COORD_RX_dict, 'CSIM0',
-# 'GW_ID')
-#        
-#        EARTH_COORD_TX_dict['CSN0_TOTAL']            =   compute_csn0_total(EARTH_COORD_TX_dict['CSN0_UP'], \
-#                                                                    EARTH_COORD_TX_dict['CSI0_UP'], \
-#                                                                    EARTH_COORD_TX_dict['CSIM0'], \
-#                                                                    EARTH_COORD_TX_dict['CSN0_DN'], \
-#                                                                    EARTH_COORD_TX_dict['CSI0_DN'])
-#############################################################################################################################
+        #    if fwd_rtn_flag == 'FWD':
+        #        EARTH_COORD_RX_dict                          =   db_join(EARTH_COORD_RX_dict, EARTH_COORD_TX_dict, 'CSN0_UP', 'GW_ID')
+        #        EARTH_COORD_RX_dict                          =   db_join(EARTH_COORD_RX_dict, EARTH_COORD_TX_dict, 'CSI0_UP', 'GW_ID')
+        #
+        #        EARTH_COORD_RX_dict['CSN0_TOTAL']            =   compute_csn0_total(EARTH_COORD_RX_dict['CSN0_UP'], \
+        #                                                                    EARTH_COORD_RX_dict['CSI0_UP'], \
+        #                                                                    EARTH_COORD_RX_dict['CSIM0'], \
+        #                                                                    EARTH_COORD_RX_dict['CSN0_DN'], \
+        #                                                                    EARTH_COORD_RX_dict['CSI0_DN'])
+        #
+        #    else:
+        #        EARTH_COORD_TX_dict                          =   db_join(EARTH_COORD_TX_dict, EARTH_COORD_RX_dict, 'CSN0_DN', 'GW_ID')
+        #        EARTH_COORD_TX_dict                          =   db_join(EARTH_COORD_TX_dict, EARTH_COORD_RX_dict, 'CSI0_DN', 'GW_ID')
+        #        EARTH_COORD_TX_dict                          =   db_join(EARTH_COORD_TX_dict, EARTH_COORD_RX_dict, 'CSIM0', 'GW_ID')
+        #
+        #        EARTH_COORD_TX_dict['CSN0_TOTAL']            =   compute_csn0_total(EARTH_COORD_TX_dict['CSN0_UP'], \
+        #                                                                    EARTH_COORD_TX_dict['CSI0_UP'], \
+        #                                                                    EARTH_COORD_TX_dict['CSIM0'], \
+        #                                                                    EARTH_COORD_TX_dict['CSN0_DN'], \
+        #                                                                    EARTH_COORD_TX_dict['CSI0_DN'])
+        #############################################################################################################################
