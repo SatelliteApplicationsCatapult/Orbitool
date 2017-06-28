@@ -64,6 +64,7 @@ table.testgrid>tbody tr:hover a {
 }
 
 table.testgrid th {
+	font-size: 11px;
 	background: #E5E5E5;
 	border: 1px solid #D5D5D5;
 	color: #555;
