@@ -507,45 +507,79 @@ def run():
     VSAT_dict = datatable_to_dict(dbLinkBudget.VSAT, job_id, dbLinkBudget)
 
     # ----------------- 2/ Assign sat to each point of coverage -----------
-    if element.points2trsp:
-        EARTH_COORD_VSAT_dict = compute_transponder_assignment(EARTH_COORD_VSAT_dict,
-                                                               SAT_dict, TRSP_dict, element.simulator_mode,
-                                                               'DN' if element.simulator_mode == 'FWD' else 'UP')
-    if element.gw2trsp:
-        EARTH_COORD_GW_dict = compute_transponder_assignment(EARTH_COORD_GW_dict, SAT_dict, TRSP_dict, element
-                                                             .simulator_mode,
-                                                             'UP' if element.simulator_mode == 'FWD' else 'DN')
+    EARTH_COORD_VSAT_dict = compute_transponder_assignment(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, 'FWD', 'DN')
 
-    # ----------------- 3/ Compute RX/TX COV geometric params ----------------
-    if element.comp_point_cover:
-        EARTH_COORD_VSAT_dict = compute_coverage_points_geo_params(
-            SAT_dict, EARTH_COORD_VSAT_dict, TRSP_dict, 'DN' if element.simulator_mode == 'FWD' else 'UP')
+    # TODO: here needs to assign a GW to each COV point
 
-    if element.comp_gw_cover:
-        EARTH_COORD_GW_dict = compute_coverage_points_geo_params(
-            SAT_dict, EARTH_COORD_GW_dict, TRSP_dict, 'UP' if element.simulator_mode == 'FWD' else 'DN')
+    # ----------------- 3/ Compute RX/TX COV geometric params -------------------
+    # in that case Rx cov
+    EARTH_COORD_VSAT_dict = compute_coverage_points_geo_params(SAT_dict, EARTH_COORD_VSAT_dict, TRSP_dict, 'DN')
+    EARTH_COORD_GW_dict = compute_coverage_points_geo_params(SAT_dict, EARTH_COORD_GW_dict, TRSP_dict, 'UP')
+
     # ----------------- 4/ Compute propag params -------------------
-    if element.propa_feeder_link:
-        EARTH_COORD_GW_dict = compute_lkb_propag_params(EARTH_COORD_GW_dict, SAT_dict, TRSP_dict, GW_dict,
-                                                        'UP' if element.simulator_mode == 'FWD' else 'DN', True,
-                                                        element.simulator_mode)
-
-    if element.propa_user_link:
-        EARTH_COORD_VSAT_dict = compute_lkb_propag_params(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, VSAT_dict,
-                                                          'DN' if element.simulator_mode == 'FWD' else 'UP', True,
-                                                          element.simulator_mode)
+    EARTH_COORD_VSAT_dict = compute_lkb_propag_params(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, VSAT_dict, 'DN', True,
+                                                      'FWD')
+    EARTH_COORD_GW_dict = compute_lkb_propag_params(EARTH_COORD_GW_dict, SAT_dict, TRSP_dict, GW_dict, 'UP', True,
+                                                    'FWD')
 
     # ----------------- 5/ Compute satellite perfos -------------------
-    if element.sat_up_perf:
-        EARTH_COORD_VSAT_dict = compute_satellite_perfos(
-            EARTH_COORD_VSAT_dict, TRSP_dict, 'UP')
-    if element.sat_dwn_perf:
-        EARTH_COORD_VSAT_dict = compute_satellite_perfos(
-            EARTH_COORD_VSAT_dict, TRSP_dict, 'DN')
-    #------------------ 6/ Link Budget
-    if element.comp_link_budget:
-        compute_lkb_perfos(EARTH_COORD_GW_dict, EARTH_COORD_VSAT_dict, GW_dict, VSAT_dict, 'FWD', 'disregard',
-                           'disregard', 'disregard', 'compute', 'disregard')
+    EARTH_COORD_VSAT_dict = compute_satellite_perfos(EARTH_COORD_VSAT_dict, TRSP_dict, 'DN')
+    EARTH_COORD_GW_dict = compute_satellite_perfos(EARTH_COORD_GW_dict, TRSP_dict, 'UP')
+
+    # ----------------- 6/ Compute LKB perfos -----------------------
+    compute_lkb_CsN0_perfos(EARTH_COORD_GW_dict, EARTH_COORD_VSAT_dict, GW_dict, VSAT_dict, 'FWD', 'compute',
+                            'disregard', 'disregard', 'compute', 'disregard')
+    # save_live_to_excel_file(filename, 'EARTH_COORD_VSAT', EARTH_COORD_VSAT_dict)
+    # save_live_to_excel_file(filename, 'TRSP', TRSP_dict)
+    # save_live_to_excel_file(filename, 'GATEWAY', GW_dict)
+    # save_live_to_excel_file(filename, 'VSAT', VSAT_dict)
+    # save_live_to_excel_file(filename, 'EARTH_COORD_GW', EARTH_COORD_GW_dict)
+
+    compute_lkb_CsN_perfos(EARTH_COORD_GW_dict, EARTH_COORD_VSAT_dict, TRSP_dict, GW_dict, 'FWD')
+
+    compute_spectral_efficiency_and_capacity(EARTH_COORD_VSAT_dict, 'DVB-S2', 'FWD')
+
+    # # ----------------- 2/ Assign sat to each point of coverage -----------
+    # if element.points2trsp:
+    #     EARTH_COORD_VSAT_dict = compute_transponder_assignment(EARTH_COORD_VSAT_dict,
+    #                                                            SAT_dict, TRSP_dict, element.simulator_mode,
+    #                                                            'DN' if element.simulator_mode == 'FWD' else 'UP')
+    # if element.gw2trsp:
+    #     EARTH_COORD_GW_dict = compute_transponder_assignment(EARTH_COORD_GW_dict, SAT_dict, TRSP_dict, element
+    #                                                          .simulator_mode,
+    #                                                          'UP' if element.simulator_mode == 'FWD' else 'DN')
+    #
+    # # ----------------- 3/ Compute RX/TX COV geometric params ----------------
+    # if element.comp_point_cover:
+    #     EARTH_COORD_VSAT_dict = compute_coverage_points_geo_params(
+    #         SAT_dict, EARTH_COORD_VSAT_dict, TRSP_dict, 'DN' if element.simulator_mode == 'FWD' else 'UP')
+    #
+    # if element.comp_gw_cover:
+    #     EARTH_COORD_GW_dict = compute_coverage_points_geo_params(
+    #         SAT_dict, EARTH_COORD_GW_dict, TRSP_dict, 'UP' if element.simulator_mode == 'FWD' else 'DN')
+    # # ----------------- 4/ Compute propag params -------------------
+    # if element.propa_feeder_link:
+    #     EARTH_COORD_GW_dict = compute_lkb_propag_params(EARTH_COORD_GW_dict, SAT_dict, TRSP_dict, GW_dict,
+    #                                                     'UP' if element.simulator_mode == 'FWD' else 'DN', True,
+    #                                                     element.simulator_mode)
+    #
+    # if element.propa_user_link:
+    #     EARTH_COORD_VSAT_dict = compute_lkb_propag_params(EARTH_COORD_VSAT_dict, SAT_dict, TRSP_dict, VSAT_dict,
+    #                                                       'DN' if element.simulator_mode == 'FWD' else 'UP', True,
+    #                                                       element.simulator_mode)
+    #
+    # # ----------------- 5/ Compute satellite perfos -------------------
+    # if element.sat_up_perf:
+    #     EARTH_COORD_VSAT_dict = compute_satellite_perfos(
+    #         EARTH_COORD_GW_dict, TRSP_dict, 'UP')
+    # if element.sat_dwn_perf:
+    #     EARTH_COORD_VSAT_dict = compute_satellite_perfos(EARTH_COORD_VSAT_dict, TRSP_dict, 'DN')
+    # #------------------ 6/ Link Budget
+    # if element.comp_link_budget:
+    #     compute_lkb_CsN0_perfos(EARTH_COORD_GW_dict, EARTH_COORD_VSAT_dict, GW_dict, VSAT_dict, 'FWD', 'compute',
+    #                             'disregard', 'disregard', 'compute', 'disregard')
+    #     compute_lkb_CsN_perfos(EARTH_COORD_GW_dict, EARTH_COORD_VSAT_dict, TRSP_dict, GW_dict, 'FWD')
+    #     compute_spectral_efficiency_and_capacity(EARTH_COORD_VSAT_dict, 'DVB-S2', 'FWD')
 
 
 
