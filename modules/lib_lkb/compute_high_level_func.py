@@ -308,7 +308,6 @@ def compute_lkb_propag_params(EARTH_COORD_dict, SAT_dict, TRSP_dict, TERMINAL_di
             EARTH_COORD_dict['POLAR_TILT_ANGLE'] = compute_polar_tilt_angle(EARTH_COORD_dict['POLAR'])
 
         if (flag_uplink_downlink == 'UP'):
-
             EARTH_COORD_dict['PROPAG_UP'] = compute_propag(EARTH_COORD_dict['LON'], \
                                                            EARTH_COORD_dict['LAT'], \
                                                            EARTH_COORD_dict['ALT'], \
@@ -320,7 +319,6 @@ def compute_lkb_propag_params(EARTH_COORD_dict, SAT_dict, TRSP_dict, TERMINAL_di
                                                            EARTH_COORD_dict['AVAILABILITY_UP'], \
                                                            )
         else:
-
             EARTH_COORD_dict['PROPAG_DN'] = compute_propag(EARTH_COORD_dict['LON'], \
                                                            EARTH_COORD_dict['LAT'], \
                                                            EARTH_COORD_dict['ALT'], \
@@ -331,7 +329,6 @@ def compute_lkb_propag_params(EARTH_COORD_dict, SAT_dict, TRSP_dict, TERMINAL_di
                                                            EARTH_COORD_dict['EFFICIENCY'], \
                                                            EARTH_COORD_dict['AVAILABILITY_DN'], \
                                                            )
-
         return EARTH_COORD_dict
         ############################################################################################################################
 
@@ -363,7 +360,6 @@ def compute_satellite_perfos(EARTH_COORD_dict, TRSP_dict, flag_uplink_downlink):
 
         # compute points coord in antenna coordinates
         points_ant_coord_tx = az_elev_points  # translate_az_elev_sc_to_az_elev_ant(az_elev_beam_centers_tx, az_elev_points)
-        logger.error(TRSP_dict['CENTRAL_FQ_DN'])
         # compute maximum gain
         TRSP_dict['MAX_GAIN_TX'] = compute_max_gain(TRSP_dict['BEAM_TX_EFF'], TRSP_dict['BEAM_TX_ANT_DIAM'],
                                                     TRSP_dict['CENTRAL_FQ_DN'], TRSP_dict['BEAM_TX_TYPE'])
@@ -583,7 +579,6 @@ def compute_spectral_efficiency_and_capacity(EARTH_COORD_RX_dict, flag_waveform,
     EARTH_COORD_RX_dict['USR_CAPA'] = compute_capacity(EARTH_COORD_RX_dict['TRSP_ID'], EARTH_COORD_RX_dict['SAT_ID'],
                                                        EARTH_COORD_RX_dict['RS'], EARTH_COORD_RX_dict['SPEC_EFF'],
                                                        flag_fwd_rtn)
-
 ############################################################################################################################
 
 

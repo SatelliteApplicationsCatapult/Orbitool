@@ -555,13 +555,12 @@ def run():
         #
         compute_spectral_efficiency_and_capacity(EARTH_COORD_VSAT_dict, 'DVB-S2', 'RTN')
 
-    logger.error(EARTH_COORD_VSAT_dict.keys())
     write_dict_to_table(dbLinkBudget.TRSP, TRSP_dict, job_id, dbLinkBudget)
     write_dict_to_table(dbLinkBudget.SAT, SAT_dict, job_id, dbLinkBudget)
     write_dict_to_table(dbLinkBudget.EARTH_coord_VSAT,
-                        EARTH_COORD_VSAT_dict, job_id, dbLinkBudget)
-    #write_dict_to_table(dbLinkBudget.Earth_coord_GW,
-    #                     EARTH_COORD_GW_dict, job_id, dbLinkBudget)
+                       EARTH_COORD_VSAT_dict, job_id, dbLinkBudget)
+    write_dict_to_table(dbLinkBudget.Earth_coord_GW,
+                        EARTH_COORD_GW_dict, job_id, dbLinkBudget)
 
     dbLinkBudget(dbLinkBudget.Calculate.Job_ID ==
                  request.args(0)).update(processed=True)

@@ -354,7 +354,9 @@ dbLinkBudget.define_table('Earth_coord_GW',
                           Field('USER_NEED', 'double'),
                           Field('USR_CAPA', 'double'),
                           Field('VSAT_ID', 'string'),
-                          Field('YAW', 'double'))
+                          Field('YAW', 'double'),
+                          Field('ROLL_OFF', 'double'),
+                          Field('RS', 'double'),)
 
 dbLinkBudget.define_table('EARTH_coord_VSAT',
                           Field('Job_ID', requires=IS_IN_DB(dbLinkBudget, dbLinkBudget.Job.id)),
@@ -442,6 +444,7 @@ dbLinkBudget.define_table('EARTH_coord_VSAT',
                           Field('CSN0_TOT', 'double'),
                           Field('CSI0_UP', 'double'),
                           Field('CSN_UP', 'double'),
-                          Field('RS', 'double'))
+                          Field('RS', 'double'),
+                          Field('ROLL_OFF', 'double'))
 dbLinkBudget.executesql('CREATE INDEX IF NOT EXISTS VSAT_index ON EARTH_coord_VSAT (Job_ID);')
 dbLinkBudget.executesql('CREATE INDEX IF NOT EXISTS GW_index ON Earth_coord_GW (Job_ID);')

@@ -5,7 +5,9 @@ Created on Mon Jan 26 21:25:04 2015
 ***REMOVED***
 """
 import numpy as np
-
+import logging
+logger = logging.getLogger("web2py.app.myweb2pyapplication")
+logger.setLevel(logging.DEBUG)
 
 # -----------------------------------------------------------------------------
 def ll_geoc2ecef(lon_lat_vect):
@@ -499,7 +501,6 @@ def compute_ecef_to_az_elev(vect_ecef, \
 
     # Azimuth, elevation of points and beam centers
     az_elev_points = compute_az_elev(points_sat_coord_tilted)
-
     return az_elev_points
 
 
