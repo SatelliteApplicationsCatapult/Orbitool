@@ -18,7 +18,6 @@ from .ant_func import *
 
 k_dB = -228.6  # Boltzmann's constant
 
-
 # ________________________________________________________________________________________
 #########################################################################################
 # UTILITIES, DISTANCE AND RF PERFOS CALCULATIONS
@@ -45,7 +44,7 @@ def compute_elev_grd_wrap(lon, lat, sat_pos_x, sat_pos_y, sat_pos_z):
 
 
 # _----------------------------------------------------------------------------------------
-def db_join(target_dict, data_dict, field_to_add, key_list):
+def db_join(target_dict, data_dict, field_to_add, key_list, default_value='none'):
     '''
 
     This function is a utility that is used to perform a "join" operation (similar as SQL) between two different data dictionnaries.
@@ -69,6 +68,7 @@ def db_join(target_dict, data_dict, field_to_add, key_list):
 
     '''
     # check dtype of data
+
     data_dtype = data_dict[field_to_add].dtype
 
     # check if list (otherwise means only one value)
@@ -78,7 +78,10 @@ def db_join(target_dict, data_dict, field_to_add, key_list):
     # create empty entry in dict
     # assumption: considered columns of target dict (keys + field to add) are the same size
     # TODO : check consistency (if not all values are assigned)
-    vect_res = np.empty_like(target_dict[key_list[0]], dtype=data_dtype)
+    if default_value == 'none':
+        vect_res = np.empty_like(target_dict[key_list[0]], dtype=data_dtype)
+    else:
+        vect_res = np.ones_like(target_dict[key_list[0]], dtype=data_dtype) * default_value
 
     for i in np.arange(0, np.size(data_dict[key_list[0]])):
         #        mask_useful_values = np.ones_like(target_dict[key_list[0]]).astype(bool)
@@ -172,74 +175,74 @@ def compute_fsl(distance, freq):
 
     return 10 * np.log10(fsl_lin)
 
-
-# _----------------------------------------------------------------------------------------
-
-
-# _----------------------------------------------------------------------------------------
-def compute_propag(lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, efficiency, availability):
-    '''
-    This function computes propagation attenuation due to rain conditions, using the CNES library available at :
-
-    description : TODO
-    '''
-
-    #    # compute propagation losses
-    #    # freq in MHz
-    #    # availability in percentage (%)
-    #    #vectorized
-    #
-    #    # convert freq in GHz
-    #    freq = freq /1e3
-    #
-    #    # convert elevation in radians
-    #    elevation = elevation * np.pi/180
-    #
-    #    # compute "percentage of time"
-    #    time_pct = 100 - availability*100
-    #
-    #    # initiate values
-    #    vct = np.arange(0,np.size(lon),1)
-    #    Agaseous = np.zeros(np.size(lon))
-    #    Aclouds = np.zeros(np.size(lon))
-    #    Iscint = np.zeros(np.size(lon))
-    #    Arain = np.zeros(np.size(lon))
-    #
-    #
-    #    for ctr in vct:
-    #
-    #        # Intermediate parameters computation
-    #        hr = rain_height(lat[ctr],lon[ctr])
-    #        R001 = rain_intensity(lat[ctr],lon[ctr],0.01)
-    #        Temp = temperature(lat[ctr],lon[ctr])
-    #        ro = SWVD(lat[ctr],lon[ctr])
-    ##        WVC = IWVC(lat[ctr],lon[ctr],time_pct[ctr])
-    #        LWC = LWCC(lat[ctr],lon[ctr],time_pct[ctr])
-    #        Nwet = NWET(lat[ctr],lon[ctr])
-    #
-    #
-    #        # GASEOUS ATTENUATION
-    #        Agaseous[ctr] = gaseous_attenuation(freq[ctr],elevation[ctr],Temp,ro);
-    #
-    #        # GASEOUS ATTENUATION EXCEEDED FOR availability% OF THE TIME
-    ##        Agaseous = gaseous_attenuation_exc(freq[ctr],elevation[ctr],Temp,WVC,ro)
-    #
-    #        # CLOUD ATTENUATION EXCEEDED FOR availability% OF THE TIME
-    #        Aclouds[ctr] = cloud_attenuation(freq[ctr],elevation[ctr],LWC)
-    #
-    #        # IMPAIRMENT DUE to SCINTILLATION EXCEEDED FOR availability% OF THE TIME
-    #        Iscint[ctr] = scintillation(Nwet,freq[ctr],elevation[ctr],time_pct[ctr],alt[ctr],efficiency[ctr],diameter[ctr])
-    #
-    #        # RAIN ATTENUATION EXCEEDED FOR availability% OF THE TIME
-    #        Arain[ctr] = rain_attenuation(lat[ctr],freq[ctr],elevation[ctr],time_pct[ctr],alt[ctr],hr,R001,tilt_polar_angle[ctr])
-    #
-    #    # A TOTAL
-    #    Atot = Agaseous + np.sqrt((Aclouds + Arain)**2 + Iscint**2)
-
-    # for the moment : bypass function (wait fro CNES library update)
-    Atot = np.zeros_like(lon)
-
-    return Atot
+#
+# # _----------------------------------------------------------------------------------------
+#
+#
+# # _----------------------------------------------------------------------------------------
+# def compute_propag(lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, efficiency, availability):
+#     '''
+#     This function computes propagation attenuation due to rain conditions, using the CNES library available at :
+#
+#     description : TODO
+#     '''
+#
+#     #    # compute propagation losses
+#     #    # freq in MHz
+#     #    # availability in percentage (%)
+#     #    #vectorized
+#     #
+#     #    # convert freq in GHz
+#     #    freq = freq /1e3
+#     #
+#     #    # convert elevation in radians
+#     #    elevation = elevation * np.pi/180
+#     #
+#     #    # compute "percentage of time"
+#     #    time_pct = 100 - availability*100
+#     #
+#     #    # initiate values
+#     #    vct = np.arange(0,np.size(lon),1)
+#     #    Agaseous = np.zeros(np.size(lon))
+#     #    Aclouds = np.zeros(np.size(lon))
+#     #    Iscint = np.zeros(np.size(lon))
+#     #    Arain = np.zeros(np.size(lon))
+#     #
+#     #
+#     #    for ctr in vct:
+#     #
+#     #        # Intermediate parameters computation
+#     #        hr = rain_height(lat[ctr],lon[ctr])
+#     #        R001 = rain_intensity(lat[ctr],lon[ctr],0.01)
+#     #        Temp = temperature(lat[ctr],lon[ctr])
+#     #        ro = SWVD(lat[ctr],lon[ctr])
+#     ##        WVC = IWVC(lat[ctr],lon[ctr],time_pct[ctr])
+#     #        LWC = LWCC(lat[ctr],lon[ctr],time_pct[ctr])
+#     #        Nwet = NWET(lat[ctr],lon[ctr])
+#     #
+#     #
+#     #        # GASEOUS ATTENUATION
+#     #        Agaseous[ctr] = gaseous_attenuation(freq[ctr],elevation[ctr],Temp,ro);
+#     #
+#     #        # GASEOUS ATTENUATION EXCEEDED FOR availability% OF THE TIME
+#     ##        Agaseous = gaseous_attenuation_exc(freq[ctr],elevation[ctr],Temp,WVC,ro)
+#     #
+#     #        # CLOUD ATTENUATION EXCEEDED FOR availability% OF THE TIME
+#     #        Aclouds[ctr] = cloud_attenuation(freq[ctr],elevation[ctr],LWC)
+#     #
+#     #        # IMPAIRMENT DUE to SCINTILLATION EXCEEDED FOR availability% OF THE TIME
+#     #        Iscint[ctr] = scintillation(Nwet,freq[ctr],elevation[ctr],time_pct[ctr],alt[ctr],efficiency[ctr],diameter[ctr])
+#     #
+#     #        # RAIN ATTENUATION EXCEEDED FOR availability% OF THE TIME
+#     #        Arain[ctr] = rain_attenuation(lat[ctr],freq[ctr],elevation[ctr],time_pct[ctr],alt[ctr],hr,R001,tilt_polar_angle[ctr])
+#     #
+#     #    # A TOTAL
+#     #    Atot = Agaseous + np.sqrt((Aclouds + Arain)**2 + Iscint**2)
+#
+#     # for the moment : bypass function (wait fro CNES library update)
+#     Atot = np.zeros_like(lon)
+#
+#     return Atot
 
 
 # _----------------------------------------------------------------------------------------
@@ -721,68 +724,42 @@ def compute_eff_spec(csn, flag_waveform):
 ####################################################################################################
 
 ####################################################################################################
-def normalise_user_needs(user_needs, trsp_id, sat_id):
-    ''' this function simply normalizes a given user need vector, that would have been given in raw values
-    (for example, a vector of datarates in MBps)
+def compute_capacity(earth_coord_trsp_id, earth_coord_sat_id, earth_coord_rs, earth_coord_eff_spec, flag_fwd_rtn):
     '''
-    norm_user_needs = np.zeros_like(user_needs)
 
-    # TODO : per transponder
-    for j in np.unique(sat_id):
-        for i in np.unique(trsp_id):
-            mask_trsp = np.logical_and(trsp_id == i, sat_id == j)
-            if np.logical_and(np.sum(mask_trsp), np.sum(user_needs[mask_trsp])) > 0:
-                norm_user_needs[mask_trsp] = user_needs[mask_trsp] / np.sum(user_needs[mask_trsp])
+    what is done at the moment : compute capacity of each terminal, with fixed Rs to everyone
 
-    return norm_user_needs
+    options that should exist :
+        - depending on frequency allocation (fixed Rs to everyone, or fixed capacity to everyone, or weighted with user needs)
+    '''
+
+    capa_ratio = np.ones_like(earth_coord_trsp_id)
+
+    list_trsp_ids = np.unique(earth_coord_trsp_id)
+    list_sat_ids = np.unique(earth_coord_sat_id)
+
+    if flag_fwd_rtn == 'FWD':
+        # find out all points in the same beam, and divide the allocated frequency between them
+        # Option 1 : each point gets the same amount of frequency
+        for sat_id in list_sat_ids:
+            #        payload_id = earth_coord_payload_id[earth_coord_sat_id == sat_id][0] #assumption : one satellite can only have one payload id
+
+            for trsp_id in list_trsp_ids:
+                points_trsp = np.logical_and(earth_coord_sat_id == sat_id, earth_coord_trsp_id == trsp_id)
+                nb_points_trsp = np.sum(points_trsp)
+
+                capa_ratio[points_trsp] = 1.0 / nb_points_trsp
+
+        return earth_coord_rs * earth_coord_eff_spec * capa_ratio
+
+    else:
+        crest_capa = earth_coord_rs * earth_coord_eff_spec
+        return crest_capa
 
 
-####################################################################################################
-
-####################################################################################################
-def compute_capa(user_needs, eff_spec, flag_capa_calc_mode, bandwidth, trsp_id, sat_id):
-    ''' computes capacity taking into account user needs, depending on calculation mode : '''
-    capa = np.empty_like(user_needs)
-
-    for j in np.unique(sat_id):
-        for i in np.unique(trsp_id):
-            mask_trsp = np.logical_and(trsp_id == i, sat_id == j)
-            if np.sum(mask_trsp) > 0:
-                if flag_capa_calc_mode == 'equal_no_usr_needs':
-                    capa[mask_trsp] = eff_spec[mask_trsp] * bandwidth[mask_trsp][0] / np.size(bandwidth[mask_trsp])
-
-                elif flag_capa_calc_mode == 'equal_with_usr_needs':
-                    capa[mask_trsp] = eff_spec[mask_trsp] * bandwidth[mask_trsp][0] * user_needs[mask_trsp]
-
-    return capa
 
 
-####################################################################################################
-
-####################################################################################################
-def gather_iso_frequency_transponders(central_freq, bandwidth, trsp_id):
-    #    list_trsp_same_color = []
-    #    mask_checked_trsps = np.empty_like(bandwidth) * 0
-    color_nb = 1
-    colors = np.empty_like(bandwidth) * 0
-
-    for i in np.arange(0, np.size(central_freq)):
-
-        if colors[i] == 0:
-            curr_freq = central_freq[i]
-            curr_bw = bandwidth[i]
-
-            # find other trsps having same frequency
-            # by "same frequency" we mean there is an overlap of freq between two transponders
-            mask_freq_overlap = np.abs(
-                central_freq - curr_freq) < bandwidth / 2 + curr_bw / 2 - 1e-8  # 1e-8 is added to make sure there is no problem of overlapping borders
-            #            list_trsp_same_color.append(trsp_id[mask_freq_overlap])
-            colors[mask_freq_overlap] = color_nb
-            color_nb += 1
-
-    return colors
-
-####################################################################################################
+        ####################################################################################################
 
 
 
@@ -794,33 +771,100 @@ def gather_iso_frequency_transponders(central_freq, bandwidth, trsp_id):
 
 
 
-####################################################################################################
-# def compute_csi_intrasat(az_elev_points, trsp_id_per_point, az_elev_beam_centers, colors_per_trsp, trsp_id_per_trsp, ant_diam, freq, max_gain, flag_calc_type, theta_3dB):
-#    pass
-#    # first compute for each point all spots that will intefere significantly
-#    # at beginning : we consider all spots with same frequency are relevant
-#    # TODO : filter only spots that really have impact (to gain speed)
-#    # for determinng if spots are in same frequency : first build an array of spots in same freq
-#    for trsp in trsp_id_per_trsp:
-#        color = colors_per_trsp[trsp_id_per_trsp == trsp][0]
-#
-#        center_beams_to_consider = az_elev_beam_centers[colors_per_trsp == color]
-#
-#
-#        #compute values of sat gains for all transponder points
-#
-#        val_directivities = np.empty(np.sum(trsp_id_per_point == trsp), np.size(center_beams_to_consider)/2)
-#
-#        counter = 0
-#        for i in center_beams_to_consider:
-#            val_directivities[:,counter] = compute_sat_ant_gain(az_evel_points[trsp],ant_diam[trsp], freq[trsp], max_gain[trsp], flag_calc_type[trsp], theta_3dB[trsp])
-##        (az_elev, ant_diam, freq, max_gain, flag_calc_type, theta_3dB):
-#
-#            counter += 1
 
 
-# then compute C/I
-# needed to prealably have recognized which directivity is the "C", and which are the interferers
+
+
+
+        #####################################################################################################
+        # def normalise_user_needs(user_needs, trsp_id, sat_id):
+        #    ''' this function simply normalizes a given user need vector, that would have been given in raw values
+        #    (for example, a vector of datarates in MBps)
+        #    '''
+        #    norm_user_needs = np.zeros_like(user_needs)
+        #
+        #    #TODO : per transponder
+        #    for j in np.unique(sat_id):
+        #        for i in np.unique(trsp_id):
+        #            mask_trsp = np.logical_and(trsp_id == i, sat_id == j)
+        #            if np.logical_and(np.sum(mask_trsp),np.sum(user_needs[mask_trsp])) > 0:
+        #                norm_user_needs[mask_trsp] = user_needs[mask_trsp] /np.sum(user_needs[mask_trsp])
+        #
+        #    return norm_user_needs
+        #####################################################################################################
+        #
+        #####################################################################################################
+        # def compute_capa(user_needs, eff_spec, flag_capa_calc_mode, bandwidth, trsp_id, sat_id):
+        #    ''' computes capacity taking into account user needs, depending on calculation mode : '''
+        #    capa = np.empty_like(user_needs)
+        #
+        #    for j in np.unique(sat_id):
+        #        for i in np.unique(trsp_id):
+        #            mask_trsp = np.logical_and(trsp_id == i, sat_id == j)
+        #            if np.sum(mask_trsp) > 0:
+        #                if   flag_capa_calc_mode == 'equal_no_usr_needs':
+        #                    capa[mask_trsp] = eff_spec[mask_trsp] * bandwidth[mask_trsp][0]/np.size(bandwidth[mask_trsp])
+        #
+        #                elif flag_capa_calc_mode == 'equal_with_usr_needs':
+        #                    capa[mask_trsp] = eff_spec[mask_trsp] * bandwidth[mask_trsp][0] * user_needs[mask_trsp]
+        #
+        #
+        #    return capa
+        #
+        #####################################################################################################
+        #
+        #####################################################################################################
+        # def gather_iso_frequency_transponders(central_freq, bandwidth, trsp_id):
+        #
+        #
+        ##    list_trsp_same_color = []
+        ##    mask_checked_trsps = np.empty_like(bandwidth) * 0
+        #    color_nb = 1
+        #    colors = np.empty_like(bandwidth) * 0
+        #
+        #    for i in np.arange(0,np.size(central_freq)):
+        #
+        #        if colors[i] == 0:
+        #            curr_freq = central_freq[i]
+        #            curr_bw   = bandwidth[i]
+        #
+        #            #find other trsps having same frequency
+        #            # by "same frequency" we mean there is an overlap of freq between two transponders
+        #            mask_freq_overlap = np.abs(central_freq - curr_freq) < bandwidth/2 + curr_bw/2 - 1e-8 #1e-8 is added to make sure there is no problem of overlapping borders
+        ##            list_trsp_same_color.append(trsp_id[mask_freq_overlap])
+        #            colors[mask_freq_overlap] = color_nb
+        #            color_nb += 1
+        #
+        #    return colors
+        #####################################################################################################
+
+        ####################################################################################################
+        # def compute_csi_intrasat(az_elev_points, trsp_id_per_point, az_elev_beam_centers, colors_per_trsp, trsp_id_per_trsp, ant_diam, freq, max_gain, flag_calc_type, theta_3dB):
+        #    pass
+        #    # first compute for each point all spots that will intefere significantly
+        #    # at beginning : we consider all spots with same frequency are relevant
+        #    # TODO : filter only spots that really have impact (to gain speed)
+        #    # for determinng if spots are in same frequency : first build an array of spots in same freq
+        #    for trsp in trsp_id_per_trsp:
+        #        color = colors_per_trsp[trsp_id_per_trsp == trsp][0]
+        #
+        #        center_beams_to_consider = az_elev_beam_centers[colors_per_trsp == color]
+        #
+        #
+        #        #compute values of sat gains for all transponder points
+        #
+        #        val_directivities = np.empty(np.sum(trsp_id_per_point == trsp), np.size(center_beams_to_consider)/2)
+        #
+        #        counter = 0
+        #        for i in center_beams_to_consider:
+        #            val_directivities[:,counter] = compute_sat_ant_gain(az_evel_points[trsp],ant_diam[trsp], freq[trsp], max_gain[trsp], flag_calc_type[trsp], theta_3dB[trsp])
+        ##        (az_elev, ant_diam, freq, max_gain, flag_calc_type, theta_3dB):
+        #
+        #            counter += 1
+
+
+        # then compute C/I
+        # needed to prealably have recognized which directivity is the "C", and which are the interferers
 
 ####################################################################################################
 
