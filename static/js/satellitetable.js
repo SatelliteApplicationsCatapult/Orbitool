@@ -26,6 +26,18 @@ editableGridsat = new window.EditableGrid("satgrid", {
 
     // called when some value has been modified: we display a message
     modelChanged: function(rowIdx, colIdx, oldValue, newValue, row) {
+        //Longitude Change
+        if (colIdx == 1) {
+            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], newValue, editableGridsat.data[rowIdx].columns[3]*1000))
+        }
+        //Latitude Change
+        if (colIdx == 2) {
+            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(newValue, editableGridsat.data[rowIdx].columns[1], editableGridsat.data[rowIdx].columns[3]*1000))
+        }
+        // Altitude Change
+        if (colIdx == 3) {
+            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], editableGridsat.data[rowIdx].columns[1], newValue*1000))
+        }
         $.ajax({
             type: "POST",
             url: "/lbController/ajax_to_db",
