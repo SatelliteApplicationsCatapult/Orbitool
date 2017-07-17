@@ -29,14 +29,19 @@ editableGridsat = new window.EditableGrid("satgrid", {
         //Longitude Change
         if (colIdx == 1) {
             SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], newValue, editableGridsat.data[rowIdx].columns[3]*1000))
+            FOV.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], newValue, editableGridsat.data[rowIdx].columns[3]*1000/2))
         }
         //Latitude Change
         if (colIdx == 2) {
             SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(newValue, editableGridsat.data[rowIdx].columns[1], editableGridsat.data[rowIdx].columns[3]*1000))
+            FOV.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(newValue, editableGridsat.data[rowIdx].columns[1], editableGridsat.data[rowIdx].columns[3]*1000/2))
         }
         // Altitude Change
         if (colIdx == 3) {
             SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], editableGridsat.data[rowIdx].columns[1], newValue*1000))
+            FOV.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], editableGridsat.data[rowIdx].columns[1], newValue*1000/2))
+            FOV.entities._entities._array[rowIdx]._cylinder._length.setValue(newValue*1000)
+            FOV.entities._entities._array[rowIdx]._cylinder._bottomRadius.setValue(newValue * 1000 * Math.tan((3.14159 / 180) * editableGridsat.data[rowIdx].columns[4]))
         }
         $.ajax({
             type: "POST",
