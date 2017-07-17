@@ -105,7 +105,7 @@ def preview():
 
 def delete_row_editablegrid():
     """
-    untested as I don't know how to link the delete button to this
+    Function to delete a row in the preview page from the database
     """
     temparray = json.loads(request.post_vars.array)
     print temparray["rowid"]
@@ -302,8 +302,8 @@ def satellite_table_JSON():
                         "INCLINATION_ANGLE": row["INCLINATION_ANGLE"],
                         "FLAG_ASC_DESC": row["FLAG_ASC_DESC"],
                         "ROLL": row["ROLL"],
-                        "PITCH": row["ROLL"],
-                        "YAW": row["ROLL"]
+                        "PITCH": row["PITCH"],
+                        "YAW": row["YAW"]
                         }} for row in rows]
     return response.json({"metadata": metadata, 'data': data})
 
