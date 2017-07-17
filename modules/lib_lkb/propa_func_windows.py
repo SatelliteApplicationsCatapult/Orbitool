@@ -79,8 +79,6 @@ def compute_propag(lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, e
     # A TOTAL
 
     Atot = Agaseous + np.sqrt((Aclouds + Arain) ** 2 + Iscint ** 2)
-    logger.error('Atot')
-    logger.error(Atot)
     # for the moment : bypass function (wait fro CNES library update)
     Atot = np.zeros_like(lon)
     return Atot
