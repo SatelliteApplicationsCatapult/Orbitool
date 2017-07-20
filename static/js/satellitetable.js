@@ -55,7 +55,7 @@ editableGridsat = new window.EditableGrid("satgrid", {
             })
         }).done(function(msg) {});
 
-        SAT.load("/get_geojson_sat/23").then(function () {
+        SAT.load("/get_geojson_sat/"+window.location.pathname.split('/')[2]).then(function () {
         var entities = SAT.entities.values;
         for (var i = 0; i < entities.length; i++) {
             var entity = entities[i];
@@ -79,7 +79,7 @@ editableGridsat.delete = function(rowIndex) {
         })
     }).done(function(msg) {});
 
-    SAT.load("/get_geojson_sat/23").then(function () {
+    SAT.load("/get_geojson_sat/"+window.location.pathname.split('/')[2]).then(function () {
     var entities = SAT.entities.values;
     for (var i = 0; i < entities.length; i++) {
         var entity = entities[i];
@@ -111,7 +111,7 @@ editableGridsat.duplicate = function(rowIndex)
         }).done(function(msg) {});
 
     // copies a row on the backend
-    SAT.load("/get_geojson_sat/23").then(function () {
+    SAT.load("/get_geojson_sat/"+window.location.pathname.split('/')[2]).then(function () {
         var entities = SAT.entities.values;
         for (var i = 0; i < entities.length; i++) {
             var entity = entities[i];
