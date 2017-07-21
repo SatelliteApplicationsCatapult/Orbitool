@@ -26,6 +26,24 @@ editableGridsat = new window.EditableGrid("satgrid", {
 
     // called when some value has been modified: we display a message
     modelChanged: function(rowIdx, colIdx, oldValue, newValue, row) {
+
+        //Longitude Change
+        if (colIdx == 1) {
+            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], newValue, editableGridsat.data[rowIdx].columns[3]*1000))
+            FOV.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], newValue, editableGridsat.data[rowIdx].columns[3]*1000/2))
+        }
+        //Latitude Change
+        if (colIdx == 2) {
+            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(newValue, editableGridsat.data[rowIdx].columns[1], editableGridsat.data[rowIdx].columns[3]*1000))
+            FOV.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(newValue, editableGridsat.data[rowIdx].columns[1], editableGridsat.data[rowIdx].columns[3]*1000/2))
+        }
+        // Altitude Change
+        if (colIdx == 3) {
+            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], editableGridsat.data[rowIdx].columns[1], newValue*1000))
+            FOV.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], editableGridsat.data[rowIdx].columns[1], newValue*1000/2))
+            FOV.entities._entities._array[rowIdx]._cylinder._length.setValue(newValue*1000)
+            FOV.entities._entities._array[rowIdx]._cylinder._bottomRadius.setValue(newValue * 1000 * Math.tan((3.14159 / 180) * editableGridsat.data[rowIdx].columns[4]))
+        }
         $.ajax({
             type: "POST",
             url: "/lbController/ajax_to_db",
@@ -36,10 +54,22 @@ editableGridsat = new window.EditableGrid("satgrid", {
                 "rowid": row,
             })
         }).done(function(msg) {});
+
+        SAT.load("/get_geojson_sat/"+window.location.pathname.split('/')[2]).then(function () {
+        var entities = SAT.entities.values;
+        for (var i = 0; i < entities.length; i++) {
+            var entity = entities[i];
+            entity.billboard = new Cesium.BillboardGraphics({
+                image: "/linkbudgetweb/static/images/satellite.gif",
+            })
+        }
+        });
     }
 });
 
 editableGridsat.delete = function(rowIndex) {
+    console.log(rowIndex)
+    console.log(editableGridsat.getRowId(rowIndex))
     $.ajax({
         type: "POST",
         url: "/lbController/delete_row_editablegrid",
@@ -48,23 +78,29 @@ editableGridsat.delete = function(rowIndex) {
             "rowid": editableGridsat.getRowId(rowIndex),
         })
     }).done(function(msg) {});
+
+    SAT.load("/get_geojson_sat/"+window.location.pathname.split('/')[2]).then(function () {
+    var entities = SAT.entities.values;
+    for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        entity.billboard = new Cesium.BillboardGraphics({
+            image: "/linkbudgetweb/static/images/satellite.gif",
+        })
+    }
+    });
 };
 
 editableGridsat.duplicate = function(rowIndex)
 {
     // The below adds a new row on the front end without refreshing
 	// // copy values from given row
-	// var values = this.getRowValues(rowIndex);
-	// values['name'] = values['name'] + ' (copy)';
-    //
-	// // get id for new row (max id + 1)
-	// var newRowId = 0;
-	// for (var r = 0; r < this.getRowCount(); r++) newRowId = Math.max(newRowId, parseInt(this.getRowId(r)) + 1);
-    //
-	// // add new row
-	// this.insertAfter(rowIndex, newRowId, values);
+	var values = this.getRowValues(rowIndex);
+	// get id for new row (max id + 1)
+	var newRowId = 0;
+	for (var r = 0; r < this.getRowCount(); r++) newRowId = Math.max(newRowId, parseInt(this.getRowId(r)) + 1);
+	// add new row
+	this.insertAfter(rowIndex, newRowId, values);
 
-    // copies a row on the backend
 	$.ajax({
             type: "POST",
             url: "/lbController/copy",
@@ -73,8 +109,18 @@ editableGridsat.duplicate = function(rowIndex)
                 "rowid": editableGridsat.getRowId(rowIndex),
             })
         }).done(function(msg) {});
+
+    // copies a row on the backend
+    SAT.load("/get_geojson_sat/"+window.location.pathname.split('/')[2]).then(function () {
+        var entities = SAT.entities.values;
+        for (var i = 0; i < entities.length; i++) {
+            var entity = entities[i];
+            entity.billboard = new Cesium.BillboardGraphics({
+                image: "/linkbudgetweb/static/images/satellite.gif",
+            })
+        }
+    });
+
 };
 
-
-// load XML file
 editableGridsat.loadJSON(satjson);

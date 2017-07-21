@@ -136,227 +136,6 @@ TRSP_FOV_CIRCLE.load(geojson_TRSP_FOV).then(function() {
     }
 });
 
-
-var EIRP = new Cesium.GeoJsonDataSource();
-EIRP.load(get_performance_json).then(function() {
-    var entities = EIRP.entities.values;
-    for (var i = 0; i < entities.length; i++) {
-        var entity = entities[i];
-        entity.billboard = undefined;
-        entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((EIRPmax - entity.properties.EIRP) / (EIRPmax - EIRPmin)), 1, .5, viewModel.perf_alpha),
-            pixelSize: 8,
-            outlineWidth: 0.5,
-            scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
-        })
-    }
-    Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
-        function(newValue) {
-            for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((EIRPmax - entities[i].properties.EIRP) / (EIRPmax - EIRPmin)), 1, .5, viewModel.perf_alpha);
-            }
-        }
-    );
-});
-var ELEVATION = new Cesium.GeoJsonDataSource();
-ELEVATION.load(get_performance_json).then(function() {
-    var entities = ELEVATION.entities.values;
-    for (var i = 0; i < entities.length; i++) {
-        var entity = entities[i];
-        entity.billboard = undefined;
-        entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((ELEVATIONmax - entity.properties.ELEVATION) / (ELEVATIONmax - ELEVATIONmin)), 1, .5, viewModel.perf_alpha),
-            pixelSize: 8,
-            outlineWidth: 0.5,
-            scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
-        })
-    }
-    Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
-        function(newValue) {
-            for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((ELEVATIONmax - entities[i].properties.ELEVATION) / (ELEVATIONmax - ELEVATIONmin)), 1, .5, viewModel.perf_alpha);
-            }
-        }
-    );
-});
-var SAT_GPT = new Cesium.GeoJsonDataSource();
-SAT_GPT.load(get_performance_json).then(function() {
-    var entities = SAT_GPT.entities.values;
-    for (var i = 0; i < entities.length; i++) {
-        var entity = entities[i];
-        entity.billboard = undefined;
-        entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((SAT_GPTmax - entity.properties.SAT_GPT) / (SAT_GPTmax - SAT_GPTmin)), 1, .5, viewModel.perf_alpha),
-            pixelSize: 8,
-            outlineWidth: 0.5,
-            scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
-        })
-    }
-    Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
-        function(newValue) {
-            for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((SAT_GPTmax - entities[i].properties.SAT_GPT) / (SAT_GPTmax - SAT_GPTmin)), 1, .5, viewModel.perf_alpha);
-            }
-        }
-    );
-});
-
-var DIST = new Cesium.GeoJsonDataSource();
-DIST.load(get_performance_json).then(function() {
-    var entities = DIST.entities.values;
-    for (var i = 0; i < entities.length; i++) {
-        var entity = entities[i];
-        entity.billboard = undefined;
-        entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((DISTmax - entity.properties.DIST) / (DISTmax - DISTmin)), 1, .5, viewModel.perf_alpha),
-            pixelSize: 8,
-            outlineWidth: 0.5,
-            scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
-        })
-    }
-    Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
-        function(newValue) {
-            for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((DISTmax - entities[i].properties.DIST) / (DISTmax - DISTmin)), 1, .5, viewModel.perf_alpha);
-            }
-        }
-    );
-});
-
-var FSL_UP = new Cesium.GeoJsonDataSource();
-FSL_UP.load(get_performance_json).then(function() {
-    var entities = FSL_UP.entities.values;
-    for (var i = 0; i < entities.length; i++) {
-        var entity = entities[i];
-        entity.billboard = undefined;
-        entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((FSL_UPmax - entity.properties.FSL_UP) / (FSL_UPmax - FSL_UPmin)), 1, .5, viewModel.perf_alpha),
-            pixelSize: 8,
-            outlineWidth: 0.5,
-            scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
-        })
-    }
-    Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
-        function(newValue) {
-            for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((FSL_UPmax - entities[i].properties.FSL_UP) / (FSL_UPmax - FSL_UPmin)), 1, .5, viewModel.perf_alpha);
-            }
-        }
-    );
-});
-
-
-
-var FSL_DN = new Cesium.GeoJsonDataSource();
-FSL_DN.load(get_performance_json).then(function() {
-    var entities = FSL_DN.entities.values;
-    for (var i = 0; i < entities.length; i++) {
-        var entity = entities[i];
-        entity.billboard = undefined;
-        entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((FSL_DNmax - entity.properties.FSL_DN) / (FSL_DNmax - FSL_DNmin)), 1, .5, viewModel.perf_alpha),
-            pixelSize: 8,
-            outlineWidth: 0.5,
-            scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
-        })
-    }
-    Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
-        function(newValue) {
-            for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((FSL_DNmax - entities[i].properties.FSL_DN) / (FSL_DNmax - FSL_DNmin)), 1, .5, viewModel.perf_alpha);
-            }
-        }
-    );
-});
-
-var EFFICIENCY = new Cesium.GeoJsonDataSource();
-EFFICIENCY.load(get_performance_json).then(function() {
-    var entities = EFFICIENCY.entities.values;
-    for (var i = 0; i < entities.length; i++) {
-        var entity = entities[i];
-        entity.billboard = undefined;
-        entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((EFFICIENCYmax - entity.properties.EFFICIENCY) / (EFFICIENCYmax - EFFICIENCYmin)), 1, .5, viewModel.perf_alpha),
-            pixelSize: 8,
-            outlineWidth: 0.5,
-            scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
-        })
-    }
-    Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
-        function(newValue) {
-            for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((EFFICIENCYmax - entities[i].properties.EFFICIENCY) / (EFFICIENCYmax - EFFICIENCYmin)), 1, .5, viewModel.perf_alpha);
-            }
-        }
-    );
-});
-
-var CSIM0 = new Cesium.GeoJsonDataSource();
-CSIM0.load(get_performance_json).then(function() {
-    var entities = CSIM0.entities.values;
-    for (var i = 0; i < entities.length; i++) {
-        var entity = entities[i];
-        entity.billboard = undefined;
-        entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((CSIM0max - entity.properties.CSIM0) / (CSIM0max - CSIM0min)), 1, .5, viewModel.perf_alpha),
-            pixelSize: 8,
-            outlineWidth: 0.5,
-            scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
-        })
-    }
-    Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
-        function(newValue) {
-            for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((CSIM0max - entities[i].properties.CSIM0) / (CSIM0max - CSIM0min)), 1, .5, viewModel.perf_alpha);
-            }
-        }
-    );
-});
-
-var CSN0_DN = new Cesium.GeoJsonDataSource();
-CSN0_DN.load(get_performance_json).then(function() {
-    var entities = CSN0_DN.entities.values;
-    for (var i = 0; i < entities.length; i++) {
-        var entity = entities[i];
-        entity.billboard = undefined;
-        entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((CSIM0max - entity.properties.CSN0_DN) / (CSIM0max - CSN0_DNmin)), 1, .5, viewModel.perf_alpha),
-            pixelSize: 8,
-            outlineWidth: 0.5,
-            scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
-        })
-    }
-    Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
-        function(newValue) {
-            for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((CSN0_DNmax - entities[i].properties.CSN0_DN) / (CSN0_DNmax - CSN0_DNmin)), 1, .5, viewModel.perf_alpha);
-            }
-        }
-    );
-});
-
-var CSI0_DN = new Cesium.GeoJsonDataSource();
-CSI0_DN.load(get_performance_json).then(function() {
-    var entities = CSI0_DN.entities.values;
-    for (var i = 0; i < entities.length; i++) {
-        var entity = entities[i];
-        entity.billboard = undefined;
-        entity.point = new Cesium.PointGraphics({
-            color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((CSI0_DNmax - entity.properties.CSI0_DN) / (CSI0_DNmax - CSI0_DNmin)), 1, .5, viewModel.perf_alpha),
-            pixelSize: 8,
-            outlineWidth: 0.5,
-            scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
-        })
-    }
-    Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
-        function(newValue) {
-            for (var i = 0; i < entities.length; i++) {
-                entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((CSI0_DNmax - entities[i].properties.CSI0_DN) / (CSI0_DNmax - CSI0_DNmin)), 1, .5, viewModel.perf_alpha);
-            }
-        }
-    );
-});
-
 var GW = new Cesium.GeoJsonDataSource();
 GW.load(geojson_gw).then(function() {
     var entities = GW.entities.values;
@@ -463,6 +242,16 @@ checkbox8.addEventListener('change', function() {
     }
 }, false);
 
+var EIRP = new Cesium.GeoJsonDataSource();
+var ELEVATION = new Cesium.GeoJsonDataSource();
+var SAT_GPT = new Cesium.GeoJsonDataSource();
+var DIST = new Cesium.GeoJsonDataSource();
+var FSL_UP = new Cesium.GeoJsonDataSource();
+var FSL_DN = new Cesium.GeoJsonDataSource();
+var EFFICIENCY = new Cesium.GeoJsonDataSource();
+var CSIM0 = new Cesium.GeoJsonDataSource();
+var CSN0_DN = new Cesium.GeoJsonDataSource();
+var CSI0_DN = new Cesium.GeoJsonDataSource();
 
 var checkbox = document.getElementById('showVSATCheckbox');
 $("#performance").change(function() {
@@ -472,78 +261,304 @@ $("#performance").change(function() {
         if (el.val() === "EIRP") {
             if (checkbox.checked) {
                 if (!viewer.dataSources.contains(EIRP)) {
+                    EIRP.load(get_performance_json).then(function() {
+                        var entities = EIRP.entities.values;
+                        for (var i = 0; i < entities.length; i++) {
+                            var entity = entities[i];
+                            entity.billboard = undefined;
+                            entity.point = new Cesium.PointGraphics({
+                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((EIRPmax - entity.properties.EIRP) / (EIRPmax - EIRPmin)), 1, .5, viewModel.perf_alpha),
+                                pixelSize: 8,
+                                outlineWidth: 0.5,
+                                scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
+                            })
+                        }
+                        Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
+                            function(newValue) {
+                                for (var i = 0; i < entities.length; i++) {
+                                    entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((EIRPmax - entities[i].properties.EIRP) / (EIRPmax - EIRPmin)), 1, .5, viewModel.perf_alpha);
+                                }
+                            }
+                        );
+                    });
                     viewer.dataSources.add(EIRP);
+                } else {
+                        EIRP._entityCollection._show = true
                 }
             }
         } else if (el.val() === "Elevation") {
             if (checkbox.checked) {
                 if (!viewer.dataSources.contains(ELEVATION)) {
+                    ELEVATION.load(get_performance_json).then(function() {
+                        var entities = ELEVATION.entities.values;
+                        for (var i = 0; i < entities.length; i++) {
+                            var entity = entities[i];
+                            entity.billboard = undefined;
+                            entity.point = new Cesium.PointGraphics({
+                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((ELEVATIONmax - entity.properties.ELEVATION) / (ELEVATIONmax - ELEVATIONmin)), 1, .5, viewModel.perf_alpha),
+                                pixelSize: 8,
+                                outlineWidth: 0.5,
+                                scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
+                            })
+                        }
+                        Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
+                            function(newValue) {
+                                for (var i = 0; i < entities.length; i++) {
+                                    entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((ELEVATIONmax - entities[i].properties.ELEVATION) / (ELEVATIONmax - ELEVATIONmin)), 1, .5, viewModel.perf_alpha);
+                                }
+                            }
+                        );
+                    });
                     viewer.dataSources.add(ELEVATION);
+                } else {
+                        ELEVATION._entityCollection._show = true
                 }
             }
         } else if (el.val() === "GPT") {
             if (checkbox.checked) {
                 if (!viewer.dataSources.contains(SAT_GPT)) {
+                    SAT_GPT.load(get_performance_json).then(function() {
+                        var entities = SAT_GPT.entities.values;
+                        for (var i = 0; i < entities.length; i++) {
+                            var entity = entities[i];
+                            entity.billboard = undefined;
+                            entity.point = new Cesium.PointGraphics({
+                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((SAT_GPTmax - entity.properties.SAT_GPT) / (SAT_GPTmax - SAT_GPTmin)), 1, .5, viewModel.perf_alpha),
+                                pixelSize: 8,
+                                outlineWidth: 0.5,
+                                scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
+                            })
+                        }
+                        Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
+                            function(newValue) {
+                                for (var i = 0; i < entities.length; i++) {
+                                    entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((SAT_GPTmax - entities[i].properties.SAT_GPT) / (SAT_GPTmax - SAT_GPTmin)), 1, .5, viewModel.perf_alpha);
+                                }
+                            }
+                        );
+                    });
+
                     viewer.dataSources.add(SAT_GPT);
+                } else {
+                        SAT_GPT._entityCollection._show = true
                 }
             }
         } else if (el.val() === "DIST") {
             if (checkbox.checked) {
                 if (!viewer.dataSources.contains(DIST)) {
+                    DIST.load(get_performance_json).then(function() {
+                        var entities = DIST.entities.values;
+                        for (var i = 0; i < entities.length; i++) {
+                            var entity = entities[i];
+                            entity.billboard = undefined;
+                            entity.point = new Cesium.PointGraphics({
+                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((DISTmax - entity.properties.DIST) / (DISTmax - DISTmin)), 1, .5, viewModel.perf_alpha),
+                                pixelSize: 8,
+                                outlineWidth: 0.5,
+                                scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
+                            })
+                        }
+                        Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
+                            function(newValue) {
+                                for (var i = 0; i < entities.length; i++) {
+                                    entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((DISTmax - entities[i].properties.DIST) / (DISTmax - DISTmin)), 1, .5, viewModel.perf_alpha);
+                                }
+                            }
+                        );
+                    });
+
                     viewer.dataSources.add(DIST);
+                } else {
+                        DIST._entityCollection._show = true
                 }
             }
         } else if (el.val() === "FSL_UP") {
             if (checkbox.checked) {
                 if (!viewer.dataSources.contains(FSL_UP)) {
+                    FSL_UP.load(get_performance_json).then(function() {
+                        var entities = FSL_UP.entities.values;
+                        for (var i = 0; i < entities.length; i++) {
+                            var entity = entities[i];
+                            entity.billboard = undefined;
+                            entity.point = new Cesium.PointGraphics({
+                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((FSL_UPmax - entity.properties.FSL_UP) / (FSL_UPmax - FSL_UPmin)), 1, .5, viewModel.perf_alpha),
+                                pixelSize: 8,
+                                outlineWidth: 0.5,
+                                scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
+                            })
+                        }
+                        Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
+                            function(newValue) {
+                                for (var i = 0; i < entities.length; i++) {
+                                    entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((FSL_UPmax - entities[i].properties.FSL_UP) / (FSL_UPmax - FSL_UPmin)), 1, .5, viewModel.perf_alpha);
+                                }
+                            }
+                        );
+                    });
+
                     viewer.dataSources.add(FSL_UP);
+                } else {
+                        FSL_UP._entityCollection._show = true
                 }
             }
         } else if (el.val() === "FSL_DN") {
             if (checkbox.checked) {
                 if (!viewer.dataSources.contains(FSL_DN)) {
+                    FSL_DN.load(get_performance_json).then(function() {
+                        var entities = FSL_DN.entities.values;
+                        for (var i = 0; i < entities.length; i++) {
+                            var entity = entities[i];
+                            entity.billboard = undefined;
+                            entity.point = new Cesium.PointGraphics({
+                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((FSL_DNmax - entity.properties.FSL_DN) / (FSL_DNmax - FSL_DNmin)), 1, .5, viewModel.perf_alpha),
+                                pixelSize: 8,
+                                outlineWidth: 0.5,
+                                scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
+                            })
+                        }
+                        Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
+                            function(newValue) {
+                                for (var i = 0; i < entities.length; i++) {
+                                    entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((FSL_DNmax - entities[i].properties.FSL_DN) / (FSL_DNmax - FSL_DNmin)), 1, .5, viewModel.perf_alpha);
+                                }
+                            }
+                        );
+                    });
+
                     viewer.dataSources.add(FSL_DN);
+                } else {
+                        FSL_DN._entityCollection._show = true
                 }
             }
         } else if (el.val() === "EFFICIENCY") {
             if (checkbox.checked) {
                 if (!viewer.dataSources.contains(EFFICIENCY)) {
+                    EFFICIENCY.load(get_performance_json).then(function() {
+                        var entities = EFFICIENCY.entities.values;
+                        for (var i = 0; i < entities.length; i++) {
+                            var entity = entities[i];
+                            entity.billboard = undefined;
+                            entity.point = new Cesium.PointGraphics({
+                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((EFFICIENCYmax - entity.properties.EFFICIENCY) / (EFFICIENCYmax - EFFICIENCYmin)), 1, .5, viewModel.perf_alpha),
+                                pixelSize: 8,
+                                outlineWidth: 0.5,
+                                scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
+                            })
+                        }
+                        Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
+                            function(newValue) {
+                                for (var i = 0; i < entities.length; i++) {
+                                    entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((EFFICIENCYmax - entities[i].properties.EFFICIENCY) / (EFFICIENCYmax - EFFICIENCYmin)), 1, .5, viewModel.perf_alpha);
+                                }
+                            }
+                        );
+                    });
+
                     viewer.dataSources.add(EFFICIENCY);
+                } else {
+                        EFFICIENCY._entityCollection._show = true
                 }
             }
         } else if (el.val() === "CSIM0") {
             if (checkbox.checked) {
                 if (!viewer.dataSources.contains(CSIM0)) {
+                    CSIM0.load(get_performance_json).then(function() {
+                        var entities = CSIM0.entities.values;
+                        for (var i = 0; i < entities.length; i++) {
+                            var entity = entities[i];
+                            entity.billboard = undefined;
+                            entity.point = new Cesium.PointGraphics({
+                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((CSIM0max - entity.properties.CSIM0) / (CSIM0max - CSIM0min)), 1, .5, viewModel.perf_alpha),
+                                pixelSize: 8,
+                                outlineWidth: 0.5,
+                                scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
+                            })
+                        }
+                        Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
+                            function(newValue) {
+                                for (var i = 0; i < entities.length; i++) {
+                                    entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((CSIM0max - entities[i].properties.CSIM0) / (CSIM0max - CSIM0min)), 1, .5, viewModel.perf_alpha);
+                                }
+                            }
+                        );
+                    });
+
                     viewer.dataSources.add(CSIM0);
+                } else {
+                        CSIM0._entityCollection._show = true
                 }
             }
         } else if (el.val() === "CSN0_DN") {
             if (checkbox.checked) {
                 if (!viewer.dataSources.contains(CSN0_DN)) {
+                    CSN0_DN.load(get_performance_json).then(function() {
+                        var entities = CSN0_DN.entities.values;
+                        for (var i = 0; i < entities.length; i++) {
+                            var entity = entities[i];
+                            entity.billboard = undefined;
+                            entity.point = new Cesium.PointGraphics({
+                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((CSIM0max - entity.properties.CSN0_DN) / (CSIM0max - CSN0_DNmin)), 1, .5, viewModel.perf_alpha),
+                                pixelSize: 8,
+                                outlineWidth: 0.5,
+                                scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
+                            })
+                        }
+                        Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
+                            function(newValue) {
+                                for (var i = 0; i < entities.length; i++) {
+                                    entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((CSN0_DNmax - entities[i].properties.CSN0_DN) / (CSN0_DNmax - CSN0_DNmin)), 1, .5, viewModel.perf_alpha);
+                                }
+                            }
+                        );
+                    });
                     viewer.dataSources.add(CSN0_DN);
+                } else {
+                        CSN0_DN._entityCollection._show = true
                 }
             }
         } else if (el.val() === "CSI0_DN") {
             if (checkbox.checked) {
                 if (!viewer.dataSources.contains(CSI0_DN)) {
+                    CSI0_DN.load(get_performance_json).then(function() {
+                        var entities = CSI0_DN.entities.values;
+                        for (var i = 0; i < entities.length; i++) {
+                            var entity = entities[i];
+                            entity.billboard = undefined;
+                            entity.point = new Cesium.PointGraphics({
+                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((CSI0_DNmax - entity.properties.CSI0_DN) / (CSI0_DNmax - CSI0_DNmin)), 1, .5, viewModel.perf_alpha),
+                                pixelSize: 8,
+                                outlineWidth: 0.5,
+                                scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
+                            })
+                        }
+                        Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
+                            function(newValue) {
+                                for (var i = 0; i < entities.length; i++) {
+                                    entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((CSI0_DNmax - entities[i].properties.CSI0_DN) / (CSI0_DNmax - CSI0_DNmin)), 1, .5, viewModel.perf_alpha);
+                                }
+                            }
+                        );
+                    });
                     viewer.dataSources.add(CSI0_DN);
+                } else {
+                        CSI0_DN._entityCollection._show = true
                 }
             }
         }
     }, false);
 });
-
+//
 $("#clear").click(function() {
-    viewer.dataSources.remove(EIRP);
-    viewer.dataSources.remove(ELEVATION);
-    viewer.dataSources.remove(SAT_GPT);
-    viewer.dataSources.remove(DIST);
-    viewer.dataSources.remove(FSL_UP);
-    viewer.dataSources.remove(FSL_DN);
-    viewer.dataSources.remove(EFFICIENCY);
-    viewer.dataSources.remove(CSIM0);
-    viewer.dataSources.remove(CSN0_DN);
-    viewer.dataSources.remove(CSI0_DN);
+    EIRP._entityCollection._show = false
+    ELEVATION._entityCollection._show = false
+    SAT_GPT._entityCollection._show = false
+    DIST._entityCollection._show = false
+    FSL_UP._entityCollection._show = false
+    FSL_DN._entityCollection._show = false
+    EFFICIENCY._entityCollection._show = false
+    CSIM0._entityCollection._show = false
+    CSN0_DN._entityCollection._show = false
+    CSI0_DN._entityCollection._show = false
 });
 
 
@@ -556,6 +571,5 @@ $("#screenshot").click(function() {
     window.open(viewer.canvas.toDataURL("image/png"));
 });
 
-viewer.zoomTo(EIRP, new Cesium.HeadingPitchRange(40, -90, 9000000));
 var credit = new Cesium.Credit('Catapult', catapult_logo, 'http://sa.catapult.org.uk');
 viewer.scene.frameState.creditDisplay.addDefaultCredit(credit);

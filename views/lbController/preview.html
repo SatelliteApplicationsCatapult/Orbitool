@@ -212,6 +212,10 @@ viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40, -90, 9000000));
           Download spreadsheet
       </button>
 
+      <button class="btn" id="refresh">
+        Full viewer refresh
+      </button>
+
       <button class="btn" id="cesium">
           Plot in Cesium
       </button>
@@ -233,6 +237,68 @@ $(document).ready(function(){
     });
     $("#cesium").click(function(){
         window.open("{{=URL('cesium',args = request.args(0))}}");
+    });
+    $("#refresh").click(function(){
+        viewer.dataSources.removeAll()
+        SAT.load("{{=URL('lbController', 'get_geojson_sat',args=[request.args(0)])}}").then(function () {
+            var entities = SAT.entities.values;
+            for (var i = 0; i < entities.length; i++) {
+                var entity = entities[i];
+                entity.billboard = new Cesium.BillboardGraphics({
+                    image: "{{=URL("static","images/satellite.gif")}}",
+                })
+            }
+        });
+        FOV.load("{{=URL('lbController', 'get_geojson_FOV',args=[request.args(0)])}}").then(function () {
+            var entities = FOV.entities.values;
+            for (var i = 0; i < entities.length; i++) {
+                var entity = entities[i];
+                entity.billboard = undefined;
+                entity.cylinder = new Cesium.CylinderGraphics({
+                    length: entity.properties.Height * 1000,
+                    topRadius: 0,
+                    bottomRadius: entity.properties.BottomRadius,
+                    outlineWidth: 2,
+                    outline: true,
+                    numberOfVerticalLines: 0,
+                    material: Cesium.Color.fromRandom({alpha: 0.1}),
+                })
+            }
+        });
+        FOV_CIRCLE.load("{{=URL('lbController', 'SAT_FOV_to_JSON',args=[request.args(0)])}}").then(function () {
+            var entities = FOV_CIRCLE.entities.values;
+            for (var i = 0; i < entities.length; i++) {
+                var entity = entities[i];
+                entity.polyline.loop = true;
+                entity.polyline.material = Cesium.Color.BLACK;
+                entity.polyline.width = .8;// lines get displayed properly with red strok
+            }
+        });
+        TRSP_FOV_CIRCLE.load("{{=URL('lbController', 'TRSP_FOV_to_JSON',args=[request.args(0)])}}").then(function () {
+            var entities = TRSP_FOV_CIRCLE.entities.values;
+            for (var i = 0; i < entities.length; i++) {
+                var entity = entities[i];
+                entity.polyline.loop = true;
+                entity.polyline.material = Cesium.Color.LIGHTGREY;
+                entity.polyline.width = .8;
+            }
+        });
+
+        GW.load("{{=URL('lbController', 'get_geojson_gw',args=[request.args(0)])}}").then(function() {
+            var entities = GW.entities.values;
+            for (var i = 0; i < entities.length; i++) {
+                var entity = entities[i];
+                entity.billboard = new Cesium.BillboardGraphics({
+                    image: "{{=URL("static","images/groundstation.gif")}}", //This image ships with cesium I believe
+                });
+            }
+        });
+
+        viewer.dataSources.add(SAT);
+        viewer.dataSources.add(GW);
+        viewer.dataSources.add(FOV);
+        viewer.dataSources.add(FOV_CIRCLE);
+        viewer.dataSources.add(TRSP_FOV_CIRCLE);
     });
 });
 
