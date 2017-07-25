@@ -37,6 +37,13 @@
         font-weight: normal;
         color: #ffffff;
     }
+
+    .toolbar-left {
+        display: block;
+        top: 44px;
+        left: 30px;
+        position: relative;
+        z-index: 1;
     </style>
 </head>
 <body>
@@ -44,8 +51,16 @@
 <div class="container">
   <div class="row">
     <div class="col-6">
-<div  id="cesiumContainer" style="margin-left:auto; margin-right:auto; width:100%;padding:10px;height:500px;overflow: auto"></div>
+<div  id="cesiumContainer" style="margin-left:auto; margin-right:auto; width:100%;padding:30px;height:550px;overflow: none">
+    <div class="toolbar-left">
+
+    <button class="btn" id="refresh">Refresh</button>
+    </div>
 </div>
+
+</div>
+      </div>
+    </div>
 <script>
 Cesium.BingMapsApi.defaultKey = '***REMOVED***'
 var viewer = new Cesium.Viewer('cesiumContainer', {
