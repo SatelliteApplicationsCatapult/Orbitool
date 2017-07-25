@@ -229,7 +229,7 @@ dbLinkBudget.define_table('Job',
                           Field('description', 'string'),
                           Field('Date', 'string', default=request.now, update=request.now, writable=False,
                                 label='Upload Date'),
-                          Field('file_up', 'upload', requires=IS_NOT_EMPTY(), label='File (excel spreadsheet)',
+                          Field('file_up', 'upload', requires=IS_NOT_EMPTY(), label='',
                                 autodelete=True),
                           )
 dbLinkBudget.Job.file_up.requires = IS_UPLOAD_FILENAME(extension='^(xlsx|xls|xml)$')

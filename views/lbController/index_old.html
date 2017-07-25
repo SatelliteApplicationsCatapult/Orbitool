@@ -1,0 +1,74 @@
+{{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
+{{extend 'layout.html'}}
+
+{{block header}}
+    <header class="container-fluid background">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{=URL('static','css/general.css')}}"/>
+        <style>
+            container-fluid main-container {
+                background-color: black;
+            }
+            body {
+                background-color: black;
+                background-image: url({{=URL("static","images/home_image.jpg")}});
+                background-repeat: no-repeat;
+                background-position: right;
+                background-size: contain;
+            }
+
+            * {
+                color: white;
+            }
+            #form {
+                padding-top: 50px;
+            }
+            h4 {
+                font-weight: bold;
+            }
+            .main-container {
+                margin-top: 10%;
+            }
+            a {
+                color: white;
+                text-decoration: none;
+            }
+            #credit {
+                position: fixed;
+                bottom: 25px;
+                right: 25px;
+            }
+        </style>
+    </header>
+{{end}}
+
+{{response.title='Input Form'}}
+{{extend 'layout.html'}}
+<body>
+  <div class="container">
+    <div class= "row">
+      <div class="col-lg-5 col-xs-4">
+          <h3>Orbitool is a 3D visualiser for Satellites.</h3>
+          <h3>It performs link budget calculations and displays the output using cesiumjs.</h3>
+        <h3>
+            Begin below
+        </h3>
+          <div id = "form">
+              <h4>Input scenario details</h4>
+        {{=form}}
+              <p> Sample files:</p><p>
+          <a href="{{=URL("static","excel/DB_Const_valide_sat_xyz_trsp_corrected.xlsx")}}" target="_blank">Single Satellite FWD</a>
+        </p>
+              <p>
+          <a href="{{=URL("static","excel/DB_Const_valide_sat_xyz_RTN.xlsx")}}" target="_blank">Single Satellite RTN</a>
+      </p>
+      </div></div>
+    <div class="col-lg-9" id="image_earth">
+    </div>
+    </div>
+    </div>
+  </div>
+<footer id = "credit">
+    <img src="{{=URL("static", "images/saWhite.png")}}">
+</footer>
+</body>
