@@ -26,23 +26,25 @@ editableGridsat = new window.EditableGrid("satgrid", {
 
     // called when some value has been modified: we display a message
     modelChanged: function(rowIdx, colIdx, oldValue, newValue, row) {
-
+        var lon = editableGridsat.data[rowIdx].columns[2];
+        var lat = editableGridsat.data[rowIdx].columns[1];
+        var alt = editableGridsat.data[rowIdx].columns[3];
         //Longitude Change
         if (colIdx == 1) {
-            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], newValue, editableGridsat.data[rowIdx].columns[3]*1000))
-            FOV.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], newValue, editableGridsat.data[rowIdx].columns[3]*1000/2))
+            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(lon, newValue, alt*1000))
+            SUBSAT.entities._entities._array[rowIdx]._polyline._positions.setValue([Cesium.Cartesian3.fromDegrees(lon, newValue, 0),Cesium.Cartesian3.fromDegrees(lon, newValue, alt*1000)])
+
         }
         //Latitude Change
         if (colIdx == 2) {
-            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(newValue, editableGridsat.data[rowIdx].columns[1], editableGridsat.data[rowIdx].columns[3]*1000))
-            FOV.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(newValue, editableGridsat.data[rowIdx].columns[1], editableGridsat.data[rowIdx].columns[3]*1000/2))
+            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(newValue, lat, alt*1000))
+            SUBSAT.entities._entities._array[rowIdx]._polyline._positions.setValue([Cesium.Cartesian3.fromDegrees(newValue, lat, 0),Cesium.Cartesian3.fromDegrees(newValue, lat, alt*1000)])
+
         }
         // Altitude Change
         if (colIdx == 3) {
-            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], editableGridsat.data[rowIdx].columns[1], newValue*1000))
-            FOV.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], editableGridsat.data[rowIdx].columns[1], newValue*1000/2))
-            FOV.entities._entities._array[rowIdx]._cylinder._length.setValue(newValue*1000)
-            FOV.entities._entities._array[rowIdx]._cylinder._bottomRadius.setValue(newValue * 1000 * Math.tan((3.14159 / 180) * editableGridsat.data[rowIdx].columns[4]))
+            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(lon, lat, newValue*1000))
+            SUBSAT.entities._entities._array[rowIdx]._polyline._positions.setValue([Cesium.Cartesian3.fromDegrees(lon, lat, 0),Cesium.Cartesian3.fromDegrees(lon, lat, newValue*1000)])
         }
         $.ajax({
             type: "POST",
@@ -54,16 +56,6 @@ editableGridsat = new window.EditableGrid("satgrid", {
                 "rowid": row,
             })
         }).done(function(msg) {});
-
-        SAT.load("/get_geojson_sat/"+window.location.pathname.split('/')[2]).then(function () {
-        var entities = SAT.entities.values;
-        for (var i = 0; i < entities.length; i++) {
-            var entity = entities[i];
-            entity.billboard = new Cesium.BillboardGraphics({
-                image: "/linkbudgetweb/static/images/satellite.gif",
-            })
-        }
-        });
     }
 });
 

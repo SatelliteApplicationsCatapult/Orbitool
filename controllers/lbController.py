@@ -787,7 +787,7 @@ def get_geojson_sat():
                                      ]
                  },
                  "properties": {
-                     "title": "SAT" + " " + str(row[satellite.SAT_ID]),
+                     "title": "SAT" + " " + str(int(row[satellite.SAT_ID])),
                      "Height (km)": row[satellite.DISTANCE],
                      "Field of View (degrees)": row[satellite.FOV_RADIUS],
                      "Payload ID": row[satellite.PAYLOAD_ID],
