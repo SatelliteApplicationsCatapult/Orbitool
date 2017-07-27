@@ -93,3 +93,7 @@ body {
   width:50%;
   text-align: center;
 }
+
+#refresh.btn {
+    height: 35px;
+}
