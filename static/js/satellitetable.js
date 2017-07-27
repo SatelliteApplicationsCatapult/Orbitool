@@ -21,7 +21,7 @@ editableGridsat = new window.EditableGrid("satgrid", {
         }));
 
         // render the grid
-        this.renderGrid("satellite_tablecontent", "testgrid");
+        this.renderGrid("satellite_tablecontent", "testgrid", "sat");
     },
 
     // called when some value has been modified: we display a message

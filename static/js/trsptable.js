@@ -20,7 +20,7 @@ editableGridtrsp = new window.EditableGrid("trspgrid", {
         }));
 
         // render the grid
-        this.renderGrid("trsp_tablecontent", "testgrid");
+        this.renderGrid("trsp_tablecontent", "testgrid", "trsp");
     },
 
     // called when some value has been modified: we display a message

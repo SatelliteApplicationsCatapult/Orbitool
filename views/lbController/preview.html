@@ -47,7 +47,6 @@
     </style>
 </head>
 <body>
-<h1>Preview</h1>
 <div class="container">
   <div class="row">
     <div class="col-6">
@@ -175,6 +174,8 @@ viewer.dataSources.add(FOV);
 viewer.dataSources.add(FOV_CIRCLE);
 viewer.dataSources.add(TRSP_FOV_CIRCLE);
 viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40, -90, 9000000));
+var credit = new Cesium.Credit('Catapult', "{{=URL("static","images/saWhite26.png")}}", 'http://sa.catapult.org.uk');
+viewer.scene.frameState.creditDisplay.addDefaultCredit(credit);
 </script>
 
 <div class="col-6">

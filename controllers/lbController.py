@@ -30,7 +30,8 @@ response.title = 'Orbitool'
 
 
 def index():
-    """ Input form """  # TODO: Think about adding drag and drop plugin
+    """ Input form """
+    # TODO: Think about adding drag and drop plugin
     # TODO : separate the form
     session.job = ""
     record = dbLinkBudget.Job(request.args(0))
@@ -87,6 +88,9 @@ def add_excel_2_db():
 
 def preview():
     # SQL FORM
+    """
+    This form is to determine which calculations to perform
+    """
     job_id = request.args(0)
     dbLinkBudget.Calculate.processed.readable = False
     dbLinkBudget.Calculate.processed.writable = False
@@ -120,7 +124,11 @@ def delete_row_editablegrid():
         print "delete successfull"
 
 
-def copy():  # TODO: Add all of the new fields to this list
+def copy():
+    """
+    Copy function for eitablegrid on the preview page
+    :return:
+    """
     data = json.loads(request.post_vars.array)
     if data['table'] == 'SAT':
         row = dbLinkBudget(dbLinkBudget.SAT.id == data['rowid']).select(dbLinkBudget.SAT.ALL).first()
@@ -141,7 +149,7 @@ def copy():  # TODO: Add all of the new fields to this list
 def ajax_to_db():
     """
     read from editableGrid
-    ajax and write to the datatables
+    ajax and write to the database tables
     """
     temparray = json.loads(request.post_vars.array)
     if temparray["table"] == "SAT":
@@ -215,6 +223,9 @@ def ajax_to_db():
 
 
 def transponder_JSON():
+    """
+    Returns a JSON to be read by the editablegrid
+    """
     job_id = request.args(0)
     trsp_table = dbLinkBudget.TRSP
     rows = dbLinkBudget(trsp_table.Job_ID == request.args(0)).select(trsp_table.id, trsp_table.PAYLOAD_ID, trsp_table.TRSP_ID,
@@ -261,6 +272,10 @@ def transponder_JSON():
 
 
 def satellite_table_JSON():
+    """
+    returns a json for the satellite editablegrid
+    :return:
+    """
     job_id = request.args(0)
     sat_table = dbLinkBudget.SAT
     rows = dbLinkBudget(sat_table.Job_ID == request.args(0)).select(sat_table.id, sat_table.SAT_ID, sat_table.NADIR_LON,
@@ -309,6 +324,10 @@ def satellite_table_JSON():
 
 
 def gw_table_JSON():
+    """
+    returns a json for the gw editablegrid
+    :return:
+    """
     job_id = request.args(0)
     gw_table = dbLinkBudget.Earth_coord_GW
     rows = dbLinkBudget(gw_table.Job_ID == request.args(0)).select(gw_table.id, gw_table.LAT, gw_table.LON,
@@ -361,11 +380,8 @@ def download():
 
 def create_download():
     """
-    Creates downloadable file.
-    This is called in update.html under options
-
-    TODO: consider using lists instead of dictionaries so that the download excel is ordered.
-    TODO: at RX fields
+    creates an excel spreadsheet to be downloaded
+    #TODO style the spreadsheet and remove unecessary values
     """
     if dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == request.args(0)):
         sheets = []
@@ -397,6 +413,10 @@ def create_download():
 
 
 def SAT_FOV_to_JSON():
+    """
+    create json with satellite field of view
+    :return:
+    """
     job_id = request.args(0)
     SAT_dict = datatable_to_dict(dbLinkBudget.SAT, job_id, dbLinkBudget)
     # -----------------  1/ Compute SAT geometric params ------------------
@@ -433,6 +453,10 @@ def SAT_FOV_to_JSON():
 
 
 def TRSP_FOV_to_JSON():
+    """
+    create json with transponder field of views
+    :return:
+    """
     job_id = request.args(0)
     SAT_dict = datatable_to_dict(dbLinkBudget.SAT, job_id, dbLinkBudget)
     TRSP_dict = datatable_to_dict(dbLinkBudget.TRSP, job_id, dbLinkBudget)
@@ -476,13 +500,8 @@ def TRSP_FOV_to_JSON():
 
 def run():
     """
-    This runs the processing of the excel file.
-    Currently asks which propagation library is being used.
-    Adds EIRP values (in fact it outputs temperature at the moment)
-    Updates 'processed' checkbox.
-
-    Returns:
-        Refreshes the update page
+    Runs either FWD or RTN mode based on the input form.
+    List of functions that call damien's library
 
     """
     job_id = request.args(0)
@@ -622,6 +641,7 @@ def VSATcoverage(lat, lon, npoints, distance):
 
     Usage example:
     VSATcoverage(-90,0,300,.2)
+    UNUSED
     """
     sidelength = np.floor(np.sqrt(npoints))
     lonarray_calc = np.arange(
@@ -649,12 +669,6 @@ def VSATcoverage(lat, lon, npoints, distance):
     lonfull = np.tile(lonarray, sidelength)
     EARTH_COORD_VSAT_dict = {'LON': lonfull, 'LAT': latfull}
     return EARTH_COORD_VSAT_dict
-
-
-def testthis():
-    return VSATcoverage(-90., 0., 300.,
-                        0.2)  # you need to convert the output from a np array to something else to show it in a
-    # browser. Or do eg lonarray[3]
 
 
 def get_performance_json():
@@ -863,16 +877,3 @@ def api():
             raise HTTP(parser.status, parser.error)
 
     return dict(GET=GET)
-
-
-def options_widget(field, value, **kwargs):
-    return SQLFORM.widgets.options.widget(field, value, **kwargs)
-
-
-def string_widget(field, value, **kwargs):
-    return SQLFORM.widgets.string.widget(field, value, **kwargs)
-
-
-def boolean_widget(field, value, **kwargs):
-    # be careful using this; checkboxes on forms are tricky. see notes below.
-    return SQLFORM.widgets.boolean.widget(field, value, **kwargs)

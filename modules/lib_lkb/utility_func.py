@@ -1,3 +1,5 @@
+# I (Simon) RENAMED THIS FROM FUNCTIONS_TO_USE.py just to make it harder to update the library :)
+
 # -*- coding: utf-8 -*-
 """
 Created on Wed Dec 10 09:12:39 2014

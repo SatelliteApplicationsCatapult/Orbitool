@@ -20,7 +20,7 @@ editableGridgw = new window.EditableGrid("gwgrid", {
         }));
 
         // render the grid
-        this.renderGrid("gw_tablecontent", "testgrid");
+        this.renderGrid("gw_tablecontent", "testgrid", "gw");
     },
 
     // called when some value has been modified: we display a message
