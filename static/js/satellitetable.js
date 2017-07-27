@@ -14,9 +14,9 @@ editableGridsat = new window.EditableGrid("satgrid", {
         this.setCellRenderer("action", new CellRenderer({
             render: function(cell, value) {
                 cell.innerHTML = "<a onclick=\"if (confirm('Are you sure you want to delete this? Note this feature is experimental and doesnt work 100% of the time')) editableGridsat.remove(" + cell.rowIndex+ "); editableGridsat.delete(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
-                    "<img src=\"/linkbudgetweb/static/images/delete.png\" border=\"0\" alt=\"delete\" title=\"delete\"/></a>";
+                    "<img height='23px' src=\"/linkbudgetweb/static/images/delete_sat.png\" border=\"0\" alt=\"delete\" title=\"Delete\"/></a>";
                 cell.innerHTML+= "&nbsp;<a onclick=\"editableGridsat.duplicate(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
-                    "<img src=\"/linkbudgetweb/static/images/duplicate.png\" border=\"0\" alt=\"duplicate\" title=\"Duplicate row\"/></a>";
+                    "<img src=\"/linkbudgetweb/static/images/duplicate.png\" border=\"0\" alt=\"duplicate\" title=\"Copy\"/></a>";
             }
         }));
 

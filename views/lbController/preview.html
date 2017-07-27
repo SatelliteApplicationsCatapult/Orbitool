@@ -218,20 +218,20 @@ viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40, -90, 9000000));
   </div>
 </div>
 <div id="tabs-4">
-        <h1>Calculations</h1>
-        {{=form}}
-
-    <div class = "Bwidget">
-      <h1>Actions</h1>
-      <button class="btn" id="processed">
-          Download spreadsheet
-      </button>
-
-      <button class="btn" id="cesium">
-          Plot in Cesium
-      </button>
-      {{pass}}
+    <div class="col-lg-5 col-xs-4">
+    {{=form}}
     </div>
+    <div class="col-lg-5 col-xs-4">
+        <div class = "Bwidget">
+        <input type="image" src="{{=URL("static","images/download_spreadsheet.png")}}" alt = "Download Spreadsheet" title="Download Spreadsheet" class="btn" id="processed" />
+
+        <button class="btn" id="cesium">
+          Plot in Cesium
+        </button>
+        {{pass}}
+        </div>
+    </div>
+    <div></div>
 </div>
 </div>
 </div>

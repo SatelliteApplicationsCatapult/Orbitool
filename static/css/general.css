@@ -5,6 +5,53 @@
     font-size: 22px;
 }
 
+
+
+.ui-tabs .ui-tabs-nav {
+    text-align: center;
+}
+
+.ui-tabs .ui-tabs-nav li {
+    float: none !important;
+    display: inline-block;
+}
+
+#ui-id-1
+{
+background: #3C6A89;
+    color: white;
+}
+#ui-id-2
+{
+background: #735177;
+    color: white;
+}
+#ui-id-3
+{
+background: #803F5D;
+    color: white;
+}
+#ui-id-4
+{
+background: #C4294E;
+    color: white;
+}
+
+
+
+#tabs-4{
+    height: 219px;
+}
+
+#previewgo {
+    fill: black;
+    height: 26px;
+    padding-left: 28%;
+}
+
+#processed {
+    height: 46px;
+  }
 input {
     color: black
 }

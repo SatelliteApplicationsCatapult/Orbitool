@@ -31,7 +31,7 @@
                 <th>Name </th>
                 <th>Description</th>
                  <th>Date</th>
-                <th>Links</th>
+                <th>Preview</th>
             </tr>
         </thead>
     </table>
@@ -50,7 +50,7 @@ $(document).ready(function(){
             { data: 'job_name' },
             { data: 'description'},
             { data: 'Date'},
-            {width: '70px', "defaultContent": '<button class="btn-update" type="button">Preview</button>'}
+            {width: '70px', "defaultContent": '<input type="image" src="{{=URL("static","images/enter_preview.png")}}" name="saveForm" class="btn-update" id="previewgo" />'}
         ],
         order: [[0,'desc']]
     });

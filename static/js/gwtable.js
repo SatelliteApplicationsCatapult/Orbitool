@@ -12,9 +12,9 @@ editableGridgw = new window.EditableGrid("gwgrid", {
         this.setCellRenderer("action", new CellRenderer({
             render: function(cell, value) {
                 cell.innerHTML = "<a onclick=\"if (confirm('Are you sure you want to delete this ? ')) editableGridgw.remove(" + cell.rowIndex + "); editableGridgw.delete(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
-                    "<img src=\"/linkbudgetweb/static/images/delete.png\" border=\"0\" alt=\"delete\" title=\"delete\"/></a>";
+                    "<img height='23px' src=\"/linkbudgetweb/static/images/delete_ut.png\" border=\"0\" alt=\"delete\" title=\"Delete\"/></a>";
                 cell.innerHTML+= "&nbsp;<a onclick=\"editableGridgw.duplicate(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
-                    "<img src=\"/linkbudgetweb/static/images/duplicate.png\" border=\"0\" alt=\"duplicate\" title=\"Duplicate row\"/></a>";
+                    "<img src=\"/linkbudgetweb/static/images/duplicate.png\" border=\"0\" alt=\"duplicate\" title=\"Copy\"/></a>";
 
             }
         }));

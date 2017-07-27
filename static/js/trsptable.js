@@ -12,9 +12,9 @@ editableGridtrsp = new window.EditableGrid("trspgrid", {
         this.setCellRenderer("action", new CellRenderer({
             render: function(cell, value) {
                 cell.innerHTML = "<a onclick=\"if (confirm('Are you sure you want to delete this ? ')) editableGridtrsp.remove(" + cell.rowIndex + "); editableGridtrsp.delete(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
-                    "<img src=\"/linkbudgetweb/static/images/delete.png\" border=\"0\" alt=\"delete\" title=\"delete\"/></a>";
+                    "<img height='23px' src=\"/linkbudgetweb/static/images/delete_trsp.png\" border=\"0\" alt=\"delete\" title=\"Delete\"/></a>";
                 cell.innerHTML+= "&nbsp;<a onclick=\"editableGridtrsp.duplicate(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
-                    "<img src=\"/linkbudgetweb/static/images/duplicate.png\" border=\"0\" alt=\"duplicate\" title=\"Duplicate row\"/></a>";
+                    "<img src=\"/linkbudgetweb/static/images/duplicate.png\" border=\"0\" alt=\"duplicate\" title=\"Copy\"/></a>";
 
             }
         }));
