@@ -465,3 +465,8 @@ a.label-button:hover{
 .right {
     float: right;
 }
+#screenshot.btn {
+    height: 63px;
+    background-color: rgba(29, 116, 117,70);
+    margin-bottom: -5px
+}

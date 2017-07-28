@@ -47,7 +47,7 @@ function setMargins() {
     var w = document.body.clientWidth;
     var h = window.innerHeight;
 
-    var huse = h*(0.1-((((sw-w)/sw)/10)*1.25));
+    var huse = h*(0.08-((((sw-w)/sw)/10)*1.25));
     huse = (huse < 32 ? 32 : huse);
 
     $('#content').css('padding', huse+'px');

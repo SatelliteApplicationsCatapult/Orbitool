@@ -1,7 +1,6 @@
-var lbcesium = $('script[src*=lbcesium]');
+var lbcesium = jQuery('script[src*=lbcesium]');
 var geojson_sat = lbcesium.attr('geojson_sat');
 var geojson_gw = lbcesium.attr('geojson_gw');
-var geojson_FOV = lbcesium.attr('geojson_FOV');
 var geojson_FOV_circle = lbcesium.attr('geojson_FOV_circle');
 var geojson_TRSP_FOV = lbcesium.attr('geojson_TRSP_FOV');
 var satellite_img = lbcesium.attr('satellite_img');
@@ -19,11 +18,10 @@ var viewer = new Cesium.Viewer('cesiumContainer', {
     homeButton : false,
     geocoder: false
 
-});
+ });
+
+// hue change binder
 var viewModel = {
-    FOVcolors: Cesium.knockout.observable(['735078', '3c8d87', 'd26f52', '923d50', 'FFFFFF', '000000', 'adadad']),
-    FOVcolor: "735078",
-    FOValpha: "42",
     perf_alpha: 0.6,
     hue_scale: 1.0  ,
     hue_preset: [1.0,0.9,0.8,0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1],
@@ -32,7 +30,8 @@ Cesium.knockout.track(viewModel);
 var toolbar = document.getElementById('toolbar');
 Cesium.knockout.applyBindings(viewModel, toolbar);
 
-$.getJSON(performance_maxmin, function(json) {
+
+jQuery.getJSON(performance_maxmin, function(json) {
     maxminjson = json;
     EIRPmax = maxminjson["EIRP"]["max"][0]
     EIRPmin = maxminjson["EIRP"]["min"][0]
@@ -61,7 +60,6 @@ $.getJSON(performance_maxmin, function(json) {
 });
 
 
-
 var SAT = new Cesium.GeoJsonDataSource();
 SAT.load(geojson_sat).then(function() {
     var entities = SAT.entities.values;
@@ -82,39 +80,6 @@ SUBSAT.load(json_subsatellite).then(function() {
     }
 });
 
-
-var FOV = new Cesium.GeoJsonDataSource();
-FOV.load(geojson_FOV).then(function() {
-    var entities = FOV.entities.values;
-    for (var i = 0; i < entities.length; i++) {
-        var entity = entities[i];
-        entity.billboard = undefined;
-        entity.cylinder = new Cesium.CylinderGraphics({
-            length: entities[i].properties.Height * 1000,
-            topRadius: 0,
-            bottomRadius: entity.properties.BottomRadius,
-            outlineWidth: 2,
-            outline: true,
-            numberOfVerticalLines: 0,
-            material: Cesium.Color.fromRgba(["0x"] + [viewModel.FOValpha] + [viewModel.FOVcolor]),
-        });
-    }
-    Cesium.knockout.getObservable(viewModel, 'FOVcolor').subscribe(
-        function(newValue) {
-            for (var i = 0; i < entities.length; i++) {
-                entities[i].cylinder.material = Cesium.Color.fromRgba(["0x"] + [viewModel.FOValpha] + [newValue]);
-            }
-        }
-    );
-    Cesium.knockout.getObservable(viewModel, 'FOValpha').subscribe(
-        function(newValue) {
-            for (var i = 0; i < entities.length; i++) {
-                entities[i].cylinder.material = Cesium.Color.fromRgba(["0x"] + [newValue] + [viewModel.FOVcolor]);
-            }
-
-        }
-    );
-});
 var FOV_CIRCLE = new Cesium.GeoJsonDataSource();
 FOV_CIRCLE.load(geojson_FOV_circle).then(function() {
     var entities = FOV_CIRCLE.entities.values;
@@ -147,101 +112,8 @@ GW.load(geojson_gw).then(function() {
     }
 });
 
-var checkbox1 = document.getElementById('showSATCheckbox');
-checkbox1.addEventListener('change', function() {
-    // Checkbox state changed.
-    if (checkbox1.checked) {
-        // Show if not shown.
-        if (!viewer.dataSources.contains(SAT)) {
-            viewer.dataSources.add(SAT);
-        }
-    } else {
-        // Hide if currently shown.
-        if (viewer.dataSources.contains(SAT)) {
-            viewer.dataSources.remove(SAT);
-        }
-    }
-}, false);
-var checkboxline = document.getElementById('showLineCheckbox');
-checkboxline.addEventListener('change', function() {
-    // Checkbox state changed.
-    if (checkboxline.checked) {
-        // Show if not shown.
-        if (!viewer.dataSources.contains(SUBSAT)) {
-            viewer.dataSources.add(SUBSAT);
-        }
-    } else {
-        // Hide if currently shown.
-        if (viewer.dataSources.contains(SUBSAT)) {
-            viewer.dataSources.remove(SUBSAT);
-        }
-    }
-}, false);
-var checkbox2 = document.getElementById('showGWCheckbox');
-checkbox2.addEventListener('change', function() {
-    // Checkbox state changed.
-    if (checkbox2.checked) {
-        // Show if not shown.
-        if (!viewer.dataSources.contains(GW)) {
-            viewer.dataSources.add(GW);
-        }
-    } else {
-        // Hide if currently shown.
-        if (viewer.dataSources.contains(GW)) {
-            viewer.dataSources.remove(GW);
-        }
-    }
-}, false);
 
-var checkbox4 = document.getElementById('showFOVCheckbox');
-checkbox4.addEventListener('change', function() {
-    // Checkbox state changed.
-    if (checkbox4.checked) {
-        // Show if not shown.
-        if (!viewer.dataSources.contains(FOV)) {
-            viewer.dataSources.add(FOV);
-        }
-    } else {
-        // Hide if currently shown.
-        if (viewer.dataSources.contains(FOV)) {
-            viewer.dataSources.remove(FOV);
-        }
-    }
-}, false);
-
-var checkbox6 = document.getElementById('showTRSPCheckbox');
-checkbox6.addEventListener('change', function() {
-    // Checkbox state changed.
-    if (checkbox6.checked) {
-        // Show if not shown.
-        if (!viewer.dataSources.contains(TRSP_FOV_CIRCLE)) {
-            viewer.dataSources.add(TRSP_FOV_CIRCLE);
-        }
-    } else {
-        // Hide if currently shown.
-        if (viewer.dataSources.contains(TRSP_FOV_CIRCLE)) {
-            viewer.dataSources.remove(TRSP_FOV_CIRCLE);
-        }
-    }
-}, false);
-
-var checkbox8 = document.getElementById('showFOVCIRCLECheckbox');
-checkbox8.addEventListener('change', function() {
-    // Checkbox state changed.
-    if (checkbox8.checked) {
-        // Show if not shown.
-        if (!viewer.dataSources.contains(FOV_CIRCLE)) {
-            viewer.dataSources.add(FOV_CIRCLE);
-            // viewer.zoomTo(ELEVATION, new Cesium.HeadingPitchRange(40,-90,9000000));
-        }
-    } else {
-        // Hide if currently shown.
-        if (viewer.dataSources.contains(FOV_CIRCLE)) {
-            viewer.dataSources.remove(FOV_CIRCLE);
-        }
-    }
-}, false);
-
+//performance points
 var EIRP = new Cesium.GeoJsonDataSource();
 var ELEVATION = new Cesium.GeoJsonDataSource();
 var SAT_GPT = new Cesium.GeoJsonDataSource();
@@ -252,11 +124,9 @@ var EFFICIENCY = new Cesium.GeoJsonDataSource();
 var CSIM0 = new Cesium.GeoJsonDataSource();
 var CSN0_DN = new Cesium.GeoJsonDataSource();
 var CSI0_DN = new Cesium.GeoJsonDataSource();
-
 var checkbox = document.getElementById('showVSATCheckbox');
-$("#performance").change(function() {
-
-    var el = $(this);
+jQuery("#performance").change(function() {
+    var el = jQuery(this);
     checkbox.addEventListener('change', function() {
         if (el.val() === "EIRP") {
             if (checkbox.checked) {
@@ -548,7 +418,7 @@ $("#performance").change(function() {
     }, false);
 });
 //
-$("#clear").click(function() {
+jQuery("#clear").click(function() {
     EIRP._entityCollection._show = false
     ELEVATION._entityCollection._show = false
     SAT_GPT._entityCollection._show = false
@@ -562,11 +432,12 @@ $("#clear").click(function() {
 });
 
 
-$('#centreCheckbox').click(function() {
-    viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40, -90, 9000000));
-});
-
-$("#screenshot").click(function() {
+//
+// jQuery('#centreCheckbox').click(function() {
+//     viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40, -90, 9000000));
+// });
+//
+jQuery("#screenshot").click(function() {
     viewer.render();
     window.open(viewer.canvas.toDataURL("image/png"));
 });
