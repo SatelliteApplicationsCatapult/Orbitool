@@ -347,7 +347,8 @@
 
 <a id="navToggle" href="#" class="label-button">+</a>
 <div id="mainNav" class="navbar">
-    <input type="image" src="{{=URL("static","images/screenshot.png")}}" alt = "Screenshot" title="Screenshot" class="btn" id="screenshot" />
+    <input type="image" src="{{=URL("static","images/screenshot.png")}}" alt="Screenshot" title="Screenshot" class="btn"
+           id="screenshot"/>
     <section class="accordion">
         <article class="accordion-panel sat">
             <a class="accordion-panel__heading" href="javascript:;">
@@ -546,6 +547,21 @@
             </a>
             <div class="accordion-panel__content analytics" id="toolbar">
                 <h4>ANALYTICS</h4>
+                <p>Heatmap</p>
+                <select id="heatmap" name="heatmap" selected="Analytics">
+                    <option value="Analytics">Pick a plot..</option>
+                    <option value="EIRP">EIRP</option>
+                    <option value="Elevation">Elevation</option>
+                    <option value="GPT">GPT</option>
+                    <option value="DIST">DIST</option>
+                    <option value="FSL_UP">FSL_UP</option>
+                    <option value="FSL_DN">FSL_DN</option>
+                    <option value="EFFICIENCY">EFFICIENCY</option>
+                    <option value="CSIM0">CSIM0</option>
+                    <option value="CSN0_DN">CSN0_DN</option>
+                    <option value="CSI0_DN">CSI0_DN</option>
+                </select>
+                <p>Points</p>
                 <select id="performance" name="performance" selected="Analytics">
                     <option value="Analytics">Pick a plot..</option>
                     <option value="EIRP">EIRP</option>
@@ -594,46 +610,6 @@
         get_performance_json="{{=URL('lbController', 'get_performance_json',args=[request.args(0)])}}" ,
         json_subsatellite="{{=URL('lbController', 'json_subsatellite',args=[request.args(0)])}}">
 </script>
-
-
-<!--<script>
-
-var nuConfig = {
-  radius: 100,
-  maxOpacity: .5,
-  minOpacity: 0,
-  blur: .75
-};
-
-var defaults = {
-    useEntitiesIfAvailable: true, //whether to use entities if a Viewer is supplied or always use an ImageryProvider
-    minCanvasSize: 700,           // minimum size (in pixels) for the heatmap canvas
-    maxCanvasSize: 2000,          // maximum size (in pixels) for the heatmap canvas
-    radiusFactor: 60,             // data point size factor used if no radius is given (the greater of height and width divided by this number yields the used radius)
-    spacingFactor: 1.5,           // extra space around the borders (point radius multiplied by this number yields the spacing)
-    maxOpacity: 0.8,              // the maximum opacity used if not given in the heatmap options object
-    minOpacity: 0.1,              // the minimum opacity used if not given in the heatmap options object
-    blur: 0.85,                   // the blur used if not given in the heatmap options object
-    gradient: {                   // the gradient used if not given in the heatmap options object
-        '.3': 'blue',
-        '.65': 'yellow',
-        '.8': 'orange',
-        '.95': 'red'
-    },
-}
-
-var min = 25;
-var max = 40;
-instance = CesiumHeatmap.create(viewer, {north:51, east:2, south:49, west:0});
-instance.setWGS84Data(min,max, [
-    {x:1, y:50, value:25},
-    {x:1.05, y:50.125, value:28},
-    {x:1.1, y:50.25, value:33},
-    {x:1.15, y:50.35, value:38},
-    {x:1.2, y:50.5, value:40}
-    ]);
-
-</script>-->
 
 <script>
     //checkboxes

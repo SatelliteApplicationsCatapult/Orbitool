@@ -113,7 +113,52 @@ GW.load(geojson_gw).then(function() {
 });
 
 
-//performance points
+
+
+//heatmap attempt
+
+var nuConfig = {
+  radius: 40,
+  maxOpacity: .5,
+  minOpacity: 0,
+  blur: .75,
+    gradient: {                   // maybe try viridis
+    '.3': 'blue',
+    '.65': 'green',
+    '.8': 'yellow',
+    '.95': 'red'
+    },
+};
+
+EIRP_instance = CesiumHeatmap.create(viewer, {north:50, east:5, south:40.4, west:-5}, nuConfig);
+jQuery.getJSON(get_performance_json, function(json) {
+    features = json["features"];
+
+    var min = EIRPmin;
+    var max = EIRPmax;
+    var data = [];
+    for(i=0; i<features.length; i++){
+        lon = features[i].geometry.coordinates[0]
+        lat = features[i].geometry.coordinates[1]
+        values = features[i].properties.EIRP
+        data.push({x:lon, y:lat, value:values})
+    }
+    EIRP_instance.setWGS84Data(min,max, data)
+    EIRP_instance.show(false)
+});
+
+
+jQuery("#heatmap").change(function() {
+    var el = jQuery(this);
+    if (el.val() === "EIRP") {
+        EIRP_instance.show(true)
+    }
+    else {
+        EIRP_instance.show(false)
+    }
+})
+
+//OLD performance points
 var EIRP = new Cesium.GeoJsonDataSource();
 var ELEVATION = new Cesium.GeoJsonDataSource();
 var SAT_GPT = new Cesium.GeoJsonDataSource();
@@ -430,8 +475,6 @@ jQuery("#clear").click(function() {
     CSN0_DN._entityCollection._show = false
     CSI0_DN._entityCollection._show = false
 });
-
-
 //
 // jQuery('#centreCheckbox').click(function() {
 //     viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40, -90, 9000000));
@@ -439,7 +482,9 @@ jQuery("#clear").click(function() {
 //
 jQuery("#screenshot").click(function() {
     viewer.render();
-    window.open(viewer.canvas.toDataURL("image/png"));
+    screenshot = viewer.canvas.toDataURL("image/png")
+    window.open(screenshot);
+    console.log(screenshot);
 });
 
 var credit = new Cesium.Credit('Catapult', catapult_logo, 'http://sa.catapult.org.uk');
