@@ -1,5 +1,7 @@
 #wrap {
-	width: 850px;
+    width: 60%;
+    position: relative;
+    left: 20%;
 }
 
 h1 {

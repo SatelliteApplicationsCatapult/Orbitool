@@ -56,6 +56,7 @@ editableGridsat = new window.EditableGrid("satgrid", {
                 "rowid": row,
             })
         }).done(function(msg) {});
+
     }
 });
 

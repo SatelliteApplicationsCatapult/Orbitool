@@ -5,7 +5,9 @@
     font-size: 22px;
 }
 
-
+#tab-background {
+    width-62%;
+}
 
 .ui-tabs .ui-tabs-nav {
     text-align: center;
@@ -50,7 +52,10 @@ background: #C4294E;
 }
 
 #processed {
-    height: 46px;
+    height: 65px;
+  }
+#cesium {
+    height: 65px;
   }
 input {
     color: black
@@ -74,7 +79,6 @@ body {
 }
 
 .ui-widget-content {
-    border: 1px solid #dddddd;
     background: #ffffff;
     color: #333333;
     margin-bottom: -88px;
