@@ -57,6 +57,138 @@ jQuery.getJSON(performance_maxmin, function(json) {
     CSN0_DNmax = maxminjson["CSN0_DN"]["max"][0]
     CSI0_DNmin = maxminjson["CSI0_DN"]["min"][0]
     CSI0_DNmax = maxminjson["CSI0_DN"]["max"][0]
+    LATmin = maxminjson["LAT"]["min"][0]
+    LATmax = maxminjson["LAT"]["max"][0]
+    LONmin = maxminjson["LON"]["min"][0]
+    LONmax= maxminjson["LON"]["max"][0]
+
+
+    //heatmap attempt
+
+    var nuConfig = {
+      radius: 40,
+      maxOpacity: .5,
+      minOpacity: 0,
+      blur: .75,
+        gradient: {                   // maybe try viridis
+        '.3': 'blue',
+        '.65': 'green',
+        '.8': 'yellow',
+        '.95': 'red'
+        },
+    };
+
+    var instances = [EIRP_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    ELEVATION_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    SAT_GPT_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    DIST_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    FSL_UP_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    FSL_DN_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    EFFICIENCY_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    CSIM0_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    CSN0_DN_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    CSI0_DN_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig)]
+
+    var heatmaps = instances
+    jQuery.getJSON(get_performance_json, function(json) {
+        features = json["features"];
+
+        for(i=0;i<10;i++){
+            console.log(i)
+            heatmaps[i].data = []
+            for(j=0; j<features.length; j++){
+                lon = features[j].geometry.coordinates[0]
+                lat = features[j].geometry.coordinates[1]
+                if(i==0){heatmaps[i].values = features[j].properties.EIRP}
+                if(i==1){heatmaps[i].values = features[j].properties.ELEVATION}
+                if(i==2){heatmaps[i].values = features[j].properties.SAT_GPT}
+                if(i==3){heatmaps[i].values = features[j].properties.DIST}
+                if(i==4){heatmaps[i].values = features[j].properties.FSL_UP}
+                if(i==5){heatmaps[i].values = features[j].properties.FSL_DN}
+                if(i==6){heatmaps[i].values = features[j].properties.EFFICIENCY}
+                if(i==7){heatmaps[i].values = features[j].properties.CSIM0}
+                if(i==8){heatmaps[i].values = features[j].properties.CSN0_DN}
+                if(i==9){heatmaps[i].values = features[j].properties.CSI0_DN}
+                heatmaps[i].data.push({x:lon, y:lat, value:heatmaps[i].values})
+            }
+        if(i==0){instances[i].setWGS84Data(EIRPmin,EIRPmax, heatmaps[i].data)}
+        if(i==1){instances[i].setWGS84Data(ELEVATIONmin,ELEVATIONmax, heatmaps[i].data)}
+        if(i==2){instances[i].setWGS84Data(SAT_GPTmin,SAT_GPTmax, heatmaps[i].data)}
+        if(i==3){instances[i].setWGS84Data(DISTmin,DISTmax, heatmaps[i].data)}
+        if(i==4){instances[i].setWGS84Data(FSL_UPmin,FSL_UPmax, heatmaps[i].data)}
+        if(i==5){instances[i].setWGS84Data(FSL_DNmin,FSL_DNmax, heatmaps[i].data)}
+        if(i==6){instances[i].setWGS84Data(EFFICIENCYmin,EFFICIENCYmax, heatmaps[i].data)}
+        if(i==7){instances[i].setWGS84Data(CSIM0min,CSIM0max, heatmaps[i].data)}
+        if(i==8){instances[i].setWGS84Data(CSN0_DNmin,CSN0_DNmax, heatmaps[i].data)}
+        if(i==9){instances[i].setWGS84Data(CSN0_DNmin,CSN0_DNmax, heatmaps[i].data)}
+        instances[i].show(false)
+        }
+    });
+
+
+    jQuery("#heatmap").change(function() {
+        var el = jQuery(this);
+        if (el.val() === "EIRP") {
+            instances[0].show(true)
+        }
+        else {
+            instances[0].show(false)
+        }
+        if (el.val() === "Elevation") {
+            instances[1].show(true)
+        }
+        else {
+            instances[1].show(false)
+        }
+        if (el.val() === "GPT") {
+            instances[2].show(true)
+        }
+        else {
+            instances[2].show(false)
+        }
+        if (el.val() === "DIST") {
+            instances[3].show(true)
+        }
+        else {
+            instances[3].show(false)
+        }
+        if (el.val() === "FSL_UP") {
+            instances[4].show(true)
+        }
+        else {
+            instances[4].show(false)
+        }
+        if (el.val() === "FSL_DN") {
+            instances[5].show(true)
+        }
+        else {
+            instances[5].show(false)
+        }
+        if (el.val() === "EFFICIENCY") {
+            instances[6].show(true)
+        }
+        else {
+            instances[6].show(false)
+        }
+        if (el.val() === "CSIM0") {
+            instances[7].show(true)
+        }
+        else {
+            instances[7].show(false)
+        }
+        if (el.val() === "CSN0_DN") {
+            instances[8].show(true)
+        }
+        else {
+            instances[8].show(false)
+        }
+        if (el.val() === "CSI0_DN") {
+            instances[9].show(true)
+        }
+        else {
+            instances[9].show(false)
+        }
+    })
 });
 
 
@@ -113,50 +245,6 @@ GW.load(geojson_gw).then(function() {
 });
 
 
-
-
-//heatmap attempt
-
-var nuConfig = {
-  radius: 40,
-  maxOpacity: .5,
-  minOpacity: 0,
-  blur: .75,
-    gradient: {                   // maybe try viridis
-    '.3': 'blue',
-    '.65': 'green',
-    '.8': 'yellow',
-    '.95': 'red'
-    },
-};
-
-EIRP_instance = CesiumHeatmap.create(viewer, {north:50, east:5, south:40.4, west:-5}, nuConfig);
-jQuery.getJSON(get_performance_json, function(json) {
-    features = json["features"];
-
-    var min = EIRPmin;
-    var max = EIRPmax;
-    var data = [];
-    for(i=0; i<features.length; i++){
-        lon = features[i].geometry.coordinates[0]
-        lat = features[i].geometry.coordinates[1]
-        values = features[i].properties.EIRP
-        data.push({x:lon, y:lat, value:values})
-    }
-    EIRP_instance.setWGS84Data(min,max, data)
-    EIRP_instance.show(false)
-});
-
-
-jQuery("#heatmap").change(function() {
-    var el = jQuery(this);
-    if (el.val() === "EIRP") {
-        EIRP_instance.show(true)
-    }
-    else {
-        EIRP_instance.show(false)
-    }
-})
 
 //OLD performance points
 var EIRP = new Cesium.GeoJsonDataSource();
