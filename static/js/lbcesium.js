@@ -49,8 +49,8 @@ jQuery.getJSON(performance_maxmin, function(json) {
     FSL_UPmax = maxminjson["FSL_UP"]["max"][0]
     FSL_DNmin = maxminjson["FSL_DN"]["min"][0]
     FSL_DNmax = maxminjson["FSL_DN"]["max"][0]
-    EFFICIENCYmin = maxminjson["EFFICIENCY"]["min"][0]
-    EFFICIENCYmax = maxminjson["EFFICIENCY"]["max"][0]
+    SPEC_EFFmin = maxminjson["SPEC_EFF"]["min"][0]
+    SPEC_EFFmax = maxminjson["SPEC_EFF"]["max"][0]
     CSIM0min = maxminjson["CSIM0"]["min"][0]
     CSIM0max = maxminjson["CSIM0"]["max"][0]
     CSN0_DNmin = maxminjson["CSN0_DN"]["min"][0]
@@ -84,7 +84,7 @@ jQuery.getJSON(performance_maxmin, function(json) {
                     DIST_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
                     FSL_UP_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
                     FSL_DN_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
-                    EFFICIENCY_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    SPEC_EFF_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
                     CSIM0_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
                     CSN0_DN_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
                     CSI0_DN_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig)]
@@ -103,86 +103,112 @@ jQuery.getJSON(performance_maxmin, function(json) {
                 if(i==3){heatmaps[i].values = features[j].properties.DIST}
                 if(i==4){heatmaps[i].values = features[j].properties.FSL_UP}
                 if(i==5){heatmaps[i].values = features[j].properties.FSL_DN}
-                if(i==6){heatmaps[i].values = features[j].properties.EFFICIENCY}
+                if(i==6){heatmaps[i].values = features[j].properties.SPEC_EFF}
                 if(i==7){heatmaps[i].values = features[j].properties.CSIM0}
                 if(i==8){heatmaps[i].values = features[j].properties.CSN0_DN}
                 if(i==9){heatmaps[i].values = features[j].properties.CSI0_DN}
                 heatmaps[i].data.push({x:lon, y:lat, value:heatmaps[i].values})
             }
-        if(i==0){instances[i].setWGS84Data(EIRPmin,EIRPmax, heatmaps[i].data)
-            jQuery('#minmax').append('<p>Min = ' + EIRPmin + '<br>Max = ' + EIRPmax + '</p>')}
-        if(i==1){instances[i].setWGS84Data(ELEVATIONmin,ELEVATIONmax, heatmaps[i].data)}
-        if(i==2){instances[i].setWGS84Data(SAT_GPTmin,SAT_GPTmax, heatmaps[i].data)}
-        if(i==3){instances[i].setWGS84Data(DISTmin,DISTmax, heatmaps[i].data)}
-        if(i==4){instances[i].setWGS84Data(FSL_UPmin,FSL_UPmax, heatmaps[i].data)}
-        if(i==5){instances[i].setWGS84Data(FSL_DNmin,FSL_DNmax, heatmaps[i].data)}
-        if(i==6){instances[i].setWGS84Data(EFFICIENCYmin,EFFICIENCYmax, heatmaps[i].data)}
-        if(i==7){instances[i].setWGS84Data(CSIM0min,CSIM0max, heatmaps[i].data)}
-        if(i==8){instances[i].setWGS84Data(CSN0_DNmin,CSN0_DNmax, heatmaps[i].data)}
-        if(i==9){instances[i].setWGS84Data(CSN0_DNmin,CSN0_DNmax, heatmaps[i].data)}
+        if(i==0){
+                instances[i].setWGS84Data(EIRPmin,EIRPmax, heatmaps[i].data)
+            }
+        if(i==1) {
+            instances[i].setWGS84Data(ELEVATIONmin, ELEVATIONmax, heatmaps[i].data)
+        }
+        if(i==2){instances[i].setWGS84Data(SAT_GPTmin,SAT_GPTmax, heatmaps[i].data)
+            }
+        if(i==3){instances[i].setWGS84Data(DISTmin,DISTmax, heatmaps[i].data)
+            }
+        if(i==4) {
+            instances[i].setWGS84Data(FSL_UPmin, FSL_UPmax, heatmaps[i].data)
+        }
+        if(i==5){instances[i].setWGS84Data(FSL_DNmin,FSL_DNmax, heatmaps[i].data)
+            }
+        if(i==6){instances[i].setWGS84Data(SPEC_EFFmin,SPEC_EFFmax, heatmaps[i].data)
+            }
+        if(i==7){instances[i].setWGS84Data(CSIM0min,CSIM0max, heatmaps[i].data)
+            }
+        if(i==8) {
+            instances[i].setWGS84Data(CSN0_DNmin, CSN0_DNmax, heatmaps[i].data)
+        }
+        if(i==9) {
+            instances[i].setWGS84Data(CSN0_DNmin, CSN0_DNmax, heatmaps[i].data)
+        }
         instances[i].show(false)
         }
     });
 
-
+    // little pop-up with the min and max values
     jQuery("#heatmap").change(function() {
         var el = jQuery(this);
         if (el.val() === "EIRP") {
             instances[0].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + EIRPmin.toFixed(2) + '<br>Max = ' + EIRPmax.toFixed(2) + '</p>')
         }
         else {
             instances[0].show(false)
         }
         if (el.val() === "Elevation") {
             instances[1].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + ELEVATIONmin.toFixed(2) + '<br>Max = ' + ELEVATIONmax.toFixed(2) + '</p>')
         }
+
         else {
             instances[1].show(false)
         }
         if (el.val() === "GPT") {
             instances[2].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + SAT_GPTmin.toFixed(2) + '<br>Max = ' + SAT_GPTmax.toFixed(2) + '</p>')
         }
         else {
             instances[2].show(false)
         }
         if (el.val() === "DIST") {
             instances[3].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + DISTmin.toFixed(2) + '<br>Max = ' + DISTmax.toFixed(2) + '</p>')
         }
         else {
             instances[3].show(false)
         }
         if (el.val() === "FSL_UP") {
             instances[4].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + FSL_UPmin.toFixed(2) + '<br>Max = ' + FSL_UPmax.toFixed(2) + '</p>')
         }
         else {
             instances[4].show(false)
         }
         if (el.val() === "FSL_DN") {
             instances[5].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + FSL_DNmin.toFixed(2) + '<br>Max = ' + FSL_DNmax.toFixed(2) + '</p>')
         }
         else {
             instances[5].show(false)
         }
-        if (el.val() === "EFFICIENCY") {
+        if (el.val() === "SPEC_EFF") {
             instances[6].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + SPEC_EFFmin.toFixed(2) + '<br>Max = ' + SPEC_EFFmax.toFixed(2) + '</p>')
         }
         else {
             instances[6].show(false)
         }
         if (el.val() === "CSIM0") {
             instances[7].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + CSIM0min.toFixed(2) + '<br>Max = ' + CSIM0max.toFixed(2) + '</p>')
         }
         else {
             instances[7].show(false)
         }
         if (el.val() === "CSN0_DN") {
             instances[8].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + CSN0_DNmin.toFixed(2) + '<br>Max = ' + CSN0_DNmax.toFixed(2) + '</p>')
         }
+
         else {
             instances[8].show(false)
         }
         if (el.val() === "CSI0_DN") {
             instances[9].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + CSN0_DNmin.toFixed(2) + '<br>Max = ' + CSN0_DNmax.toFixed(2) + '</p>')
         }
         else {
             instances[9].show(false)
@@ -252,7 +278,7 @@ var SAT_GPT = new Cesium.GeoJsonDataSource();
 var DIST = new Cesium.GeoJsonDataSource();
 var FSL_UP = new Cesium.GeoJsonDataSource();
 var FSL_DN = new Cesium.GeoJsonDataSource();
-var EFFICIENCY = new Cesium.GeoJsonDataSource();
+var SPEC_EFF = new Cesium.GeoJsonDataSource();
 var CSIM0 = new Cesium.GeoJsonDataSource();
 var CSN0_DN = new Cesium.GeoJsonDataSource();
 var CSI0_DN = new Cesium.GeoJsonDataSource();
@@ -432,16 +458,16 @@ jQuery("#performance").change(function() {
                         FSL_DN._entityCollection._show = true
                 }
             }
-        } else if (el.val() === "EFFICIENCY") {
+        } else if (el.val() === "SPEC_EFF") {
             if (checkbox.checked) {
-                if (!viewer.dataSources.contains(EFFICIENCY)) {
-                    EFFICIENCY.load(get_performance_json).then(function() {
-                        var entities = EFFICIENCY.entities.values;
+                if (!viewer.dataSources.contains(SPEC_EFF)) {
+                    SPEC_EFF.load(get_performance_json).then(function() {
+                        var entities = SPEC_EFF.entities.values;
                         for (var i = 0; i < entities.length; i++) {
                             var entity = entities[i];
                             entity.billboard = undefined;
                             entity.point = new Cesium.PointGraphics({
-                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((EFFICIENCYmax - entity.properties.EFFICIENCY) / (EFFICIENCYmax - EFFICIENCYmin)), 1, .5, viewModel.perf_alpha),
+                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((SPEC_EFFmax - entity.properties.SPEC_EFF) / (SPEC_EFFmax - SPEC_EFFmin)), 1, .5, viewModel.perf_alpha),
                                 pixelSize: 8,
                                 outlineWidth: 0.5,
                                 scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -450,15 +476,15 @@ jQuery("#performance").change(function() {
                         Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
                             function(newValue) {
                                 for (var i = 0; i < entities.length; i++) {
-                                    entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((EFFICIENCYmax - entities[i].properties.EFFICIENCY) / (EFFICIENCYmax - EFFICIENCYmin)), 1, .5, viewModel.perf_alpha);
+                                    entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((SPEC_EFFmax - entities[i].properties.SPEC_EFF) / (SPEC_EFFmax - SPEC_EFFmin)), 1, .5, viewModel.perf_alpha);
                                 }
                             }
                         );
                     });
 
-                    viewer.dataSources.add(EFFICIENCY);
+                    viewer.dataSources.add(SPEC_EFF);
                 } else {
-                        EFFICIENCY._entityCollection._show = true
+                        SPEC_EFF._entityCollection._show = true
                 }
             }
         } else if (el.val() === "CSIM0") {
@@ -557,7 +583,7 @@ jQuery("#clear").click(function() {
     DIST._entityCollection._show = false
     FSL_UP._entityCollection._show = false
     FSL_DN._entityCollection._show = false
-    EFFICIENCY._entityCollection._show = false
+    SPEC_EFF._entityCollection._show = false
     CSIM0._entityCollection._show = false
     CSN0_DN._entityCollection._show = false
     CSI0_DN._entityCollection._show = false

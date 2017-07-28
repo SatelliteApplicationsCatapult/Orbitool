@@ -10,6 +10,7 @@
           content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
     <title>Orbitool Viewer / ID: {{=request.args(0)}}</title>
     <script src="{{=URL("static","cesium/Build/Cesium/Cesium.js")}}"></script>
+
     <style>
         @import url({{=URL("static","/cesium/Build/Cesium/Widgets/widgets.css")}});
 
@@ -548,7 +549,7 @@
             <div class="accordion-panel__content analytics" id="toolbar">
                 <h4>ANALYTICS</h4>
                 <p id = "testing">Heatmap</p>
-                <select id="heatmap" name="heatmap" selected="Analytics">
+                <select id="heatmap" name="heatmap" selected="Analytics" class="styled-select slate">
                     <option value="Analytics">Pick a plot..</option>
                     <option value="EIRP">EIRP</option>
                     <option value="Elevation">Elevation</option>
@@ -556,14 +557,14 @@
                     <option value="DIST">DIST</option>
                     <option value="FSL_UP">FSL_UP</option>
                     <option value="FSL_DN">FSL_DN</option>
-                    <option value="EFFICIENCY">EFFICIENCY</option>
+                    <option value="SPEC_EFF">SPEC_EFF</option>
                     <option value="CSIM0">CSIM0</option>
                     <option value="CSN0_DN">CSN0_DN</option>
                     <option value="CSI0_DN">CSI0_DN</option>
                 </select>
                 <p id = "minmax"></p>
                 <p>Points</p>
-                <select id="performance" name="performance" selected="Analytics">
+                <select id="performance" name="performance" selected="Analytics" class="styled-select slate">
                     <option value="Analytics">Pick a plot..</option>
                     <option value="EIRP">EIRP</option>
                     <option value="Elevation">Elevation</option>
@@ -571,7 +572,7 @@
                     <option value="DIST">DIST</option>
                     <option value="FSL_UP">FSL_UP</option>
                     <option value="FSL_DN">FSL_DN</option>
-                    <option value="EFFICIENCY">EFFICIENCY</option>
+                    <option value="SPEC_EFF">SPEC_EFF</option>
                     <option value="CSIM0">CSIM0</option>
                     <option value="CSN0_DN">CSN0_DN</option>
                     <option value="CSI0_DN">CSI0_DN</option>

@@ -602,7 +602,7 @@ def performance_maxmin():
                                                                      earth_vsat.SAT_GPT, earth_vsat.SAT_GAIN_TX,
                                                                      earth_vsat.SAT_GAIN_RX, earth_vsat.DIST,
                                                                      earth_vsat.FSL_UP, earth_vsat.FSL_DN,
-                                                                     earth_vsat.EFFICIENCY, earth_vsat.EFFICIENCY,
+                                                                     earth_vsat.SPEC_EFF, earth_vsat.EFFICIENCY,
                                                                      earth_vsat.CSIM0, earth_vsat.CSIM0,
                                                                      earth_vsat.CSN0_DN, earth_vsat.CSN0_DN,
                                                                      earth_vsat.CSI0_DN, earth_vsat.CSI0_DN,
@@ -615,7 +615,7 @@ def performance_maxmin():
     DIST = [[row.DIST] for row in rows]
     FSL_UP = [[row.FSL_UP] for row in rows]
     FSL_DN = [[row.FSL_DN] for row in rows]
-    EFFICIENCY = [[row.EFFICIENCY] for row in rows]
+    SPEC_EFF = [[row.SPEC_EFF] for row in rows]
     CSIM0 = [[row.CSIM0] for row in rows]
     CSN0_DN = [[row.CSN0_DN] for row in rows]
     CSI0_DN = [[row.CSI0_DN] for row in rows]
@@ -632,7 +632,7 @@ def performance_maxmin():
     "DIST": {"max": max(DIST), "min": min(DIST)},
     "FSL_UP": {"max": max(FSL_UP), "min": min(FSL_UP)},
     "FSL_DN": {"max": max(FSL_DN), "min": min(FSL_DN)},
-    "EFFICIENCY": {"max": max(EFFICIENCY), "min": min(EFFICIENCY)},
+    "SPEC_EFF": {"max": max(SPEC_EFF), "min": min(SPEC_EFF)},
     "CSIM0": {"max": max(CSIM0), "min": min(CSIM0)},
     "CSN0_DN": {"max": max(CSN0_DN), "min": min(CSN0_DN)},
     "CSI0_DN": {"max": max(CSI0_DN), "min": min(CSI0_DN)},
