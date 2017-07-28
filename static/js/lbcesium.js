@@ -92,9 +92,7 @@ jQuery.getJSON(performance_maxmin, function(json) {
     var heatmaps = instances
     jQuery.getJSON(get_performance_json, function(json) {
         features = json["features"];
-
         for(i=0;i<10;i++){
-            console.log(i)
             heatmaps[i].data = []
             for(j=0; j<features.length; j++){
                 lon = features[j].geometry.coordinates[0]
@@ -111,7 +109,8 @@ jQuery.getJSON(performance_maxmin, function(json) {
                 if(i==9){heatmaps[i].values = features[j].properties.CSI0_DN}
                 heatmaps[i].data.push({x:lon, y:lat, value:heatmaps[i].values})
             }
-        if(i==0){instances[i].setWGS84Data(EIRPmin,EIRPmax, heatmaps[i].data)}
+        if(i==0){instances[i].setWGS84Data(EIRPmin,EIRPmax, heatmaps[i].data)
+            jQuery('#minmax').append('<p>Min = ' + EIRPmin + '<br>Max = ' + EIRPmax + '</p>')}
         if(i==1){instances[i].setWGS84Data(ELEVATIONmin,ELEVATIONmax, heatmaps[i].data)}
         if(i==2){instances[i].setWGS84Data(SAT_GPTmin,SAT_GPTmax, heatmaps[i].data)}
         if(i==3){instances[i].setWGS84Data(DISTmin,DISTmax, heatmaps[i].data)}
@@ -246,7 +245,7 @@ GW.load(geojson_gw).then(function() {
 
 
 
-//OLD performance points
+//OLD performance points, useful for extracting each point individually
 var EIRP = new Cesium.GeoJsonDataSource();
 var ELEVATION = new Cesium.GeoJsonDataSource();
 var SAT_GPT = new Cesium.GeoJsonDataSource();
