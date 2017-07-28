@@ -42,7 +42,7 @@ background: #C4294E;
 
 
 #tabs-4{
-    height: 219px;
+    height: 280px;
 }
 
 #previewgo {
@@ -100,4 +100,14 @@ body {
 
 #refresh.btn {
     height: 35px;
+}
+
+form input:valid, form textarea:valid {
+    width: 50px;
+    height: 50px;
+    background-color: white;
+    background-image: url(/static/images/calculate.png);
+    background-repeat: no-repeat;
+    background-size: 45px 45px;
+    color: white;
 }

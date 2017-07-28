@@ -98,7 +98,7 @@ def preview():
 
     record = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
     form = SQLFORM(dbLinkBudget.Calculate, record, showid=False,
-                   formstyle='table3cols', submit_button='CALCULATE')
+                   formstyle='table3cols', submit_button='')
     if form.accepts(request, session):
         response.flash = 'form accepted'
         redirect(URL('run', args=request.args(0)))

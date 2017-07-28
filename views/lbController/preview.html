@@ -210,15 +210,21 @@ viewer.scene.frameState.creditDisplay.addDefaultCredit(credit);
   </div>
 </div>
 <div id="tabs-4">
-    <div class="col-lg-5 col-xs-4">
-    {{=form}}
+    <div class="col-lg-3 col-xs-0">
     </div>
-    <div class="col-lg-5 col-xs-4">
+    <div class="col-lg-3 col-xs-6">
+    {{=form}}
+        <small id="fileHelp" class="form-text text-muted">Make sure you choose the correct simulation mode for your input. The above button will take around 0-20 seconds</small>
+    </div>
+
+    <div class="col-lg-3 col-xs-6">
+        <br><br><br>
         <div class = "Bwidget">
         <input type="image" src="{{=URL("static","images/download_spreadsheet.png")}}" alt = "Download Spreadsheet" title="Download Spreadsheet" class="btn" id="processed" />
         <input type="image" src="{{=URL("static","images/cesium_plot.png")}}" alt = "Plot in Viewer" title="Plot in Viewer" class="btn" id="cesium" />
         {{pass}}
         </div>
+        <small id="fileHelp" class="form-text text-muted">Download or visualise the output of the calculation.</small>
     </div>
     <div></div>
 </div>
