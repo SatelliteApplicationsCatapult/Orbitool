@@ -64,9 +64,8 @@ jQuery.getJSON(performance_maxmin, function(json) {
 
 
     //heatmap attempt
-
-    var nuConfig = {
-      radius: 40,
+        var nuConfig = {
+        radius: 40,
       maxOpacity: .5,
       minOpacity: 0,
       blur: .75,
@@ -77,7 +76,6 @@ jQuery.getJSON(performance_maxmin, function(json) {
         '.95': 'red'
         },
     };
-
     var instances = [EIRP_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
                     ELEVATION_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
                     SAT_GPT_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),

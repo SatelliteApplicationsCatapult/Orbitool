@@ -1,0 +1,327 @@
+{{response.title='Preview'}}
+{{extend 'layout.html'}}
+<html>
+<head>
+    <script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.12.3.js">
+    </script>
+    <script type="text/javascript" language="javascript"
+            src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js">
+    </script>
+    <script type="text/javascript" src="https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js">
+    </script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview</title>
+    <script src="{{=URL("static","cesium/Build/Cesium/Cesium.js")}}"></script>
+    <link rel="stylesheet"  href="{{=URL("static","/cesium/Build/Cesium/Widgets/widgets.css")}}">
+    <link rel="stylesheet" href="{{=URL("static","css/jquery-ui.css")}}">
+
+    <script src="{{=URL("static","js/editablegrid/editablegrid.js")}}"></script>
+		<!-- [DO NOT DEPLOY] --> <script src="{{=URL("static","js/editablegrid/editablegrid_renderers.js")}}" ></script>
+		<!-- [DO NOT DEPLOY] --> <script src="{{=URL("static","js/editablegrid/editablegrid_editors.js")}}" ></script>
+		<!-- [DO NOT DEPLOY] --> <script src="{{=URL("static","js/editablegrid/editablegrid_validators.js")}}" ></script>
+		<!-- [DO NOT DEPLOY] --> <script src="{{=URL("static","js/editablegrid/editablegrid_utils.js")}}" ></script>
+		<link rel="stylesheet" href="{{=URL("static","css/editablegrid.css")}}" type="text/css" media="screen"/>
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <!-- include css and javascript sources for this demo -->
+    <link rel="stylesheet" type="text/css" href="{{=URL("static","css/simple.css")}}"/>
+
+    <style>
+    .ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active, a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover {
+        border: 1px solid #4B84A1;
+        background: #4B84A1;
+        font-weight: normal;
+        color: #ffffff;
+    }
+
+    .toolbar-left {
+        display: block;
+        top: 39px;
+        left: 8px;
+        position: relative;
+        z-index: 1;
+    </style>
+</head>
+<body>
+<div class="container">
+  <div class="row">
+    <div class="col-6">
+<div  id="cesiumContainer" style="margin-left:auto; margin-right:auto; width:100%;padding:30px;height:550px;overflow: none">
+    <div class="toolbar-left">
+        <input type="image" src="{{=URL("static","images/refresh.png")}}" alt = "Download Spreadsheet" title="Download Spreadsheet" class="btn" id="refresh" />
+    </div>
+</div>
+
+</div>
+      </div>
+    </div>
+<script>
+Cesium.BingMapsApi.defaultKey = '***REMOVED***'
+var viewer = new Cesium.Viewer('cesiumContainer', {
+    timeline: false,
+    animation: false,
+    sceneModePicker: false,
+    fullscreenButton: false,
+    homeButton : false,
+    selectionIndicator : false,
+    geocoder: false
+
+});
+
+var scene = viewer.scene;
+var handler;
+
+var entity = viewer.entities.add({
+    label : {
+        show : false,
+        showBackground : true,
+        font : '14px monospace',
+        horizontalOrigin : Cesium.HorizontalOrigin.LEFT,
+        verticalOrigin : Cesium.VerticalOrigin.TOP,
+        pixelOffset : new Cesium.Cartesian2(15, 0)
+    }
+});
+
+// Mouse over the globe to see the cartographic position
+handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+handler.setInputAction(function(movement) {
+    var cartesian = viewer.camera.pickEllipsoid(movement.endPosition, scene.globe.ellipsoid);
+    if (cartesian) {
+        var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+        var longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2);
+        var latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(2);
+
+        entity.position = cartesian;
+        entity.label.show = true;
+        entity.label.text =
+            'Lon: ' + (' ' + longitudeString).slice(-7) + '\u00B0' +
+            '\nLat: ' + ('   ' + latitudeString).slice(-7) + '\u00B0';
+    } else {
+        entity.label.show = false;
+    }
+}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+
+var SAT = new Cesium.GeoJsonDataSource();
+SAT.load("{{=URL('lbController', 'get_geojson_sat',args=[request.args(0)])}}").then(function () {
+    var entities = SAT.entities.values;
+    for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        entity.billboard = new Cesium.BillboardGraphics({
+            image: "{{=URL("static","images/satellite.gif")}}",
+        })
+    }
+});
+
+var FOV_CIRCLE = new Cesium.GeoJsonDataSource();
+FOV_CIRCLE.load("{{=URL('lbController', 'SAT_FOV_to_JSON',args=[request.args(0)])}}").then(function () {
+    var entities = FOV_CIRCLE.entities.values;
+    for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        entity.polyline.loop = true;
+        entity.polyline.material = Cesium.Color.BLACK;
+        entity.polyline.width = .8;// lines get displayed properly with red strok
+    }
+});
+var TRSP_FOV_CIRCLE = new Cesium.GeoJsonDataSource();
+TRSP_FOV_CIRCLE.load("{{=URL('lbController', 'TRSP_FOV_to_JSON',args=[request.args(0)])}}").then(function () {
+    var entities = TRSP_FOV_CIRCLE.entities.values;
+    for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        entity.polyline.loop = true;
+        entity.polyline.material = Cesium.Color.LIGHTGREY;
+        entity.polyline.width = .8;
+    }
+});
+
+
+var GW = new Cesium.GeoJsonDataSource();
+GW.load("{{=URL('lbController', 'get_geojson_gw',args=[request.args(0)])}}").then(function() {
+    var entities = GW.entities.values;
+    for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        entity.billboard = new Cesium.BillboardGraphics({
+            image: "{{=URL("static","images/groundstation.gif")}}", //This image ships with cesium I believe
+        });
+    }
+});
+
+var SUBSAT = new Cesium.GeoJsonDataSource();
+SUBSAT.load("{{=URL('lbController', 'json_subsatellite',args=[request.args(0)])}}").then(function() {
+    var entities = FOV_CIRCLE.entities.values;
+    for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        entity.polyline.width = 1;
+    }
+});
+
+viewer.dataSources.add(SAT);
+viewer.dataSources.add(GW);
+viewer.dataSources.add(SUBSAT);
+viewer.dataSources.add(FOV_CIRCLE);
+viewer.dataSources.add(TRSP_FOV_CIRCLE);
+viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40, -90, 9000000));
+var credit = new Cesium.Credit('Catapult', "{{=URL("static","images/saWhite26.png")}}", 'http://sa.catapult.org.uk');
+viewer.scene.frameState.creditDisplay.addDefaultCredit(credit);
+</script>
+
+<div class="col-6">
+
+<div id="tabs">
+  <ul>
+  <li><a href="#tabs-1">Satellites</a></li>
+  <li><a href="#tabs-2">Transponders</a></li>
+  <li><a href="#tabs-3">Gateways</a></li>
+  <li><a href="#tabs-4">Calculate</a></li>
+  </ul>
+<div id="tabs-1">
+<div id="wrap">
+  <div id="sat_message"></div>
+  <div id="satellite_tablecontent"></div>
+</div>
+
+
+</div>
+<div id="tabs-2">
+
+
+  <div id="wrap">
+    <!-- Feedback message zone -->
+    <div id="trsp_message"></div>
+
+    <!-- Grid contents -->
+    <div id="trsp_tablecontent"></div>
+
+  </div>
+  </div>
+<div id="tabs-3">
+
+  <div id="wrap">
+    <!-- Feedback message zone -->
+    <div id="gw_message"></div>
+
+    <!-- Grid contents -->
+    <div id="gw_tablecontent"></div>
+
+  </div>
+</div>
+<div id="tabs-4">
+    <div class="col-lg-3 col-xs-0">
+    </div>
+    <div class="col-lg-3 col-xs-6">
+    {{=form}}
+        <small id="fileHelp" class="form-text text-muted">Make sure you choose the correct simulation mode for your input. The above button will take around 0-20 seconds</small>
+    </div>
+
+    <div class="col-lg-3 col-xs-6">
+        <br><br><br>
+        <div class = "Bwidget">
+        <input type="image" src="{{=URL("static","images/download_spreadsheet.png")}}" alt = "Download Spreadsheet" title="Download Spreadsheet" class="btn" id="processed" />
+        <input type="image" src="{{=URL("static","images/cesium_plot.png")}}" alt = "Plot in Viewer" title="Plot in Viewer" class="btn" id="cesium" />
+        {{pass}}
+        </div>
+        <small id="fileHelp" class="form-text text-muted">Download or visualise the output of the calculation.</small>
+    </div>
+    <div></div>
+</div>
+</div>
+</div>
+</div>
+</body>
+<script type="text/javascript" >
+
+$(document).ready(function(){
+    $("#run").click(function(){
+        window.location="{{=URL('run',args = request.args(0))}}";
+    });
+    $("#processed").click(function(){
+        window.location="{{=URL('create_download',args = request.args(0))}}";
+    });
+    $("#cesium").click(function(){
+        window.open("{{=URL('cesium',args = request.args(0))}}");
+    });
+    $("#refresh").click(function(){
+        viewer.dataSources.removeAll()
+        SAT.load("{{=URL('lbController', 'get_geojson_sat',args=[request.args(0)])}}").then(function () {
+            var entities = SAT.entities.values;
+            for (var i = 0; i < entities.length; i++) {
+                var entity = entities[i];
+                entity.billboard = new Cesium.BillboardGraphics({
+                    image: "{{=URL("static","images/satellite.gif")}}",
+                })
+            }
+        });
+        SUBSAT.load("{{=URL('lbController', 'json_subsatellite',args=[request.args(0)])}}").then(function() {
+            var entities = FOV_CIRCLE.entities.values;
+            for (var i = 0; i < entities.length; i++) {
+                var entity = entities[i];
+                entity.polyline.width = 1;
+            }
+        });
+        FOV_CIRCLE.load("{{=URL('lbController', 'SAT_FOV_to_JSON',args=[request.args(0)])}}").then(function () {
+            var entities = FOV_CIRCLE.entities.values;
+            for (var i = 0; i < entities.length; i++) {
+                var entity = entities[i];
+                entity.polyline.loop = true;
+                entity.polyline.material = Cesium.Color.BLACK;
+                entity.polyline.width = .8;// lines get displayed properly with red strok
+            }
+        });
+        TRSP_FOV_CIRCLE.load("{{=URL('lbController', 'TRSP_FOV_to_JSON',args=[request.args(0)])}}").then(function () {
+            var entities = TRSP_FOV_CIRCLE.entities.values;
+            for (var i = 0; i < entities.length; i++) {
+                var entity = entities[i];
+                entity.polyline.loop = true;
+                entity.polyline.material = Cesium.Color.LIGHTGREY;
+                entity.polyline.width = .8;
+            }
+        });
+
+        GW.load("{{=URL('lbController', 'get_geojson_gw',args=[request.args(0)])}}").then(function() {
+            var entities = GW.entities.values;
+            for (var i = 0; i < entities.length; i++) {
+                var entity = entities[i];
+                entity.billboard = new Cesium.BillboardGraphics({
+                    image: "{{=URL("static","images/groundstation.gif")}}", //This image ships with cesium I believe
+                });
+            }
+        });
+
+        viewer.dataSources.add(SAT);
+        viewer.dataSources.add(GW);
+        viewer.dataSources.add(SUBSAT);
+        viewer.dataSources.add(FOV_CIRCLE);
+        viewer.dataSources.add(TRSP_FOV_CIRCLE);
+    });
+});
+
+$( function() {
+  $( "#tabs" ).tabs();
+} );
+$( ".selector" ).tabs({
+  heightStyle: "fill"
+});
+//next one keeps tabs visible on refresh
+$(function() {
+    var selectedTabId = sessionStorage.getItem("selectedTab");
+    selectedTabId = selectedTabId === null ? 0 : selectedTabId; //your default being 0
+    $("#tabs").tabs({
+        active: selectedTabId,
+        activate : function( event, ui ) {
+            selectedTabId = $("#tabs").tabs("option", "active");
+            sessionStorage.setItem("selectedTab", selectedTabId);
+        }
+    });
+});
+</script>
+
+
+</body>
+<script src="{{=URL("static","js/trsptable.js")}}", json="{{=URL("transponder_JSON", args=[request.args(0)])}}"></script>
+<script src="{{=URL("static","js/satellitetable.js")}}", jsons="{{=URL("satellite_table_JSON", args=[request.args(0)])}}"></script>
+<script src="{{=URL("static","js/gwtable.js")}}", json3="{{=URL("gw_table_JSON", args=[request.args(0)])}}"></script>
+</html>
