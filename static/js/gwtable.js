@@ -1,4 +1,4 @@
-var gwtable = $('script[src*=gwtable]');
+var gwtable = jQuery('script[src*=gwtable]');
 var json3 = gwtable.attr('json3');
 var editableGridgw = null;
 
@@ -25,7 +25,7 @@ editableGridgw = new window.EditableGrid("gwgrid", {
 
     // called when some value has been modified: we display a message
     modelChanged: function(rowIdx, colIdx, oldValue, newValue, row) {
-        $.ajax({
+        jQuery.ajax({
             type: "POST",
             url: "/lbController/ajax_to_db",
             data: "array=" + JSON.stringify({
@@ -41,7 +41,7 @@ editableGridgw = new window.EditableGrid("gwgrid", {
 
 
 editableGridgw.delete = function(rowIndex) {
-    $.ajax({
+    jQuery.ajax({
         type: "POST",
         url: "/lbController/delete_row_editablegrid",
         data: "array=" + JSON.stringify({
@@ -67,7 +67,7 @@ editableGridgw.duplicate = function(rowIndex)
 	// this.insertAfter(rowIndex, newRowId, values);
 
     // copies a row on the backend
-	$.ajax({
+	jQuery.ajax({
             type: "POST",
             url: "/lbController/copy",
             data: "array=" + JSON.stringify({

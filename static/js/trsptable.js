@@ -1,4 +1,4 @@
-var trsptable = $('script[src*=trsptable]');
+var trsptable = jQuery('script[src*=trsptable]');
 var json = trsptable.attr('json');
 var editableGridtrsp = null;
 
@@ -25,7 +25,7 @@ editableGridtrsp = new window.EditableGrid("trspgrid", {
 
     // called when some value has been modified: we display a message
     modelChanged: function(rowIdx, colIdx, oldValue, newValue, row) {
-        $.ajax({
+        jQuery.ajax({
             type: "POST",
             url: "/lbController/ajax_to_db",
             data: "array=" + JSON.stringify({
@@ -40,7 +40,7 @@ editableGridtrsp = new window.EditableGrid("trspgrid", {
 });
 
 editableGridtrsp.delete = function(rowIndex) {
-    $.ajax({
+    jQuery.ajax({
         type: "POST",
         url: "/lbController/delete_row_editablegrid",
         data: "array=" + JSON.stringify({
@@ -65,7 +65,7 @@ editableGridtrsp.duplicate = function(rowIndex)
 	// this.insertAfter(rowIndex, newRowId, values);
 
     // copies a row on the backend
-	$.ajax({
+	jQuery.ajax({
             type: "POST",
             url: "/lbController/copy",
             data: "array=" + JSON.stringify({

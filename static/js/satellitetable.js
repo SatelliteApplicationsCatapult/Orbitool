@@ -1,4 +1,4 @@
-var satellitetable = $('script[src*=satellitetable]');
+var satellitetable = jQuery('script[src*=satellitetable]');
 var satjson = satellitetable.attr('jsons');
 var editableGridsat = null;
 
@@ -46,7 +46,7 @@ editableGridsat = new window.EditableGrid("satgrid", {
             SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(lon, lat, newValue*1000))
             SUBSAT.entities._entities._array[rowIdx]._polyline._positions.setValue([Cesium.Cartesian3.fromDegrees(lon, lat, 0),Cesium.Cartesian3.fromDegrees(lon, lat, newValue*1000)])
         }
-        $.ajax({
+        jQuery.ajax({
             type: "POST",
             url: "/lbController/ajax_to_db",
             data: "array=" + JSON.stringify({
@@ -63,7 +63,7 @@ editableGridsat = new window.EditableGrid("satgrid", {
 editableGridsat.delete = function(rowIndex) {
     console.log(rowIndex)
     console.log(editableGridsat.getRowId(rowIndex))
-    $.ajax({
+    jQuery.ajax({
         type: "POST",
         url: "/lbController/delete_row_editablegrid",
         data: "array=" + JSON.stringify({
@@ -94,7 +94,7 @@ editableGridsat.duplicate = function(rowIndex)
 	// add new row
 	this.insertAfter(rowIndex, newRowId, values);
 
-	$.ajax({
+	jQuery.ajax({
             type: "POST",
             url: "/lbController/copy",
             data: "array=" + JSON.stringify({
