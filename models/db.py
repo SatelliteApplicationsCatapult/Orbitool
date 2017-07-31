@@ -238,7 +238,7 @@ dbLinkBudget.define_table('Calculate',
                           Field('Job_ID', label='Scenario ID', ),
                           Field('processed_file', 'upload', writable=False, readable=False, autodelete=True),
                           Field('simulator_mode', 'string', requires=IS_IN_SET(('FWD', 'RTN')), default='FWD',
-                                label='Simulation Mode (FWD or RTN)'),
+                                label='Simulation Mode'),
                           # Field('points2trsp', 'boolean', label='2) Assign Earth points coverage to transponder(VSAT)'),
                           # Field('gw2trsp', 'boolean', label='3) Assign Earth gateways to transponder (Gateway)'),
                           # Field('comp_point_cover', 'boolean',
@@ -263,8 +263,7 @@ dbLinkBudget.define_table('Calculate',
                           # Field('csi0_dn_flag', 'string', requires=IS_IN_SET(('To Compute', 'From File', 'Disregard')),
                           #       default='Disregard', label='e) C/I0dn'),
                           Field('processed', 'boolean', default=False,
-                                label='Processed? Leave this unchecked and it becomes checked when you press the Run '
-                                      'button'),
+                                label='Has this been processed?'),
                           )
 dbLinkBudget.Calculate.Job_ID.default = request.args(0)
 dbLinkBudget.define_table('Earth_coord_GW',

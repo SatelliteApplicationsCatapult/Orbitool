@@ -88,7 +88,6 @@ def preview():
     This form is to determine which calculations to perform
     """
     job_id = request.args(0)
-    dbLinkBudget.Calculate.processed.readable = False
     dbLinkBudget.Calculate.processed.writable = False
     dbLinkBudget.Calculate.Job_ID.writable = False
 
