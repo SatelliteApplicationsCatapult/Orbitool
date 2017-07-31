@@ -15,7 +15,11 @@ from lbConfiguration import pathtopropa
 import ctypes as p
 import numpy as np
 
-#_lib is defined in compute_high_level_func.py and lbConfiguration.py
+#_lib is defined in lbConfiguration.py
+if platform.system() == 'Windows':
+    _lib = p.windll.LoadLibrary(pathtopropa)
+elif platform.system() == 'Linux':
+    _lib = p.cdll.LoadLibrary(pathtopropa)
 
 # _----------------------------------------------------------------------------------------
 def compute_propag(lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, efficiency, availability):
