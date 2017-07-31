@@ -1,3 +1,4 @@
+import platform
 if platform.system() == 'Windows':
     pathtopropa = 'C:\\Windows\\SysWOW64\\propa.dll'
 elif platform.system() == 'Linux':

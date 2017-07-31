@@ -14,7 +14,7 @@ logger.setLevel(logging.DEBUG)
 from lbConfiguration import pathtopropa
 import ctypes as p
 import numpy as np
-
+import platform
 #_lib is defined in lbConfiguration.py
 if platform.system() == 'Windows':
     _lib = p.windll.LoadLibrary(pathtopropa)
