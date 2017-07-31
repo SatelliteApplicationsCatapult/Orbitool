@@ -20,11 +20,7 @@ from lib_lkb.display_func import *
 from collections import OrderedDict
 
 import platform
-
-if platform.system() is 'Windows':
-    from lib_lkb.propa_func_windows import *
-elif platform.system() is 'Linux':
-    from lib_lkb.propa_func_linux import *
+from lib_lkb.propa_func import *
 
 response.title = 'Orbitool'
 

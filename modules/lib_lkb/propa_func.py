@@ -15,7 +15,7 @@ from lbConfiguration import pathtopropa
 import ctypes as p
 import numpy as np
 import platform
-#_lib is defined in lbConfiguration.py
+#pathtopropa is defined in /modules/lbConfiguration.py
 if platform.system() == 'Windows':
     _lib = p.windll.LoadLibrary(pathtopropa)
 elif platform.system() == 'Linux':
@@ -80,8 +80,6 @@ def compute_propag(lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, e
     # A TOTAL
 
     Atot = Agaseous + np.sqrt((Aclouds + Arain) ** 2 + Iscint ** 2)
-    # for the moment : bypass function (wait fro CNES library update)
-    Atot = np.zeros_like(lon)
     return Atot
 
 
