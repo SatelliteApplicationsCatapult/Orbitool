@@ -593,9 +593,8 @@ jQuery("#clear").click(function() {
 //
 jQuery("#screenshot").click(function() {
     viewer.render();
-    screenshot = viewer.canvas.toDataURL("image/png")
+    screenshot = viewer.canvas.toDataURL("image/jpg", 0.2)
     window.open(screenshot);
-    console.log(screenshot);
 });
 
 var credit = new Cesium.Credit('Catapult', catapult_logo, 'http://sa.catapult.org.uk');

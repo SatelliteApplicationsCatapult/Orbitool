@@ -397,8 +397,8 @@ def create_download():
                 for key in keys:
                     output[key].append(row["_extra"][key])
             sheets.append(output)
-
-        filename = "Link Budget - Output Scenario " + request.args(0) + ".xlsx"
+        job_name = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).job_name
+        filename = "Orbitool "+ request.args(0) + "_" + job_name + ".xlsx"
         filepath = os.path.join(request.folder, 'uploads', filename)
         create_saving_worksheet(filepath, sheets[0], "VSAT", sheets[1], "GATEWAY", sheets[2], "SAT", sheets[3], "TRSP",
                                 sheets[4], "EARTH_coord_GW", sheets[5], "EARTH_coord_VSAT")
@@ -446,7 +446,7 @@ def SAT_FOV_to_JSON():
                      "coordinates": coordinates[i]
                  },
                  "properties": {
-                     "title": "SAT " + str(i) + " 3dB Field of View"}
+                     "title": "SAT " + str(int(i)) + " HPBW"}
                  } for i in coordinates]
 
     return response.json({"type": "FeatureCollection", 'features': features})
@@ -493,7 +493,7 @@ def TRSP_FOV_to_JSON():
                      "coordinates": coordinates[i]
                  },
                  "properties": {
-                     "title": "TRSP " + str(i[1]) + " SAT" + str(i[0]) + " \n 3dB Field of View"}
+                     "title": "TRSP " + str(i[1]) + " SAT " + str(int(i[0])) + " \n HPBW"}
                  } for i in coordinates]
     return response.json({"type": "FeatureCollection", 'features': features})
 
@@ -828,7 +828,7 @@ def json_subsatellite():
                                     ]]
                                 },
                  "properties": {
-                     "title": "SAT " + str(row[satellite.SAT_ID])}
+                     "title": "SAT " + str(int(row[satellite.SAT_ID]))}
                  } for row in satellite_rows]
 
     return response.json({"type": "FeatureCollection", 'features': features})
