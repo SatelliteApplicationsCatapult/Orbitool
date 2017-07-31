@@ -14,11 +14,8 @@ logger.setLevel(logging.DEBUG)
 from lbConfiguration import pathtopropa
 import ctypes as p
 import numpy as np
-#import os
 
-#filepath = os.path.dirname(os.path.abspath(__file__))
-_lib = p.windll.LoadLibrary(pathtopropa)
-
+#_lib is defined in compute_high_level_func.py and lbConfiguration.py
 
 # _----------------------------------------------------------------------------------------
 def compute_propag(lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, efficiency, availability):

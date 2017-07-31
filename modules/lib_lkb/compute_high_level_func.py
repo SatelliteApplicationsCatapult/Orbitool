@@ -17,10 +17,10 @@ from lib_lkb.xl_func import *
 from lib_lkb.geometric_func import *
 import platform
 if platform.system() == 'Windows':
-    from lib_lkb.propa_func_windows import *
+    _lib = p.windll.LoadLibrary(pathtopropa)
 elif platform.system() == 'Linux':
-    from lib_lkb.propa_func_linux import *
-
+    _lib = p.cdll.LoadLibrary(pathtopropa)
+from lib_lkb.propa_func import *
 ############################################################################################################################
 def compute_sat_params(SAT_dict, flag_intermediate_params=False):
     ''' This function computes main satellite characteristics, needed for other
