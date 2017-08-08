@@ -262,7 +262,7 @@ GW.load(geojson_gw).then(function() {
     for (var i = 0; i < entities.length; i++) {
         var entity = entities[i];
         entity.billboard = new Cesium.BillboardGraphics({
-            image: ground_station_img, //This image ships with cesium I believe
+            image: ground_station_img,
         });
     }
 });

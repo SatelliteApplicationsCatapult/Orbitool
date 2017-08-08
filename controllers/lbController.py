@@ -110,13 +110,10 @@ def delete_row_editablegrid():
     print temparray["rowid"]
     if temparray["table"] == "SAT":
         dbLinkBudget(dbLinkBudget.SAT.id == temparray["rowid"]).delete()
-        print "delete successfull"
     if temparray["table"] == "GW":
-        dbLinkBudget(dbLinkBudget.Gateway.id == temparray["rowid"]).delete()
-        print "delete successfull"
+        dbLinkBudget(dbLinkBudget.Earth_coord_GW.id == temparray["rowid"]).delete()
     if temparray["table"] == "TRSP":
         dbLinkBudget(dbLinkBudget.TRSP.id == temparray["rowid"]).delete()
-        print "delete successfull"
 
 
 def copy():
@@ -129,17 +126,13 @@ def copy():
         row = dbLinkBudget(dbLinkBudget.SAT.id == data['rowid']).select(dbLinkBudget.SAT.ALL).first()
         row['SAT_ID'] = data['new_id']
         dbLinkBudget.SAT.insert(**dbLinkBudget.SAT._filter_fields(row))
-        print "copy successfull sat"
     if data['table'] == 'TRSP':
         row = dbLinkBudget(dbLinkBudget.TRSP.id == data['rowid']).select(dbLinkBudget.TRSP.ALL).first()
+        row['TRSP_ID'] = data['new_id']
         dbLinkBudget.TRSP.insert(**dbLinkBudget.TRSP._filter_fields(row))
-        print "copy successfull trsp"
     if data['table'] == 'GW':
-        print data['rowid']
         row = dbLinkBudget(dbLinkBudget.Earth_coord_GW.id == data['rowid']).select(dbLinkBudget.Earth_coord_GW.ALL).first()
-        print row
         dbLinkBudget.Earth_coord_GW.insert(**dbLinkBudget.Earth_coord_GW._filter_fields(row))
-        print "copy successfull gw"
 
 
 def ajax_to_db():
@@ -489,7 +482,7 @@ def TRSP_FOV_to_JSON():
                      "coordinates": coordinates[i]
                  },
                  "properties": {
-                     "title": "TRSP " + str(i[1]) + " SAT " + str(int(i[0])) + " \n HPBW"}
+                     "title": "TRSP " + str(i[1]+1) + " SAT " + str(int(i[0])) + " \n HPBW"}
                  } for i in coordinates]
     return response.json({"type": "FeatureCollection", 'features': features})
 
