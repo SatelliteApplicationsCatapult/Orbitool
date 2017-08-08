@@ -102,6 +102,39 @@ editableGridsat.delete = function(rowIndex) {
             })
         }
         });
+        SUBSAT.load("/json_subsatellite/"+window.location.pathname.split('/')[2]).then(function () {
+                    var entities = SUBSAT.entities.values;
+                    for (var i = 0; i < entities.length; i++) {
+                        var entity = entities[i];
+                        entity.polyline.width = 1;
+                    }
+                });
+        viewer.dataSources.remove(TRSP_FOV_CIRCLE)
+        viewer.dataSources.remove(FOV_CIRCLE)
+        FOV_CIRCLE.load("/SAT_FOV_to_JSON/"+window.location.pathname.split('/')[2]).then(function() {
+            var entities = FOV_CIRCLE.entities.values;
+            for (var i = 0; i < entities.length; i++) {
+                var entity = entities[i];
+                entity.polyline.loop = true;
+                entity.polyline.material = Cesium.Color.BLACK;
+                entity.polyline.width = .8; // lines get displayed properly with red strok
+            }
+        });
+        TRSP_FOV_CIRCLE.load("/TRSP_FOV_to_JSON/"+window.location.pathname.split('/')[2]).then(function() {
+            var entities = TRSP_FOV_CIRCLE.entities.values;
+            for (var i = 0; i < entities.length; i++) {
+                var entity = entities[i];
+                entity.polyline.loop = true;
+                entity.polyline.material = Cesium.Color.LIGHTGREY;
+                entity.polyline.width = .8;
+            }
+        });
+        viewer.dataSources.add(FOV_CIRCLE);
+        viewer.dataSources.add(TRSP_FOV_CIRCLE);
+
+
+
+
     });
 };
 
