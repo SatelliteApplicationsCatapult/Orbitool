@@ -21,7 +21,7 @@ if platform.system() == 'Windows':
 elif platform.system() == 'Linux':
     _lib = p.cdll.LoadLibrary(pathtopropa)
 else:
-    raise HTTP(400, "internal error in OS detection")
+    raise HTTP(400, "Internal error : OS not detected")
 
 # _----------------------------------------------------------------------------------------
 def compute_propag(lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, efficiency, availability):
