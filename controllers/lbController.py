@@ -127,6 +127,7 @@ def copy():
     data = json.loads(request.post_vars.array)
     if data['table'] == 'SAT':
         row = dbLinkBudget(dbLinkBudget.SAT.id == data['rowid']).select(dbLinkBudget.SAT.ALL).first()
+        row['SAT_ID'] = data['new_id']
         dbLinkBudget.SAT.insert(**dbLinkBudget.SAT._filter_fields(row))
         print "copy successfull sat"
     if data['table'] == 'TRSP':

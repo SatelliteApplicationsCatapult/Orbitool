@@ -13,7 +13,7 @@ editableGridsat = new window.EditableGrid("satgrid", {
         // renderer for the action column
         this.setCellRenderer("action", new CellRenderer({
             render: function(cell, value) {
-                cell.innerHTML = "<a onclick=\"if (confirm('Are you sure you want to delete this? Note this feature is experimental and doesnt work 100% of the time')) editableGridsat.remove(" + cell.rowIndex+ "); editableGridsat.delete(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
+                cell.innerHTML = "<a onclick=\"if (confirm('Are you sure you want to delete this? Note this feature is experimental and doesnt work 100% of the time')) editableGridsat.delete(" + cell.rowIndex + "); editableGridsat.remove(" + cell.rowIndex+ ");\" style=\"cursor:pointer\">" +
                     "<img height='23px' src=\"/linkbudgetweb/static/images/delete_sat.png\" border=\"0\" alt=\"delete\" title=\"Delete\"/></a>";
                 cell.innerHTML+= "&nbsp;<a onclick=\"editableGridsat.duplicate(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
                     "<img src=\"/linkbudgetweb/static/images/duplicate.png\" border=\"0\" alt=\"duplicate\" title=\"Copy\"/></a>";
@@ -55,14 +55,36 @@ editableGridsat = new window.EditableGrid("satgrid", {
                 "value": newValue,
                 "rowid": row,
             })
-        }).done(function(msg) {});
+        }).done(function(msg) {
+            viewer.dataSources.remove(TRSP_FOV_CIRCLE)
+            viewer.dataSources.remove(FOV_CIRCLE)
+            FOV_CIRCLE.load("/SAT_FOV_to_JSON/"+window.location.pathname.split('/')[2]).then(function() {
+                var entities = FOV_CIRCLE.entities.values;
+                for (var i = 0; i < entities.length; i++) {
+                    var entity = entities[i];
+                    entity.polyline.loop = true;
+                    entity.polyline.material = Cesium.Color.BLACK;
+                    entity.polyline.width = .8; // lines get displayed properly with red strok
+                }
+            });
+            TRSP_FOV_CIRCLE.load("/TRSP_FOV_to_JSON/"+window.location.pathname.split('/')[2]).then(function() {
+                var entities = TRSP_FOV_CIRCLE.entities.values;
+                for (var i = 0; i < entities.length; i++) {
+                    var entity = entities[i];
+                    entity.polyline.loop = true;
+                    entity.polyline.material = Cesium.Color.LIGHTGREY;
+                    entity.polyline.width = .8;
+                }
+            });
+            viewer.dataSources.add(FOV_CIRCLE);
+            viewer.dataSources.add(TRSP_FOV_CIRCLE);
+
+        });
 
     }
 });
 
 editableGridsat.delete = function(rowIndex) {
-    console.log(rowIndex)
-    console.log(editableGridsat.getRowId(rowIndex))
     jQuery.ajax({
         type: "POST",
         url: "/lbController/delete_row_editablegrid",
@@ -70,16 +92,16 @@ editableGridsat.delete = function(rowIndex) {
             "table": "SAT",
             "rowid": editableGridsat.getRowId(rowIndex),
         })
-    }).done(function(msg) {});
-
-    SAT.load("/get_geojson_sat/"+window.location.pathname.split('/')[2]).then(function () {
-    var entities = SAT.entities.values;
-    for (var i = 0; i < entities.length; i++) {
-        var entity = entities[i];
-        entity.billboard = new Cesium.BillboardGraphics({
-            image: "/linkbudgetweb/static/images/satellite.gif",
-        })
-    }
+    }).done(function(msg) {
+        SAT.load("/get_geojson_sat/"+window.location.pathname.split('/')[2]).then(function () {
+        var entities = SAT.entities.values;
+        for (var i = 0; i < entities.length; i++) {
+            var entity = entities[i];
+            entity.billboard = new Cesium.BillboardGraphics({
+                image: "/linkbudgetweb/static/images/satellite.gif",
+            })
+        }
+        });
     });
 };
 
@@ -92,26 +114,40 @@ editableGridsat.duplicate = function(rowIndex)
 	var newRowId = 0;
 	for (var r = 0; r < this.getRowCount(); r++) newRowId = Math.max(newRowId, parseInt(this.getRowId(r)) + 1);
 	// add new row
+    var max_id = 0
+    for (i=0; i<editableGridsat.data.length; i++){
+        max_id = Math.max(editableGridsat.data[i]["columns"][0],max_id)
+    }
+    new_id = max_id+1
+    values['SAT_ID']= new_id
 	this.insertAfter(rowIndex, newRowId, values);
-
+    // copies a row on the backend
 	jQuery.ajax({
             type: "POST",
             url: "/lbController/copy",
             data: "array=" + JSON.stringify({
                 "table": "SAT",
                 "rowid": editableGridsat.getRowId(rowIndex),
+                "new_id": new_id,
             })
-        }).done(function(msg) {});
-
-    // copies a row on the backend
-    SAT.load("/get_geojson_sat/"+window.location.pathname.split('/')[2]).then(function () {
-        var entities = SAT.entities.values;
-        for (var i = 0; i < entities.length; i++) {
-            var entity = entities[i];
-            entity.billboard = new Cesium.BillboardGraphics({
-                image: "/linkbudgetweb/static/images/satellite.gif",
-            })
-        }
+        }).done(function(msg) {
+                // copies a row on the backend
+                SAT.load("/get_geojson_sat/"+window.location.pathname.split('/')[2]).then(function () {
+                    var entities = SAT.entities.values;
+                    for (var i = 0; i < entities.length; i++) {
+                        var entity = entities[i];
+                        entity.billboard = new Cesium.BillboardGraphics({
+                            image: "/linkbudgetweb/static/images/satellite.gif",
+                        })
+                    }
+                });
+                SUBSAT.load("/json_subsatellite/"+window.location.pathname.split('/')[2]).then(function () {
+                    var entities = SUBSAT.entities.values;
+                    for (var i = 0; i < entities.length; i++) {
+                        var entity = entities[i];
+                        entity.polyline.width = 1;
+                    }
+                });
     });
 
 };
