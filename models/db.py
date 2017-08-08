@@ -226,7 +226,7 @@ dbLinkBudget.define_table('SAT',
 dbLinkBudget.SAT.PAYLOAD_ID.requires = IS_NOT_EMPTY()  # generated as a list. Futher testing required
 dbLinkBudget.define_table('Job',
                           Field('job_name', 'string', requires=IS_NOT_EMPTY(), label='Name'),
-                          Field('description', 'string'),
+                          Field('description', 'string', label='Description'),
                           Field('Date', 'string', default=request.now, update=request.now, writable=False,
                                 label='Upload Date'),
                           Field('file_up', 'upload', requires=IS_NOT_EMPTY(), label='',

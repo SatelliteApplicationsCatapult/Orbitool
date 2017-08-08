@@ -7,7 +7,7 @@ function setMargins() {
     var huse = h*(0.1-((((sw-w)/sw)/10)));
     huse = (huse < 32 ? 32 : huse);
 
-    $('#content').css('padding', huse+'px');
+    $('#content').css('padding-top', huse+'px');
 
     var hH = $('header').css('height', huse+'px').height();
 

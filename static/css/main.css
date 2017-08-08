@@ -124,9 +124,8 @@ header {
 }
 
 #content {
-    width: 80%;
+    width: 100%;
     margin: 0 auto;
-    padding-top: 120px;
 }
 
 .menu-logo, .menu-button, .menu-logo > svg, .menu-button svg {
@@ -173,6 +172,7 @@ header {
     height:100%;
     width:100%;
     overflow: hidden;
+    padding-left: 4%;
 }
 
 .leftColumn {
