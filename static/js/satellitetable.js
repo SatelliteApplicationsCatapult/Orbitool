@@ -1,4 +1,4 @@
-var satellitetable = $('script[src*=satellitetable]');
+var satellitetable = jQuery('script[src*=satellitetable]');
 var satjson = satellitetable.attr('jsons');
 var editableGridsat = null;
 
@@ -14,37 +14,39 @@ editableGridsat = new window.EditableGrid("satgrid", {
         this.setCellRenderer("action", new CellRenderer({
             render: function(cell, value) {
                 cell.innerHTML = "<a onclick=\"if (confirm('Are you sure you want to delete this? Note this feature is experimental and doesnt work 100% of the time')) editableGridsat.remove(" + cell.rowIndex+ "); editableGridsat.delete(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
-                    "<img src=\"/linkbudgetweb/static/images/delete.png\" border=\"0\" alt=\"delete\" title=\"delete\"/></a>";
+                    "<img height='23px' src=\"/linkbudgetweb/static/images/delete_sat.png\" border=\"0\" alt=\"delete\" title=\"Delete\"/></a>";
                 cell.innerHTML+= "&nbsp;<a onclick=\"editableGridsat.duplicate(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
-                    "<img src=\"/linkbudgetweb/static/images/duplicate.png\" border=\"0\" alt=\"duplicate\" title=\"Duplicate row\"/></a>";
+                    "<img src=\"/linkbudgetweb/static/images/duplicate.png\" border=\"0\" alt=\"duplicate\" title=\"Copy\"/></a>";
             }
         }));
 
         // render the grid
-        this.renderGrid("satellite_tablecontent", "testgrid");
+        this.renderGrid("satellite_tablecontent", "testgrid", "sat");
     },
 
     // called when some value has been modified: we display a message
     modelChanged: function(rowIdx, colIdx, oldValue, newValue, row) {
-
+        var lon = editableGridsat.data[rowIdx].columns[2];
+        var lat = editableGridsat.data[rowIdx].columns[1];
+        var alt = editableGridsat.data[rowIdx].columns[3];
         //Longitude Change
         if (colIdx == 1) {
-            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], newValue, editableGridsat.data[rowIdx].columns[3]*1000))
-            FOV.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], newValue, editableGridsat.data[rowIdx].columns[3]*1000/2))
+            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(lon, newValue, alt*1000))
+            SUBSAT.entities._entities._array[rowIdx]._polyline._positions.setValue([Cesium.Cartesian3.fromDegrees(lon, newValue, 0),Cesium.Cartesian3.fromDegrees(lon, newValue, alt*1000)])
+
         }
         //Latitude Change
         if (colIdx == 2) {
-            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(newValue, editableGridsat.data[rowIdx].columns[1], editableGridsat.data[rowIdx].columns[3]*1000))
-            FOV.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(newValue, editableGridsat.data[rowIdx].columns[1], editableGridsat.data[rowIdx].columns[3]*1000/2))
+            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(newValue, lat, alt*1000))
+            SUBSAT.entities._entities._array[rowIdx]._polyline._positions.setValue([Cesium.Cartesian3.fromDegrees(newValue, lat, 0),Cesium.Cartesian3.fromDegrees(newValue, lat, alt*1000)])
+
         }
         // Altitude Change
         if (colIdx == 3) {
-            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], editableGridsat.data[rowIdx].columns[1], newValue*1000))
-            FOV.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(editableGridsat.data[rowIdx].columns[2], editableGridsat.data[rowIdx].columns[1], newValue*1000/2))
-            FOV.entities._entities._array[rowIdx]._cylinder._length.setValue(newValue*1000)
-            FOV.entities._entities._array[rowIdx]._cylinder._bottomRadius.setValue(newValue * 1000 * Math.tan((3.14159 / 180) * editableGridsat.data[rowIdx].columns[4]))
+            SAT.entities._entities._array[rowIdx]._position.setValue(Cesium.Cartesian3.fromDegrees(lon, lat, newValue*1000))
+            SUBSAT.entities._entities._array[rowIdx]._polyline._positions.setValue([Cesium.Cartesian3.fromDegrees(lon, lat, 0),Cesium.Cartesian3.fromDegrees(lon, lat, newValue*1000)])
         }
-        $.ajax({
+        jQuery.ajax({
             type: "POST",
             url: "/lbController/ajax_to_db",
             data: "array=" + JSON.stringify({
@@ -55,22 +57,13 @@ editableGridsat = new window.EditableGrid("satgrid", {
             })
         }).done(function(msg) {});
 
-        SAT.load("/get_geojson_sat/"+window.location.pathname.split('/')[2]).then(function () {
-        var entities = SAT.entities.values;
-        for (var i = 0; i < entities.length; i++) {
-            var entity = entities[i];
-            entity.billboard = new Cesium.BillboardGraphics({
-                image: "/linkbudgetweb/static/images/satellite.gif",
-            })
-        }
-        });
     }
 });
 
 editableGridsat.delete = function(rowIndex) {
     console.log(rowIndex)
     console.log(editableGridsat.getRowId(rowIndex))
-    $.ajax({
+    jQuery.ajax({
         type: "POST",
         url: "/lbController/delete_row_editablegrid",
         data: "array=" + JSON.stringify({
@@ -101,7 +94,7 @@ editableGridsat.duplicate = function(rowIndex)
 	// add new row
 	this.insertAfter(rowIndex, newRowId, values);
 
-	$.ajax({
+	jQuery.ajax({
             type: "POST",
             url: "/lbController/copy",
             data: "array=" + JSON.stringify({

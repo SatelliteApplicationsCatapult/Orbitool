@@ -14,11 +14,14 @@ logger.setLevel(logging.DEBUG)
 from lbConfiguration import pathtopropa
 import ctypes as p
 import numpy as np
-#import os
-
-#filepath = os.path.dirname(os.path.abspath(__file__))
-_lib = p.windll.LoadLibrary(pathtopropa)
-
+import platform
+#pathtopropa is defined in /modules/lbConfiguration.py
+if platform.system() == 'Windows':
+    _lib = p.windll.LoadLibrary(pathtopropa)
+elif platform.system() == 'Linux':
+    _lib = p.cdll.LoadLibrary(pathtopropa)
+else:
+    raise HTTP(400, "Internal error : OS not detected")
 
 # _----------------------------------------------------------------------------------------
 def compute_propag(lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, efficiency, availability):
@@ -79,8 +82,6 @@ def compute_propag(lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, e
     # A TOTAL
 
     Atot = Agaseous + np.sqrt((Aclouds + Arain) ** 2 + Iscint ** 2)
-    # for the moment : bypass function (wait fro CNES library update)
-    Atot = np.zeros_like(lon)
     return Atot
 
 

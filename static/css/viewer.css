@@ -1,0 +1,495 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans); /*! HTML5 Boilerplate v5.3.0 | MIT License | https://html5boilerplate.com/ */
+
+/*
+ * What follows is the result of much research on cross-browser styling.
+ * Credit left inline and big thanks to Nicolas Gallagher, Jonathan Neal,
+ * Kroc Camen, and the H5BP dev community and team.
+ */
+
+/* ==========================================================================
+   Base styles: opinionated defaults
+   ========================================================================== */
+
+html {
+    color: #222;
+    font-size: 1em;
+    line-height: 1.4;
+}
+
+/*
+ * Remove text-shadow in selection highlight:
+ * https://twitter.com/miketaylr/status/12228805301
+ *
+ * These selection rule sets have to be separate.
+ * Customize the background color to match your design.
+ */
+
+::-moz-selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+
+::selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+
+/*
+ * A better looking default horizontal rule
+ */
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 1em 0;
+    padding: 0;
+}
+
+/*
+ * Remove the gap between audio, canvas, iframes,
+ * images, videos and the bottom of their containers:
+ * https://github.com/h5bp/html5-boilerplate/issues/440
+ */
+
+audio,
+canvas,
+iframe,
+img,
+svg,
+video {
+    vertical-align: middle;
+}
+
+/*
+ * Remove default fieldset styles.
+ */
+
+fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+/*
+ * Allow only vertical resizing of textareas.
+ */
+
+textarea {
+    resize: vertical;
+}
+
+/* ==========================================================================
+   Browser Upgrade Prompt
+   ========================================================================== */
+
+.browserupgrade {
+    margin: 0.2em 0;
+    background: #ccc;
+    color: #000;
+    padding: 0.2em 0;
+}
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+/* menu bar */
+
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    color: #666;
+}
+
+header {
+    width: 100%;
+    height: 120px;
+    background-color: #8DBBBB;
+    position: fixed;
+    top: 0;
+    overflow: hidden;
+    z-index: 10;
+}
+
+.smooth-move {
+    transition: 0.2s;
+}
+
+.menu-logo, .menu-button, .menu-logo > svg, .menu-button svg {
+    height: 60px;
+    /*padding-right: 15px;*/
+}
+
+.menu-button:hover .menu-stroke {
+    stroke: #197375 !important;
+}
+.menu-button:hover .menu-fill {
+    fill: #197375 !important;
+}
+
+.currentpage .menu-back{
+    fill: #eff0f2 !important;
+}
+.currentpage .select-bar{
+    fill: #197375 !important;
+}
+.currentpage .menu-fill{
+    fill: #197375 !important;
+}
+.currentpage .menu-stroke{
+    stroke:#197375 !important;
+}
+
+.sep-bar{
+    background-color: #8DBBBB;
+    height: 5px;
+    width: 100%;
+}
+
+.container > div{
+    display: inline-block;
+}
+
+#menu-bar {
+    display: inline-block;
+    overflow: auto;
+}
+
+.container {
+    height:100%;
+    width:100%;
+    overflow: hidden;
+}
+
+
+/* main panel */
+.navbar {
+    position: absolute;
+    left: 0;
+    top: 37px;
+    /*margin-top: 20px;*/
+    /*background-color: #ddd;*/
+    overflow: hidden;
+    max-height: 1800px;
+    -webkit-transition: max-height 0.3s;
+    -moz-transition: max-height 0.3s;
+    -ms-transition: max-height 0.3s;
+    -o-transition: max-height 0.3s;
+    transition: max-height 0.3s;
+}
+.navbar.collapsed {
+    max-height: 0;
+    -webkit-transition: max-height 0.3s;
+    -moz-transition: max-height 0.3s;
+    -ms-transition: max-height 0.3s;
+    -o-transition: max-height 0.3s;
+    transition: max-height 0.3s;
+}
+
+a.label-button{
+    position: absolute;
+    left: 0;
+    top: 0;;
+    text-decoration:none;
+    color:white;
+    background-color:#1D7475;
+    /*border:1px solid #660000;*/
+    /*border-radius:25px;*/
+    /*margin-right:10px;*/
+    padding:10px 20px 10px 20px;
+    font-size: 90%;
+}
+
+a.label-button:hover{
+    background-color:#8DBBBB;
+}
+
+/* sub panels */
+.accordion {
+    /*border-radius: 3px;*/
+    overflow: hidden;
+    /*border: 3px solid #6495ED;*/
+    /*position: absolute;*/
+    /*left: 0;*/
+    /*top: 40px;*/
+    width: 300px;
+}
+
+/*.accordion.collapsed {*/
+    /*max-height: 0;*/
+/*}*/
+
+.accordion-panel {
+    /*border: 0px #6495ED solid;*/
+    transition: all .6s .2s ease;
+}
+
+.accordion-panel.active {
+    transition: all .2s .6s;
+    /*border-left: 15px #6495ED solid;*/
+}
+
+.sat {
+    background: #3c8c88;
+}
+
+.gateway {
+    background: #725077;
+}
+
+.analytics {
+    background: #7f3e5c;
+}
+
+.accordion-panel__heading {
+    /*padding: 20px;*/
+    display: block;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color:#ffffff;
+    /*color: #6495ED;*/
+    /*background: #f5f5f5;*/
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    /*border-bottom: 1px solid #6495ED;*/
+    transition: all .6s;
+    cursor: pointer;
+}
+
+.accordion-panel__heading:HOVER {
+    color: #333;
+    background-color:#8DBBBB;
+    transition: all .2s;
+}
+
+.active .accordion-panel__heading:HOVER,
+.active .accordion-panel__heading {
+    /*color: #333;*/
+    /*background: #fff;*/
+    border-bottom: 0;
+}
+
+.accordion-panel__content {
+    padding: 0 20px 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: all .6s;
+    color:#fff;
+}
+
+.active .accordion-panel__content {
+    max-height: 500px;
+    padding: 0 20px 20px 20px;
+    color:#fff;
+}
+
+.panel-button {
+    /*height: 30px;*/
+    /*padding: 5px 10px 5px 10px;*/
+    transition: 0.2s;
+}
+
+.open-menu {
+    transform:rotate(90deg);
+}
+
+.panel-button > svg {
+    height: 30px;
+    padding: 5px 10px 5px 10px;
+}
+
+.open-menu path {
+    fill: #000;
+}
+
+.gateway-button {
+    height: 50px;
+    width:33%;
+}
+.gateway-button label.cf {
+    height: 50px;
+    width:33%;
+}
+
+.gateway-button label {
+    cursor: pointer;
+}
+
+.gateway-button:hover path {
+    fill: #000;
+}
+
+.gateway-button:hover circle {
+    stroke: #000;
+}
+
+.gateway-button:hover input:checked + svg path {
+    fill: #000;
+}
+
+.gateway-button:hover  input:checked + svg circle {
+    stroke: #000;
+}
+
+.gateway-button input{
+    opacity: 0;
+    position: absolute;
+    left: -10000px;
+}
+
+.gateway-button input:checked + svg path {
+    fill: #eee;
+}
+.gateway-button input:checked + svg rect {
+    fill: #8cbaba;
+}
+.gateway-button input:checked + svg circle {
+    stroke: #eee;
+}
+.buttons {
+    margin-top: 15px;
+}
+
+
+/* toggle buttons */
+
+.tgl {
+    display: none;
+}
+.tgl, .tgl:after, .tgl:before, .tgl *, .tgl *:after, .tgl *:before, .tgl + .tgl-btn {
+    box-sizing: border-box;
+}
+.tgl::-moz-selection, .tgl:after::-moz-selection, .tgl:before::-moz-selection, .tgl *::-moz-selection, .tgl *:after::-moz-selection, .tgl *:before::-moz-selection, .tgl + .tgl-btn::-moz-selection {
+    background: none;
+}
+.tgl::selection, .tgl:after::selection, .tgl:before::selection, .tgl *::selection, .tgl *:after::selection, .tgl *:before::selection, .tgl + .tgl-btn::selection {
+    background: none;
+}
+.tgl + .tgl-btn {
+    outline: 0;
+    display: block;
+    width: 2.5em;
+    height: 1.25em;
+    position: relative;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.tgl + .tgl-btn:after, .tgl + .tgl-btn:before {
+    position: relative;
+    display: block;
+    content: "";
+    width: 50%;
+    height: 100%;
+}
+.tgl + .tgl-btn:after {
+    left: 0;
+}
+.tgl + .tgl-btn:before {
+    display: none;
+}
+.tgl:checked + .tgl-btn:after {
+    left: 50%;
+}
+
+.tgl-light + .tgl-btn {
+    background: #f0f0f0;
+    border-radius: 2em;
+    padding: 2px;
+    -webkit-transition: all .4s ease;
+    transition: all .4s ease;
+}
+.tgl-light + .tgl-btn:after {
+    border-radius: 50%;
+    /*background: #fff;*/
+    /*background: #197375;*/
+    -webkit-transition: all .2s ease;
+    transition: all .2s ease;
+}
+.tgl-light + .tgl-btn.sat:after {
+    background: #3c8c88;
+}
+
+.tgl-light + .tgl-btn.gateway:after {
+    background: #725077;
+}
+
+.tgl-light + .tgl-btn.analytics:after{
+    background: #7f3e5c;
+}
+
+.tgl-light:checked + .tgl-btn {
+    background: #9FD6AE;
+}
+
+/* utils */
+
+/*
+ * Clearfix: contain floats
+ *
+ * For modern browsers
+ * 1. The space content is one way to avoid an Opera bug when the
+ *    `contenteditable` attribute is included anywhere else in the document.
+ *    Otherwise it causes space to appear at the top and bottom of elements
+ *    that receive the `clearfix` class.
+ * 2. The use of `table` rather than `block` is only necessary if using
+ *    `:before` to contain the top-margins of child elements.
+ */
+
+.clearfix:before,
+.clearfix:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+.left {
+    float: left;
+}
+
+.right {
+    float: right;
+}
+#screenshot.btn {
+    height: 63px;
+    background-color: rgba(29, 116, 117,70);
+    margin-bottom: -5px
+}
+
+.styled-select {
+   background: url(http://i62.tinypic.com/15xvbd5.png) no-repeat 96% 0;
+   height: 29px;
+   overflow: hidden;
+   width: 240px;
+}
+
+.styled-select select {
+   background: transparent;
+   border: none;
+   font-size: 14px;
+   height: 29px;
+   padding: 5px; /* If you add too much padding here, the options won't show in IE */
+   width: 268px;
+}
+
+.styled-select.slate {
+   background: url(http://i62.tinypic.com/2e3ybe1.jpg) no-repeat right center;
+   height: 34px;
+   width: 240px;
+    background-color: white;
+}

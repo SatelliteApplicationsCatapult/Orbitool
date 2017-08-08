@@ -20,17 +20,14 @@ from lib_lkb.display_func import *
 from collections import OrderedDict
 
 import platform
-
-if platform.system() is 'Windows':
-    from lib_lkb.propa_func_windows import *
-elif platform.system() is 'Linux':
-    from lib_lkb.propa_func_linux import *
+from lib_lkb.propa_func import *
 
 response.title = 'Orbitool'
 
 
 def index():
-    """ Input form """  # TODO: Think about adding drag and drop plugin
+    """ Input form """
+    # TODO: Think about adding drag and drop plugin
     # TODO : separate the form
     session.job = ""
     record = dbLinkBudget.Job(request.args(0))
@@ -87,14 +84,16 @@ def add_excel_2_db():
 
 def preview():
     # SQL FORM
+    """
+    This form is to determine which calculations to perform
+    """
     job_id = request.args(0)
-    dbLinkBudget.Calculate.processed.readable = False
     dbLinkBudget.Calculate.processed.writable = False
     dbLinkBudget.Calculate.Job_ID.writable = False
 
     record = dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == job_id)
     form = SQLFORM(dbLinkBudget.Calculate, record, showid=False,
-                   formstyle='table3cols', submit_button='CALCULATE')
+                   formstyle='table3cols', submit_button='')
     if form.accepts(request, session):
         response.flash = 'form accepted'
         redirect(URL('run', args=request.args(0)))
@@ -120,7 +119,11 @@ def delete_row_editablegrid():
         print "delete successfull"
 
 
-def copy():  # TODO: Add all of the new fields to this list
+def copy():
+    """
+    Copy function for eitablegrid on the preview page
+    :return:
+    """
     data = json.loads(request.post_vars.array)
     if data['table'] == 'SAT':
         row = dbLinkBudget(dbLinkBudget.SAT.id == data['rowid']).select(dbLinkBudget.SAT.ALL).first()
@@ -141,7 +144,7 @@ def copy():  # TODO: Add all of the new fields to this list
 def ajax_to_db():
     """
     read from editableGrid
-    ajax and write to the datatables
+    ajax and write to the database tables
     """
     temparray = json.loads(request.post_vars.array)
     if temparray["table"] == "SAT":
@@ -215,6 +218,9 @@ def ajax_to_db():
 
 
 def transponder_JSON():
+    """
+    Returns a JSON to be read by the editablegrid
+    """
     job_id = request.args(0)
     trsp_table = dbLinkBudget.TRSP
     rows = dbLinkBudget(trsp_table.Job_ID == request.args(0)).select(trsp_table.id, trsp_table.PAYLOAD_ID, trsp_table.TRSP_ID,
@@ -224,23 +230,23 @@ def transponder_JSON():
     metadata = [
         {"name": "PAYLOAD_ID", "label": "Payload ID",
             "datatype": "double", "editable": "true"},
-        {"name": "TRSP_ID", "label": "Transponder ID",
+        {"name": "TRSP_ID", "label": "Trsp ID",
             "datatype": "double", "editable": "true"},
-        {"name": "BEAM_RX_CENTER_X_ANT", "label": "Beam RX Center X ANT",
+        {"name": "BEAM_RX_CENTER_X_ANT", "label": "RX Centr. X ANT",
             "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "BEAM_RX_CENTER_Y_ANT", "label": "Beam RX Center Y ANT",
+        {"name": "BEAM_RX_CENTER_Y_ANT", "label": "RX Centr. Y ANT",
             "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "BEAM_RX_CENTER_Z_ANT", "label": "Beam RX Center Z ANT",
+        {"name": "BEAM_RX_CENTER_Z_ANT", "label": "RX Centr. Z ANT",
          "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "BEAM_RX_RADIUS", "label": "Beam RX Radius",
+        {"name": "BEAM_RX_RADIUS", "label": "RX Radius",
             "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "BEAM_TX_CENTER_X_ANT", "label": "Beam TX Center X ANT",
+        {"name": "BEAM_TX_CENTER_X_ANT", "label": "TX Centr. X ANT",
             "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "BEAM_TX_CENTER_Y_ANT", "label": "Beam TX Center Y ANT",
+        {"name": "BEAM_TX_CENTER_Y_ANT", "label": "TX Centr. Y ANT",
             "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "BEAM_TX_CENTER_Z_ANT", "label": "Beam TX Center Z ANT",
+        {"name": "BEAM_TX_CENTER_Z_ANT", "label": "TX Centr. Z ANT",
          "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
-        {"name": "BEAM_TX_RADIUS", "label": "Beam TX Radius",
+        {"name": "BEAM_TX_RADIUS", "label": "TX Radius",
             "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "action", "label": "", "datatype": "html", "editable": 'false'}
     ]
@@ -261,6 +267,10 @@ def transponder_JSON():
 
 
 def satellite_table_JSON():
+    """
+    returns a json for the satellite editablegrid
+    :return:
+    """
     job_id = request.args(0)
     sat_table = dbLinkBudget.SAT
     rows = dbLinkBudget(sat_table.Job_ID == request.args(0)).select(sat_table.id, sat_table.SAT_ID, sat_table.NADIR_LON,
@@ -309,6 +319,10 @@ def satellite_table_JSON():
 
 
 def gw_table_JSON():
+    """
+    returns a json for the gw editablegrid
+    :return:
+    """
     job_id = request.args(0)
     gw_table = dbLinkBudget.Earth_coord_GW
     rows = dbLinkBudget(gw_table.Job_ID == request.args(0)).select(gw_table.id, gw_table.LAT, gw_table.LON,
@@ -361,11 +375,8 @@ def download():
 
 def create_download():
     """
-    Creates downloadable file.
-    This is called in update.html under options
-
-    TODO: consider using lists instead of dictionaries so that the download excel is ordered.
-    TODO: at RX fields
+    creates an excel spreadsheet to be downloaded
+    #TODO style the spreadsheet and remove unecessary values
     """
     if dbLinkBudget.Calculate(dbLinkBudget.Calculate.Job_ID == request.args(0)):
         sheets = []
@@ -381,8 +392,8 @@ def create_download():
                 for key in keys:
                     output[key].append(row["_extra"][key])
             sheets.append(output)
-
-        filename = "Link Budget - Output Scenario " + request.args(0) + ".xlsx"
+        job_name = dbLinkBudget.Job(dbLinkBudget.Job.id == request.args(0)).job_name
+        filename = "Orbitool "+ request.args(0) + "_" + job_name + ".xlsx"
         filepath = os.path.join(request.folder, 'uploads', filename)
         create_saving_worksheet(filepath, sheets[0], "VSAT", sheets[1], "GATEWAY", sheets[2], "SAT", sheets[3], "TRSP",
                                 sheets[4], "EARTH_coord_GW", sheets[5], "EARTH_coord_VSAT")
@@ -397,6 +408,10 @@ def create_download():
 
 
 def SAT_FOV_to_JSON():
+    """
+    create json with satellite field of view
+    :return:
+    """
     job_id = request.args(0)
     SAT_dict = datatable_to_dict(dbLinkBudget.SAT, job_id, dbLinkBudget)
     # -----------------  1/ Compute SAT geometric params ------------------
@@ -426,13 +441,17 @@ def SAT_FOV_to_JSON():
                      "coordinates": coordinates[i]
                  },
                  "properties": {
-                     "title": "SAT " + str(i) + " 3dB Field of View"}
+                     "title": "SAT " + str(int(i)) + " HPBW"}
                  } for i in coordinates]
 
     return response.json({"type": "FeatureCollection", 'features': features})
 
 
 def TRSP_FOV_to_JSON():
+    """
+    create json with transponder field of views
+    :return:
+    """
     job_id = request.args(0)
     SAT_dict = datatable_to_dict(dbLinkBudget.SAT, job_id, dbLinkBudget)
     TRSP_dict = datatable_to_dict(dbLinkBudget.TRSP, job_id, dbLinkBudget)
@@ -469,20 +488,15 @@ def TRSP_FOV_to_JSON():
                      "coordinates": coordinates[i]
                  },
                  "properties": {
-                     "title": "TRSP " + str(i[1]) + " SAT" + str(i[0]) + " \n 3dB Field of View"}
+                     "title": "TRSP " + str(i[1]) + " SAT " + str(int(i[0])) + " \n HPBW"}
                  } for i in coordinates]
     return response.json({"type": "FeatureCollection", 'features': features})
 
 
 def run():
     """
-    This runs the processing of the excel file.
-    Currently asks which propagation library is being used.
-    Adds EIRP values (in fact it outputs temperature at the moment)
-    Updates 'processed' checkbox.
-
-    Returns:
-        Refreshes the update page
+    Runs either FWD or RTN mode based on the input form.
+    List of functions that call damien's library
 
     """
     job_id = request.args(0)
@@ -583,10 +597,11 @@ def performance_maxmin():
                                                                      earth_vsat.SAT_GPT, earth_vsat.SAT_GAIN_TX,
                                                                      earth_vsat.SAT_GAIN_RX, earth_vsat.DIST,
                                                                      earth_vsat.FSL_UP, earth_vsat.FSL_DN,
-                                                                     earth_vsat.EFFICIENCY, earth_vsat.EFFICIENCY,
+                                                                     earth_vsat.SPEC_EFF, earth_vsat.EFFICIENCY,
                                                                      earth_vsat.CSIM0, earth_vsat.CSIM0,
                                                                      earth_vsat.CSN0_DN, earth_vsat.CSN0_DN,
-                                                                     earth_vsat.CSI0_DN, earth_vsat.CSI0_DN)
+                                                                     earth_vsat.CSI0_DN, earth_vsat.CSI0_DN,
+                                                                     earth_vsat.LON, earth_vsat.LAT)
     EIRP = [[row.SAT_EIRP] for row in rows]
     ELEVATION = [[row.ELEVATION] for row in rows]
     SAT_GPT = [[row.SAT_GPT] for row in rows]
@@ -595,25 +610,30 @@ def performance_maxmin():
     DIST = [[row.DIST] for row in rows]
     FSL_UP = [[row.FSL_UP] for row in rows]
     FSL_DN = [[row.FSL_DN] for row in rows]
-    EFFICIENCY = [[row.EFFICIENCY] for row in rows]
+    SPEC_EFF = [[row.SPEC_EFF] for row in rows]
     CSIM0 = [[row.CSIM0] for row in rows]
     CSN0_DN = [[row.CSN0_DN] for row in rows]
     CSI0_DN = [[row.CSI0_DN] for row in rows]
+    LAT = [[row.LAT] for row in rows]
+    LON = [[row.LON] for row in rows]
 
     return json.dumps(
-        {"EIRP": {"max": max(EIRP), "min": min(EIRP)},
-         "ELEVATION": {"max": max(ELEVATION), "min": min(ELEVATION)},
-         "SAT_GPT": {"max": max(SAT_GPT), "min": min(SAT_GPT)},
-         "SAT_GAIN_TX": {"max": max(SAT_GAIN_TX), "min": min(SAT_GAIN_TX)},
-         "SAT_GAIN_RX": {"max": max(SAT_GAIN_RX), "min": min(SAT_GAIN_RX)},
-         "DIST": {"max": max(DIST), "min": min(DIST)},
-         "FSL_UP": {"max": max(FSL_UP), "min": min(FSL_UP)},
-         "FSL_DN": {"max": max(FSL_DN), "min": min(FSL_DN)},
-         "EFFICIENCY": {"max": max(EFFICIENCY), "min": min(EFFICIENCY)},
-         "CSIM0": {"max": max(CSIM0), "min": min(CSIM0)},
-         "CSN0_DN": {"max": max(CSN0_DN), "min": min(CSN0_DN)},
-         "CSI0_DN": {"max": max(CSI0_DN), "min": min(CSI0_DN)}},
-        sort_keys=True, indent=4, separators=(',', ': '))
+        {
+    "EIRP": {"max": max(EIRP), "min": min(EIRP)},
+    "ELEVATION": {"max": max(ELEVATION), "min": min(ELEVATION)},
+    "SAT_GPT": {"max": max(SAT_GPT), "min": min(SAT_GPT)},
+    "SAT_GAIN_TX": {"max": max(SAT_GAIN_TX), "min": min(SAT_GAIN_TX)},
+    "SAT_GAIN_RX": {"max": max(SAT_GAIN_RX), "min": min(SAT_GAIN_RX)},
+    "DIST": {"max": max(DIST), "min": min(DIST)},
+    "FSL_UP": {"max": max(FSL_UP), "min": min(FSL_UP)},
+    "FSL_DN": {"max": max(FSL_DN), "min": min(FSL_DN)},
+    "SPEC_EFF": {"max": max(SPEC_EFF), "min": min(SPEC_EFF)},
+    "CSIM0": {"max": max(CSIM0), "min": min(CSIM0)},
+    "CSN0_DN": {"max": max(CSN0_DN), "min": min(CSN0_DN)},
+    "CSI0_DN": {"max": max(CSI0_DN), "min": min(CSI0_DN)},
+    "LAT": {"max": max(LAT), "min": min(LAT)},
+    "LON": {"max": max(LON), "min": min(LON)}},
+    sort_keys = True, indent = 4, separators = (',', ': '))
 
 
 def VSATcoverage(lat, lon, npoints, distance):
@@ -622,6 +642,7 @@ def VSATcoverage(lat, lon, npoints, distance):
 
     Usage example:
     VSATcoverage(-90,0,300,.2)
+    UNUSED
     """
     sidelength = np.floor(np.sqrt(npoints))
     lonarray_calc = np.arange(
@@ -649,12 +670,6 @@ def VSATcoverage(lat, lon, npoints, distance):
     lonfull = np.tile(lonarray, sidelength)
     EARTH_COORD_VSAT_dict = {'LON': lonfull, 'LAT': latfull}
     return EARTH_COORD_VSAT_dict
-
-
-def testthis():
-    return VSATcoverage(-90., 0., 300.,
-                        0.2)  # you need to convert the output from a np array to something else to show it in a
-    # browser. Or do eg lonarray[3]
 
 
 def get_performance_json():
@@ -773,7 +788,7 @@ def get_geojson_sat():
                                      ]
                  },
                  "properties": {
-                     "title": "SAT" + " " + str(row[satellite.SAT_ID]),
+                     "title": "SAT" + " " + str(int(row[satellite.SAT_ID])),
                      "Height (km)": row[satellite.DISTANCE],
                      "Field of View (degrees)": row[satellite.FOV_RADIUS],
                      "Payload ID": row[satellite.PAYLOAD_ID],
@@ -808,7 +823,7 @@ def json_subsatellite():
                                     ]]
                                 },
                  "properties": {
-                     "title": "SAT " + str(row[satellite.SAT_ID])}
+                     "title": "SAT " + str(int(row[satellite.SAT_ID]))}
                  } for row in satellite_rows]
 
     return response.json({"type": "FeatureCollection", 'features': features})
@@ -863,16 +878,3 @@ def api():
             raise HTTP(parser.status, parser.error)
 
     return dict(GET=GET)
-
-
-def options_widget(field, value, **kwargs):
-    return SQLFORM.widgets.options.widget(field, value, **kwargs)
-
-
-def string_widget(field, value, **kwargs):
-    return SQLFORM.widgets.string.widget(field, value, **kwargs)
-
-
-def boolean_widget(field, value, **kwargs):
-    # be careful using this; checkboxes on forms are tricky. see notes below.
-    return SQLFORM.widgets.boolean.widget(field, value, **kwargs)

@@ -1,7 +1,6 @@
-var lbcesium = $('script[src*=lbcesium]');
+var lbcesium = jQuery('script[src*=lbcesium]');
 var geojson_sat = lbcesium.attr('geojson_sat');
 var geojson_gw = lbcesium.attr('geojson_gw');
-var geojson_FOV = lbcesium.attr('geojson_FOV');
 var geojson_FOV_circle = lbcesium.attr('geojson_FOV_circle');
 var geojson_TRSP_FOV = lbcesium.attr('geojson_TRSP_FOV');
 var satellite_img = lbcesium.attr('satellite_img');
@@ -19,11 +18,10 @@ var viewer = new Cesium.Viewer('cesiumContainer', {
     homeButton : false,
     geocoder: false
 
-});
+ });
+
+// hue change binder
 var viewModel = {
-    FOVcolors: Cesium.knockout.observable(['735078', '3c8d87', 'd26f52', '923d50', 'FFFFFF', '000000', 'adadad']),
-    FOVcolor: "735078",
-    FOValpha: "42",
     perf_alpha: 0.6,
     hue_scale: 1.0  ,
     hue_preset: [1.0,0.9,0.8,0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1],
@@ -32,7 +30,8 @@ Cesium.knockout.track(viewModel);
 var toolbar = document.getElementById('toolbar');
 Cesium.knockout.applyBindings(viewModel, toolbar);
 
-$.getJSON(performance_maxmin, function(json) {
+
+jQuery.getJSON(performance_maxmin, function(json) {
     maxminjson = json;
     EIRPmax = maxminjson["EIRP"]["max"][0]
     EIRPmin = maxminjson["EIRP"]["min"][0]
@@ -50,16 +49,170 @@ $.getJSON(performance_maxmin, function(json) {
     FSL_UPmax = maxminjson["FSL_UP"]["max"][0]
     FSL_DNmin = maxminjson["FSL_DN"]["min"][0]
     FSL_DNmax = maxminjson["FSL_DN"]["max"][0]
-    EFFICIENCYmin = maxminjson["EFFICIENCY"]["min"][0]
-    EFFICIENCYmax = maxminjson["EFFICIENCY"]["max"][0]
+    SPEC_EFFmin = maxminjson["SPEC_EFF"]["min"][0]
+    SPEC_EFFmax = maxminjson["SPEC_EFF"]["max"][0]
     CSIM0min = maxminjson["CSIM0"]["min"][0]
     CSIM0max = maxminjson["CSIM0"]["max"][0]
     CSN0_DNmin = maxminjson["CSN0_DN"]["min"][0]
     CSN0_DNmax = maxminjson["CSN0_DN"]["max"][0]
     CSI0_DNmin = maxminjson["CSI0_DN"]["min"][0]
     CSI0_DNmax = maxminjson["CSI0_DN"]["max"][0]
-});
+    LATmin = maxminjson["LAT"]["min"][0]
+    LATmax = maxminjson["LAT"]["max"][0]
+    LONmin = maxminjson["LON"]["min"][0]
+    LONmax= maxminjson["LON"]["max"][0]
 
+
+    //heatmap attempt
+        var nuConfig = {
+        radius: 40,
+      maxOpacity: .5,
+      minOpacity: 0,
+      blur: .75,
+        gradient: {                   // maybe try viridis
+        '.3': 'blue',
+        '.65': 'green',
+        '.8': 'yellow',
+        '.95': 'red'
+        },
+    };
+    var instances = [EIRP_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    ELEVATION_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    SAT_GPT_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    DIST_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    FSL_UP_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    FSL_DN_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    SPEC_EFF_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    CSIM0_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    CSN0_DN_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    CSI0_DN_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig)]
+
+    var heatmaps = instances
+    jQuery.getJSON(get_performance_json, function(json) {
+        features = json["features"];
+        for(i=0;i<10;i++){
+            heatmaps[i].data = []
+            for(j=0; j<features.length; j++){
+                lon = features[j].geometry.coordinates[0]
+                lat = features[j].geometry.coordinates[1]
+                if(i==0){heatmaps[i].values = features[j].properties.EIRP}
+                if(i==1){heatmaps[i].values = features[j].properties.ELEVATION}
+                if(i==2){heatmaps[i].values = features[j].properties.SAT_GPT}
+                if(i==3){heatmaps[i].values = features[j].properties.DIST}
+                if(i==4){heatmaps[i].values = features[j].properties.FSL_UP}
+                if(i==5){heatmaps[i].values = features[j].properties.FSL_DN}
+                if(i==6){heatmaps[i].values = features[j].properties.SPEC_EFF}
+                if(i==7){heatmaps[i].values = features[j].properties.CSIM0}
+                if(i==8){heatmaps[i].values = features[j].properties.CSN0_DN}
+                if(i==9){heatmaps[i].values = features[j].properties.CSI0_DN}
+                heatmaps[i].data.push({x:lon, y:lat, value:heatmaps[i].values})
+            }
+        if(i==0){
+                instances[i].setWGS84Data(EIRPmin,EIRPmax, heatmaps[i].data)
+            }
+        if(i==1) {
+            instances[i].setWGS84Data(ELEVATIONmin, ELEVATIONmax, heatmaps[i].data)
+        }
+        if(i==2){instances[i].setWGS84Data(SAT_GPTmin,SAT_GPTmax, heatmaps[i].data)
+            }
+        if(i==3){instances[i].setWGS84Data(DISTmin,DISTmax, heatmaps[i].data)
+            }
+        if(i==4) {
+            instances[i].setWGS84Data(FSL_UPmin, FSL_UPmax, heatmaps[i].data)
+        }
+        if(i==5){instances[i].setWGS84Data(FSL_DNmin,FSL_DNmax, heatmaps[i].data)
+            }
+        if(i==6){instances[i].setWGS84Data(SPEC_EFFmin,SPEC_EFFmax, heatmaps[i].data)
+            }
+        if(i==7){instances[i].setWGS84Data(CSIM0min,CSIM0max, heatmaps[i].data)
+            }
+        if(i==8) {
+            instances[i].setWGS84Data(CSN0_DNmin, CSN0_DNmax, heatmaps[i].data)
+        }
+        if(i==9) {
+            instances[i].setWGS84Data(CSN0_DNmin, CSN0_DNmax, heatmaps[i].data)
+        }
+        instances[i].show(false)
+        }
+    });
+
+    // little pop-up with the min and max values
+    jQuery("#heatmap").change(function() {
+        var el = jQuery(this);
+        if (el.val() === "EIRP") {
+            instances[0].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + EIRPmin.toFixed(2) + '<br>Max = ' + EIRPmax.toFixed(2) + '</p>')
+        }
+        else {
+            instances[0].show(false)
+        }
+        if (el.val() === "Elevation") {
+            instances[1].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + ELEVATIONmin.toFixed(2) + '<br>Max = ' + ELEVATIONmax.toFixed(2) + '</p>')
+        }
+
+        else {
+            instances[1].show(false)
+        }
+        if (el.val() === "GPT") {
+            instances[2].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + SAT_GPTmin.toFixed(2) + '<br>Max = ' + SAT_GPTmax.toFixed(2) + '</p>')
+        }
+        else {
+            instances[2].show(false)
+        }
+        if (el.val() === "DIST") {
+            instances[3].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + DISTmin.toFixed(2) + '<br>Max = ' + DISTmax.toFixed(2) + '</p>')
+        }
+        else {
+            instances[3].show(false)
+        }
+        if (el.val() === "FSL_UP") {
+            instances[4].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + FSL_UPmin.toFixed(2) + '<br>Max = ' + FSL_UPmax.toFixed(2) + '</p>')
+        }
+        else {
+            instances[4].show(false)
+        }
+        if (el.val() === "FSL_DN") {
+            instances[5].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + FSL_DNmin.toFixed(2) + '<br>Max = ' + FSL_DNmax.toFixed(2) + '</p>')
+        }
+        else {
+            instances[5].show(false)
+        }
+        if (el.val() === "SPEC_EFF") {
+            instances[6].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + SPEC_EFFmin.toFixed(2) + '<br>Max = ' + SPEC_EFFmax.toFixed(2) + '</p>')
+        }
+        else {
+            instances[6].show(false)
+        }
+        if (el.val() === "CSIM0") {
+            instances[7].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + CSIM0min.toFixed(2) + '<br>Max = ' + CSIM0max.toFixed(2) + '</p>')
+        }
+        else {
+            instances[7].show(false)
+        }
+        if (el.val() === "CSN0_DN") {
+            instances[8].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + CSN0_DNmin.toFixed(2) + '<br>Max = ' + CSN0_DNmax.toFixed(2) + '</p>')
+        }
+
+        else {
+            instances[8].show(false)
+        }
+        if (el.val() === "CSI0_DN") {
+            instances[9].show(true)
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + CSN0_DNmin.toFixed(2) + '<br>Max = ' + CSN0_DNmax.toFixed(2) + '</p>')
+        }
+        else {
+            instances[9].show(false)
+        }
+    })
+});
 
 
 var SAT = new Cesium.GeoJsonDataSource();
@@ -82,39 +235,6 @@ SUBSAT.load(json_subsatellite).then(function() {
     }
 });
 
-
-var FOV = new Cesium.GeoJsonDataSource();
-FOV.load(geojson_FOV).then(function() {
-    var entities = FOV.entities.values;
-    for (var i = 0; i < entities.length; i++) {
-        var entity = entities[i];
-        entity.billboard = undefined;
-        entity.cylinder = new Cesium.CylinderGraphics({
-            length: entities[i].properties.Height * 1000,
-            topRadius: 0,
-            bottomRadius: entity.properties.BottomRadius,
-            outlineWidth: 2,
-            outline: true,
-            numberOfVerticalLines: 0,
-            material: Cesium.Color.fromRgba(["0x"] + [viewModel.FOValpha] + [viewModel.FOVcolor]),
-        });
-    }
-    Cesium.knockout.getObservable(viewModel, 'FOVcolor').subscribe(
-        function(newValue) {
-            for (var i = 0; i < entities.length; i++) {
-                entities[i].cylinder.material = Cesium.Color.fromRgba(["0x"] + [viewModel.FOValpha] + [newValue]);
-            }
-        }
-    );
-    Cesium.knockout.getObservable(viewModel, 'FOValpha').subscribe(
-        function(newValue) {
-            for (var i = 0; i < entities.length; i++) {
-                entities[i].cylinder.material = Cesium.Color.fromRgba(["0x"] + [newValue] + [viewModel.FOVcolor]);
-            }
-
-        }
-    );
-});
 var FOV_CIRCLE = new Cesium.GeoJsonDataSource();
 FOV_CIRCLE.load(geojson_FOV_circle).then(function() {
     var entities = FOV_CIRCLE.entities.values;
@@ -147,116 +267,22 @@ GW.load(geojson_gw).then(function() {
     }
 });
 
-var checkbox1 = document.getElementById('showSATCheckbox');
-checkbox1.addEventListener('change', function() {
-    // Checkbox state changed.
-    if (checkbox1.checked) {
-        // Show if not shown.
-        if (!viewer.dataSources.contains(SAT)) {
-            viewer.dataSources.add(SAT);
-        }
-    } else {
-        // Hide if currently shown.
-        if (viewer.dataSources.contains(SAT)) {
-            viewer.dataSources.remove(SAT);
-        }
-    }
-}, false);
-var checkboxline = document.getElementById('showLineCheckbox');
-checkboxline.addEventListener('change', function() {
-    // Checkbox state changed.
-    if (checkboxline.checked) {
-        // Show if not shown.
-        if (!viewer.dataSources.contains(SUBSAT)) {
-            viewer.dataSources.add(SUBSAT);
-        }
-    } else {
-        // Hide if currently shown.
-        if (viewer.dataSources.contains(SUBSAT)) {
-            viewer.dataSources.remove(SUBSAT);
-        }
-    }
-}, false);
-var checkbox2 = document.getElementById('showGWCheckbox');
-checkbox2.addEventListener('change', function() {
-    // Checkbox state changed.
-    if (checkbox2.checked) {
-        // Show if not shown.
-        if (!viewer.dataSources.contains(GW)) {
-            viewer.dataSources.add(GW);
-        }
-    } else {
-        // Hide if currently shown.
-        if (viewer.dataSources.contains(GW)) {
-            viewer.dataSources.remove(GW);
-        }
-    }
-}, false);
 
-var checkbox4 = document.getElementById('showFOVCheckbox');
-checkbox4.addEventListener('change', function() {
-    // Checkbox state changed.
-    if (checkbox4.checked) {
-        // Show if not shown.
-        if (!viewer.dataSources.contains(FOV)) {
-            viewer.dataSources.add(FOV);
-        }
-    } else {
-        // Hide if currently shown.
-        if (viewer.dataSources.contains(FOV)) {
-            viewer.dataSources.remove(FOV);
-        }
-    }
-}, false);
 
-var checkbox6 = document.getElementById('showTRSPCheckbox');
-checkbox6.addEventListener('change', function() {
-    // Checkbox state changed.
-    if (checkbox6.checked) {
-        // Show if not shown.
-        if (!viewer.dataSources.contains(TRSP_FOV_CIRCLE)) {
-            viewer.dataSources.add(TRSP_FOV_CIRCLE);
-        }
-    } else {
-        // Hide if currently shown.
-        if (viewer.dataSources.contains(TRSP_FOV_CIRCLE)) {
-            viewer.dataSources.remove(TRSP_FOV_CIRCLE);
-        }
-    }
-}, false);
-
-var checkbox8 = document.getElementById('showFOVCIRCLECheckbox');
-checkbox8.addEventListener('change', function() {
-    // Checkbox state changed.
-    if (checkbox8.checked) {
-        // Show if not shown.
-        if (!viewer.dataSources.contains(FOV_CIRCLE)) {
-            viewer.dataSources.add(FOV_CIRCLE);
-            // viewer.zoomTo(ELEVATION, new Cesium.HeadingPitchRange(40,-90,9000000));
-        }
-    } else {
-        // Hide if currently shown.
-        if (viewer.dataSources.contains(FOV_CIRCLE)) {
-            viewer.dataSources.remove(FOV_CIRCLE);
-        }
-    }
-}, false);
-
+//OLD performance points, useful for extracting each point individually
 var EIRP = new Cesium.GeoJsonDataSource();
 var ELEVATION = new Cesium.GeoJsonDataSource();
 var SAT_GPT = new Cesium.GeoJsonDataSource();
 var DIST = new Cesium.GeoJsonDataSource();
 var FSL_UP = new Cesium.GeoJsonDataSource();
 var FSL_DN = new Cesium.GeoJsonDataSource();
-var EFFICIENCY = new Cesium.GeoJsonDataSource();
+var SPEC_EFF = new Cesium.GeoJsonDataSource();
 var CSIM0 = new Cesium.GeoJsonDataSource();
 var CSN0_DN = new Cesium.GeoJsonDataSource();
 var CSI0_DN = new Cesium.GeoJsonDataSource();
-
 var checkbox = document.getElementById('showVSATCheckbox');
-$("#performance").change(function() {
-
-    var el = $(this);
+jQuery("#performance").change(function() {
+    var el = jQuery(this);
     checkbox.addEventListener('change', function() {
         if (el.val() === "EIRP") {
             if (checkbox.checked) {
@@ -430,16 +456,16 @@ $("#performance").change(function() {
                         FSL_DN._entityCollection._show = true
                 }
             }
-        } else if (el.val() === "EFFICIENCY") {
+        } else if (el.val() === "SPEC_EFF") {
             if (checkbox.checked) {
-                if (!viewer.dataSources.contains(EFFICIENCY)) {
-                    EFFICIENCY.load(get_performance_json).then(function() {
-                        var entities = EFFICIENCY.entities.values;
+                if (!viewer.dataSources.contains(SPEC_EFF)) {
+                    SPEC_EFF.load(get_performance_json).then(function() {
+                        var entities = SPEC_EFF.entities.values;
                         for (var i = 0; i < entities.length; i++) {
                             var entity = entities[i];
                             entity.billboard = undefined;
                             entity.point = new Cesium.PointGraphics({
-                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((EFFICIENCYmax - entity.properties.EFFICIENCY) / (EFFICIENCYmax - EFFICIENCYmin)), 1, .5, viewModel.perf_alpha),
+                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((SPEC_EFFmax - entity.properties.SPEC_EFF) / (SPEC_EFFmax - SPEC_EFFmin)), 1, .5, viewModel.perf_alpha),
                                 pixelSize: 8,
                                 outlineWidth: 0.5,
                                 scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -448,15 +474,15 @@ $("#performance").change(function() {
                         Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
                             function(newValue) {
                                 for (var i = 0; i < entities.length; i++) {
-                                    entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((EFFICIENCYmax - entities[i].properties.EFFICIENCY) / (EFFICIENCYmax - EFFICIENCYmin)), 1, .5, viewModel.perf_alpha);
+                                    entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((SPEC_EFFmax - entities[i].properties.SPEC_EFF) / (SPEC_EFFmax - SPEC_EFFmin)), 1, .5, viewModel.perf_alpha);
                                 }
                             }
                         );
                     });
 
-                    viewer.dataSources.add(EFFICIENCY);
+                    viewer.dataSources.add(SPEC_EFF);
                 } else {
-                        EFFICIENCY._entityCollection._show = true
+                        SPEC_EFF._entityCollection._show = true
                 }
             }
         } else if (el.val() === "CSIM0") {
@@ -548,27 +574,27 @@ $("#performance").change(function() {
     }, false);
 });
 //
-$("#clear").click(function() {
+jQuery("#clear").click(function() {
     EIRP._entityCollection._show = false
     ELEVATION._entityCollection._show = false
     SAT_GPT._entityCollection._show = false
     DIST._entityCollection._show = false
     FSL_UP._entityCollection._show = false
     FSL_DN._entityCollection._show = false
-    EFFICIENCY._entityCollection._show = false
+    SPEC_EFF._entityCollection._show = false
     CSIM0._entityCollection._show = false
     CSN0_DN._entityCollection._show = false
     CSI0_DN._entityCollection._show = false
 });
-
-
-$('#centreCheckbox').click(function() {
-    viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40, -90, 9000000));
-});
-
-$("#screenshot").click(function() {
+//
+// jQuery('#centreCheckbox').click(function() {
+//     viewer.zoomTo(SAT, new Cesium.HeadingPitchRange(40, -90, 9000000));
+// });
+//
+jQuery("#screenshot").click(function() {
     viewer.render();
-    window.open(viewer.canvas.toDataURL("image/png"));
+    screenshot = viewer.canvas.toDataURL("image/jpg", 0.2)
+    window.open(screenshot);
 });
 
 var credit = new Cesium.Credit('Catapult', catapult_logo, 'http://sa.catapult.org.uk');

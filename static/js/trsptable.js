@@ -1,4 +1,4 @@
-var trsptable = $('script[src*=trsptable]');
+var trsptable = jQuery('script[src*=trsptable]');
 var json = trsptable.attr('json');
 var editableGridtrsp = null;
 
@@ -12,20 +12,20 @@ editableGridtrsp = new window.EditableGrid("trspgrid", {
         this.setCellRenderer("action", new CellRenderer({
             render: function(cell, value) {
                 cell.innerHTML = "<a onclick=\"if (confirm('Are you sure you want to delete this ? ')) editableGridtrsp.remove(" + cell.rowIndex + "); editableGridtrsp.delete(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
-                    "<img src=\"/linkbudgetweb/static/images/delete.png\" border=\"0\" alt=\"delete\" title=\"delete\"/></a>";
+                    "<img height='23px' src=\"/linkbudgetweb/static/images/delete_trsp.png\" border=\"0\" alt=\"delete\" title=\"Delete\"/></a>";
                 cell.innerHTML+= "&nbsp;<a onclick=\"editableGridtrsp.duplicate(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
-                    "<img src=\"/linkbudgetweb/static/images/duplicate.png\" border=\"0\" alt=\"duplicate\" title=\"Duplicate row\"/></a>";
+                    "<img src=\"/linkbudgetweb/static/images/duplicate.png\" border=\"0\" alt=\"duplicate\" title=\"Copy\"/></a>";
 
             }
         }));
 
         // render the grid
-        this.renderGrid("trsp_tablecontent", "testgrid");
+        this.renderGrid("trsp_tablecontent", "testgrid", "trsp");
     },
 
     // called when some value has been modified: we display a message
     modelChanged: function(rowIdx, colIdx, oldValue, newValue, row) {
-        $.ajax({
+        jQuery.ajax({
             type: "POST",
             url: "/lbController/ajax_to_db",
             data: "array=" + JSON.stringify({
@@ -40,7 +40,7 @@ editableGridtrsp = new window.EditableGrid("trspgrid", {
 });
 
 editableGridtrsp.delete = function(rowIndex) {
-    $.ajax({
+    jQuery.ajax({
         type: "POST",
         url: "/lbController/delete_row_editablegrid",
         data: "array=" + JSON.stringify({
@@ -65,7 +65,7 @@ editableGridtrsp.duplicate = function(rowIndex)
 	// this.insertAfter(rowIndex, newRowId, values);
 
     // copies a row on the backend
-	$.ajax({
+	jQuery.ajax({
             type: "POST",
             url: "/lbController/copy",
             data: "array=" + JSON.stringify({

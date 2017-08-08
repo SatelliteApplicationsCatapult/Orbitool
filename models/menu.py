@@ -31,7 +31,7 @@ response.google_analytics_id = None
 
 response.menu = [
     (T('Home'), False, URL('lbController', 'index'), []),
-    (T('Scenarios'), False, URL('lbController', 'select')),
+    (T('Select'), False, URL('lbController', 'select')),
 
 ]
 

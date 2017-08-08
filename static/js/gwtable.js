@@ -1,4 +1,4 @@
-var gwtable = $('script[src*=gwtable]');
+var gwtable = jQuery('script[src*=gwtable]');
 var json3 = gwtable.attr('json3');
 var editableGridgw = null;
 
@@ -12,20 +12,20 @@ editableGridgw = new window.EditableGrid("gwgrid", {
         this.setCellRenderer("action", new CellRenderer({
             render: function(cell, value) {
                 cell.innerHTML = "<a onclick=\"if (confirm('Are you sure you want to delete this ? ')) editableGridgw.remove(" + cell.rowIndex + "); editableGridgw.delete(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
-                    "<img src=\"/linkbudgetweb/static/images/delete.png\" border=\"0\" alt=\"delete\" title=\"delete\"/></a>";
+                    "<img height='23px' src=\"/linkbudgetweb/static/images/delete_ut.png\" border=\"0\" alt=\"delete\" title=\"Delete\"/></a>";
                 cell.innerHTML+= "&nbsp;<a onclick=\"editableGridgw.duplicate(" + cell.rowIndex + ");\" style=\"cursor:pointer\">" +
-                    "<img src=\"/linkbudgetweb/static/images/duplicate.png\" border=\"0\" alt=\"duplicate\" title=\"Duplicate row\"/></a>";
+                    "<img src=\"/linkbudgetweb/static/images/duplicate.png\" border=\"0\" alt=\"duplicate\" title=\"Copy\"/></a>";
 
             }
         }));
 
         // render the grid
-        this.renderGrid("gw_tablecontent", "testgrid");
+        this.renderGrid("gw_tablecontent", "testgrid", "gw");
     },
 
     // called when some value has been modified: we display a message
     modelChanged: function(rowIdx, colIdx, oldValue, newValue, row) {
-        $.ajax({
+        jQuery.ajax({
             type: "POST",
             url: "/lbController/ajax_to_db",
             data: "array=" + JSON.stringify({
@@ -41,7 +41,7 @@ editableGridgw = new window.EditableGrid("gwgrid", {
 
 
 editableGridgw.delete = function(rowIndex) {
-    $.ajax({
+    jQuery.ajax({
         type: "POST",
         url: "/lbController/delete_row_editablegrid",
         data: "array=" + JSON.stringify({
@@ -67,7 +67,7 @@ editableGridgw.duplicate = function(rowIndex)
 	// this.insertAfter(rowIndex, newRowId, values);
 
     // copies a row on the backend
-	$.ajax({
+	jQuery.ajax({
             type: "POST",
             url: "/lbController/copy",
             data: "array=" + JSON.stringify({
