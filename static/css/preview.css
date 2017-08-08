@@ -131,6 +131,9 @@ header {
 #content {
     margin: 0 auto;
     padding-top: 120px;
+    left:2%;
+    right:2%;
+    width: 96%
 }
 
 .menu-logo, .menu-button, .menu-logo > svg, .menu-button svg {
