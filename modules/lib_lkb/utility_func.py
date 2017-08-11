@@ -680,7 +680,7 @@ def compute_capacity(earth_coord_trsp_id, earth_coord_sat_id, earth_coord_rs, ea
                 points_trsp = np.logical_and(earth_coord_sat_id == sat_id, earth_coord_trsp_id == trsp_id)
                 nb_points_trsp = np.sum(points_trsp)
 
-                capa_ratio[points_trsp] = 1.0 / nb_points_trsp
+                capa_ratio[points_trsp] = np.float64(1.0) / nb_points_trsp
 
         return earth_coord_rs * earth_coord_eff_spec * capa_ratio
 
