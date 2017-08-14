@@ -108,7 +108,7 @@ jQuery.getJSON(performance_maxmin, function(json) {
                 heatmaps[i].data.push({x:lon, y:lat, value:heatmaps[i].values})
             }
         if(i==0){
-                instances[i].setWGS84Data(EIRPmax-30,EIRPmax, heatmaps[i].data)
+                instances[i].setWGS84Data(EIRPmin,EIRPmax, heatmaps[i].data)
             }
         if(i==1) {
             instances[i].setWGS84Data(ELEVATIONmin, ELEVATIONmax, heatmaps[i].data)
@@ -124,7 +124,7 @@ jQuery.getJSON(performance_maxmin, function(json) {
             }
         if(i==6){instances[i].setWGS84Data(SPEC_EFFmin,SPEC_EFFmax, heatmaps[i].data)
             }
-        if(i==7){instances[i].setWGS84Data(CSN_TOTmax-30,CSN_TOTmax, heatmaps[i].data)
+        if(i==7){instances[i].setWGS84Data(CSN_TOTmin,CSN_TOTmax, heatmaps[i].data)
             }
         if(i==8) {
             instances[i].setWGS84Data(CSN0_DNmin, CSN0_DNmax, heatmaps[i].data)
