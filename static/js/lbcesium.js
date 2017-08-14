@@ -51,8 +51,8 @@ jQuery.getJSON(performance_maxmin, function(json) {
     FSL_DNmax = maxminjson["FSL_DN"]["max"][0]
     SPEC_EFFmin = maxminjson["SPEC_EFF"]["min"][0]
     SPEC_EFFmax = maxminjson["SPEC_EFF"]["max"][0]
-    CSIM0min = maxminjson["CSIM0"]["min"][0]
-    CSIM0max = maxminjson["CSIM0"]["max"][0]
+    CSN_TOTmin = maxminjson["CSN_TOT"]["min"][0]
+    CSN_TOTmax = maxminjson["CSN_TOT"]["max"][0]
     CSN0_DNmin = maxminjson["CSN0_DN"]["min"][0]
     CSN0_DNmax = maxminjson["CSN0_DN"]["max"][0]
     CSI0_DNmin = maxminjson["CSI0_DN"]["min"][0]
@@ -83,7 +83,7 @@ jQuery.getJSON(performance_maxmin, function(json) {
                     FSL_UP_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
                     FSL_DN_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
                     SPEC_EFF_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
-                    CSIM0_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
+                    CSN_TOT_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
                     CSN0_DN_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig),
                     CSI0_DN_instance = CesiumHeatmap.create(viewer, {north:LATmax, east:LONmax, south:LATmin, west:LONmin}, nuConfig)]
 
@@ -102,13 +102,13 @@ jQuery.getJSON(performance_maxmin, function(json) {
                 if(i==4){heatmaps[i].values = features[j].properties.FSL_UP}
                 if(i==5){heatmaps[i].values = features[j].properties.FSL_DN}
                 if(i==6){heatmaps[i].values = features[j].properties.SPEC_EFF}
-                if(i==7){heatmaps[i].values = features[j].properties.CSIM0}
+                if(i==7){heatmaps[i].values = features[j].properties.CSN_TOT}
                 if(i==8){heatmaps[i].values = features[j].properties.CSN0_DN}
                 if(i==9){heatmaps[i].values = features[j].properties.CSI0_DN}
                 heatmaps[i].data.push({x:lon, y:lat, value:heatmaps[i].values})
             }
         if(i==0){
-                instances[i].setWGS84Data(EIRPmax-20,EIRPmax, heatmaps[i].data)
+                instances[i].setWGS84Data(EIRPmax-30,EIRPmax, heatmaps[i].data)
             }
         if(i==1) {
             instances[i].setWGS84Data(ELEVATIONmin, ELEVATIONmax, heatmaps[i].data)
@@ -124,7 +124,7 @@ jQuery.getJSON(performance_maxmin, function(json) {
             }
         if(i==6){instances[i].setWGS84Data(SPEC_EFFmin,SPEC_EFFmax, heatmaps[i].data)
             }
-        if(i==7){instances[i].setWGS84Data(CSIM0min,CSIM0max, heatmaps[i].data)
+        if(i==7){instances[i].setWGS84Data(CSN_TOTmax-30,CSN_TOTmax, heatmaps[i].data)
             }
         if(i==8) {
             instances[i].setWGS84Data(CSN0_DNmin, CSN0_DNmax, heatmaps[i].data)
@@ -189,9 +189,9 @@ jQuery.getJSON(performance_maxmin, function(json) {
         else {
             instances[6].show(false)
         }
-        if (el.val() === "CSIM0") {
+        if (el.val() === "CSN_TOT") {
             instances[7].show(true)
-            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + CSIM0min.toFixed(2) + '<br>Max = ' + CSIM0max.toFixed(2) + '</p>')
+            jQuery('#minmax').replaceWith('<p id="minmax">Min = ' + CSN_TOTmin.toFixed(2) + '<br>Max = ' + CSN_TOTmax.toFixed(2) + '</p>')
         }
         else {
             instances[7].show(false)
@@ -277,7 +277,7 @@ var DIST = new Cesium.GeoJsonDataSource();
 var FSL_UP = new Cesium.GeoJsonDataSource();
 var FSL_DN = new Cesium.GeoJsonDataSource();
 var SPEC_EFF = new Cesium.GeoJsonDataSource();
-var CSIM0 = new Cesium.GeoJsonDataSource();
+var CSN_TOT = new Cesium.GeoJsonDataSource();
 var CSN0_DN = new Cesium.GeoJsonDataSource();
 var CSI0_DN = new Cesium.GeoJsonDataSource();
 var checkbox = document.getElementById('showVSATCheckbox');
@@ -485,16 +485,16 @@ jQuery("#performance").change(function() {
                         SPEC_EFF._entityCollection._show = true
                 }
             }
-        } else if (el.val() === "CSIM0") {
+        } else if (el.val() === "CSN_TOT") {
             if (checkbox.checked) {
-                if (!viewer.dataSources.contains(CSIM0)) {
-                    CSIM0.load(get_performance_json).then(function() {
-                        var entities = CSIM0.entities.values;
+                if (!viewer.dataSources.contains(CSN_TOT)) {
+                    CSN_TOT.load(get_performance_json).then(function() {
+                        var entities = CSN_TOT.entities.values;
                         for (var i = 0; i < entities.length; i++) {
                             var entity = entities[i];
                             entity.billboard = undefined;
                             entity.point = new Cesium.PointGraphics({
-                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((CSIM0max - entity.properties.CSIM0) / (CSIM0max - CSIM0min)), 1, .5, viewModel.perf_alpha),
+                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((CSN_TOTmax - entity.properties.CSN_TOT) / (CSN_TOTmax - CSN_TOTmin)), 1, .5, viewModel.perf_alpha),
                                 pixelSize: 8,
                                 outlineWidth: 0.5,
                                 scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -503,15 +503,15 @@ jQuery("#performance").change(function() {
                         Cesium.knockout.getObservable(viewModel, 'hue_scale').subscribe(
                             function(newValue) {
                                 for (var i = 0; i < entities.length; i++) {
-                                    entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((CSIM0max - entities[i].properties.CSIM0) / (CSIM0max - CSIM0min)), 1, .5, viewModel.perf_alpha);
+                                    entities[i].point.color = Cesium.Color.fromHsl(0.7*newValue * ((CSN_TOTmax - entities[i].properties.CSN_TOT) / (CSN_TOTmax - CSN_TOTmin)), 1, .5, viewModel.perf_alpha);
                                 }
                             }
                         );
                     });
 
-                    viewer.dataSources.add(CSIM0);
+                    viewer.dataSources.add(CSN_TOT);
                 } else {
-                        CSIM0._entityCollection._show = true
+                        CSN_TOT._entityCollection._show = true
                 }
             }
         } else if (el.val() === "CSN0_DN") {
@@ -523,7 +523,7 @@ jQuery("#performance").change(function() {
                             var entity = entities[i];
                             entity.billboard = undefined;
                             entity.point = new Cesium.PointGraphics({
-                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((CSIM0max - entity.properties.CSN0_DN) / (CSIM0max - CSN0_DNmin)), 1, .5, viewModel.perf_alpha),
+                                color: Cesium.Color.fromHsl(0.7*viewModel.hue_scale * ((CSN_TOTmax - entity.properties.CSN0_DN) / (CSN_TOTmax - CSN0_DNmin)), 1, .5, viewModel.perf_alpha),
                                 pixelSize: 8,
                                 outlineWidth: 0.5,
                                 scaleByDistance: new Cesium.NearFarScalar(.3e7, 1, 3.5e7, 0.01),
@@ -582,7 +582,7 @@ jQuery("#clear").click(function() {
     FSL_UP._entityCollection._show = false
     FSL_DN._entityCollection._show = false
     SPEC_EFF._entityCollection._show = false
-    CSIM0._entityCollection._show = false
+    CSN_TOT._entityCollection._show = false
     CSN0_DN._entityCollection._show = false
     CSI0_DN._entityCollection._show = false
 });

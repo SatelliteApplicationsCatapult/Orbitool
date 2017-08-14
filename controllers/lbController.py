@@ -562,7 +562,6 @@ def run():
         compute_lkb_CsN_perfos(EARTH_COORD_VSAT_dict, EARTH_COORD_GW_dict, TRSP_dict, VSAT_dict, 'RTN')
         #
         compute_spectral_efficiency_and_capacity(EARTH_COORD_VSAT_dict, 'DVB-S2', 'RTN')
-
     write_dict_to_table(dbLinkBudget.TRSP, TRSP_dict, job_id, dbLinkBudget)
     write_dict_to_table(dbLinkBudget.SAT, SAT_dict, job_id, dbLinkBudget)
     write_dict_to_table(dbLinkBudget.EARTH_coord_VSAT,
@@ -591,10 +590,10 @@ def performance_maxmin():
                                                                      earth_vsat.SAT_GPT, earth_vsat.SAT_GAIN_TX,
                                                                      earth_vsat.SAT_GAIN_RX, earth_vsat.DIST,
                                                                      earth_vsat.FSL_UP, earth_vsat.FSL_DN,
-                                                                     earth_vsat.SPEC_EFF, earth_vsat.EFFICIENCY,
-                                                                     earth_vsat.CSIM0, earth_vsat.CSIM0,
-                                                                     earth_vsat.CSN0_DN, earth_vsat.CSN0_DN,
-                                                                     earth_vsat.CSI0_DN, earth_vsat.CSI0_DN,
+                                                                     earth_vsat.SPEC_EFF,
+                                                                     earth_vsat.CSN_TOT,
+                                                                     earth_vsat.CSN0_DN,
+                                                                     earth_vsat.CSI0_DN,
                                                                      earth_vsat.LON, earth_vsat.LAT)
     EIRP = [[row.SAT_EIRP] for row in rows]
     ELEVATION = [[row.ELEVATION] for row in rows]
@@ -605,7 +604,7 @@ def performance_maxmin():
     FSL_UP = [[row.FSL_UP] for row in rows]
     FSL_DN = [[row.FSL_DN] for row in rows]
     SPEC_EFF = [[row.SPEC_EFF] for row in rows]
-    CSIM0 = [[row.CSIM0] for row in rows]
+    CSN_TOT = [[row.CSN_TOT] for row in rows]
     CSN0_DN = [[row.CSN0_DN] for row in rows]
     CSI0_DN = [[row.CSI0_DN] for row in rows]
     LAT = [[row.LAT] for row in rows]
@@ -622,7 +621,7 @@ def performance_maxmin():
     "FSL_UP": {"max": max(FSL_UP), "min": min(FSL_UP)},
     "FSL_DN": {"max": max(FSL_DN), "min": min(FSL_DN)},
     "SPEC_EFF": {"max": max(SPEC_EFF), "min": min(SPEC_EFF)},
-    "CSIM0": {"max": max(CSIM0), "min": min(CSIM0)},
+    "CSN_TOT": {"max": max(CSN_TOT), "min": min(CSN_TOT)},
     "CSN0_DN": {"max": max(CSN0_DN), "min": min(CSN0_DN)},
     "CSI0_DN": {"max": max(CSI0_DN), "min": min(CSI0_DN)},
     "LAT": {"max": max(LAT), "min": min(LAT)},
@@ -711,10 +710,10 @@ def get_performance_json():
             features[i]["properties"].update({ "FSL_UP": round(row[earth_vsat.FSL_UP], 2)})
         if row[earth_vsat.FSL_DN]:
             features[i]["properties"].update({ "FSL_DN": round(row[earth_vsat.FSL_DN], 2)})
-        if row[earth_vsat.EFFICIENCY]:
-            features[i]["properties"].update({ "EFFICIENCY": round(row[earth_vsat.EFFICIENCY], 2)})
-        if row[earth_vsat.CSIM0]:
-            features[i]["properties"].update({ "CSIM0": round(row[earth_vsat.CSIM0], 2)})
+        if row[earth_vsat.SPEC_EFF]:
+            features[i]["properties"].update({ "SPEC_EFF": round(row[earth_vsat.SPEC_EFF], 2)})
+        if row[earth_vsat.CSN_TOT]:
+            features[i]["properties"].update({ "CSN_TOT": round(row[earth_vsat.CSN_TOT], 2)})
         if row[earth_vsat.CSN0_DN]:
             features[i]["properties"].update({ "CSN0_DN": round(row[earth_vsat.CSN0_DN], 2)})
         if row[earth_vsat.CSI0_DN]:
