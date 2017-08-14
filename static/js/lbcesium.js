@@ -108,7 +108,7 @@ jQuery.getJSON(performance_maxmin, function(json) {
                 heatmaps[i].data.push({x:lon, y:lat, value:heatmaps[i].values})
             }
         if(i==0){
-                instances[i].setWGS84Data(EIRPmin,EIRPmax, heatmaps[i].data)
+                instances[i].setWGS84Data(EIRPmax-20,EIRPmax, heatmaps[i].data)
             }
         if(i==1) {
             instances[i].setWGS84Data(ELEVATIONmin, ELEVATIONmax, heatmaps[i].data)
