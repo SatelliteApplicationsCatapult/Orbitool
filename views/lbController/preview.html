@@ -346,30 +346,8 @@
             </a>
         </div>
         <div class="menu-button user">
-            <a>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 388.26 154.26">
-                    <defs>
-                        <style>
-                            .u1 {
-                                fill: #8cbabb;
-                            }
-
-                            .u2 {
-                                fill: #eff0f1;
-                            }
-
-                            .utext {
-                                font-size: 60px;
-                                font-family: SegoeUI, Segoe UI;
-                            }
-                        </style>
-                    </defs>
-                    <rect class="u1 menu-back" width="388.26" height="154"/>
-                    <text class="u2 utext menu-fill" transform="translate(155.87 97.92)">Sign in</text>
-                    <path class="u2 menu-fill"
-                          d="M96.16,52.95A12.85,12.85,0,1,0,109,65.8,12.82,12.82,0,0,0,96.16,52.95Zm0-15.28A39.34,39.34,0,1,0,135.5,77,39.36,39.36,0,0,0,96.16,37.66Zm26.49,58.88a30.58,30.58,0,0,0-53.06,0,33,33,0,1,1,53.06,0Z"/>
-                    <rect class="u1 menu-fill select-bar" y="144.26" width="388.26" height="10"/>
-                </svg>
+            <a href="https://sa.catapult.org.uk/">
+                <img src="{{=URL("static","images/saWhite26.png")}}">
             </a>
         </div>
     </div>
@@ -425,8 +403,8 @@
                 entity.position = cartesian;
                 entity.label.show = true;
                 entity.label.text =
-                        'Lon: ' + (' ' + longitudeString).slice(-7) + '\u00B0' +
-                        '\nLat: ' + ('   ' + latitudeString).slice(-7) + '\u00B0';
+                        'Lat: ' + ('   ' + latitudeString).slice(-7) + '\u00B0' +
+                        '\nLon: ' + (' ' + longitudeString).slice(-7) + '\u00B0';
             } else {
                 entity.label.show = false;
             }
@@ -500,7 +478,7 @@
         <div id="tabs">
             <ul>
                 <li><a href="#tabs-1">Satellites</a></li>
-                <li><a href="#tabs-2">Transponders</a></li>
+                <li><a href="#tabs-2">Payload</a></li>
                 <li><a href="#tabs-3">Gateways</a></li>
                 <li><a href="#tabs-4">Calculate</a></li>
             </ul>

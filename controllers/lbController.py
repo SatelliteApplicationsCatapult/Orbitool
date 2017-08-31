@@ -110,13 +110,10 @@ def delete_row_editablegrid():
     print temparray["rowid"]
     if temparray["table"] == "SAT":
         dbLinkBudget(dbLinkBudget.SAT.id == temparray["rowid"]).delete()
-        print "delete successfull"
     if temparray["table"] == "GW":
-        dbLinkBudget(dbLinkBudget.Gateway.id == temparray["rowid"]).delete()
-        print "delete successfull"
+        dbLinkBudget(dbLinkBudget.Earth_coord_GW.id == temparray["rowid"]).delete()
     if temparray["table"] == "TRSP":
         dbLinkBudget(dbLinkBudget.TRSP.id == temparray["rowid"]).delete()
-        print "delete successfull"
 
 
 def copy():
@@ -127,18 +124,15 @@ def copy():
     data = json.loads(request.post_vars.array)
     if data['table'] == 'SAT':
         row = dbLinkBudget(dbLinkBudget.SAT.id == data['rowid']).select(dbLinkBudget.SAT.ALL).first()
+        row['SAT_ID'] = data['new_id']
         dbLinkBudget.SAT.insert(**dbLinkBudget.SAT._filter_fields(row))
-        print "copy successfull sat"
     if data['table'] == 'TRSP':
         row = dbLinkBudget(dbLinkBudget.TRSP.id == data['rowid']).select(dbLinkBudget.TRSP.ALL).first()
+        row['TRSP_ID'] = data['new_id']
         dbLinkBudget.TRSP.insert(**dbLinkBudget.TRSP._filter_fields(row))
-        print "copy successfull trsp"
     if data['table'] == 'GW':
-        print data['rowid']
         row = dbLinkBudget(dbLinkBudget.Earth_coord_GW.id == data['rowid']).select(dbLinkBudget.Earth_coord_GW.ALL).first()
-        print row
         dbLinkBudget.Earth_coord_GW.insert(**dbLinkBudget.Earth_coord_GW._filter_fields(row))
-        print "copy successfull gw"
 
 
 def ajax_to_db():
@@ -233,21 +227,21 @@ def transponder_JSON():
         {"name": "TRSP_ID", "label": "Trsp ID",
             "datatype": "double", "editable": "true"},
         {"name": "BEAM_RX_CENTER_X_ANT", "label": "RX Centr. X ANT",
-            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+            "datatype": "double(°, 1, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "BEAM_RX_CENTER_Y_ANT", "label": "RX Centr. Y ANT",
-            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+            "datatype": "double(°, 1, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "BEAM_RX_CENTER_Z_ANT", "label": "RX Centr. Z ANT",
-         "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+         "datatype": "double(°, 1, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "BEAM_RX_RADIUS", "label": "RX Radius",
-            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+            "datatype": "double(°, 1, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "BEAM_TX_CENTER_X_ANT", "label": "TX Centr. X ANT",
-            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+            "datatype": "double(°, 1, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "BEAM_TX_CENTER_Y_ANT", "label": "TX Centr. Y ANT",
-            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+            "datatype": "double(°, 1, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "BEAM_TX_CENTER_Z_ANT", "label": "TX Centr. Z ANT",
-         "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+         "datatype": "double(°, 1, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "BEAM_TX_RADIUS", "label": "TX Radius",
-            "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+            "datatype": "double(°, 1, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "action", "label": "", "datatype": "html", "editable": 'false'}
     ]
 
@@ -283,23 +277,23 @@ def satellite_table_JSON():
         {"name": "SAT_ID", "label": "SAT ID",
             "datatype": "double", "editable": "true"},
         {"name": "NADIR_LAT", "label": "Nadir Lat",
-            "datatype": "double", "editable": "true"},
+            "datatype": "double(°, 1, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "NADIR_LON", "label": "Nadir Lon",
-            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+            "datatype": "double(°, 1, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "DISTANCE", "label": "Altitude",
-            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+            "datatype": "double(km, 0, dot, , 0, n/a)", "editable": "true"},
         {"name": "FOV_RADIUS", "label": "Field of View Radius",
-            "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+            "datatype": "double(°, 1, dot, , 0, n/a)", "editable": "true"},
         {"name": "INCLINATION_ANGLE", "label": "Incl. Angle.",
-            "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+            "datatype": "double(°, 1, dot, , 0, n/a)", "editable": "true"},
         {"name": "FLAG_ASC_DESC", "label": "ASC/DESC Flag",
             "datatype": "string(, 2, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "ROLL", "label": "Roll",
-            "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+            "datatype": "double(°, 1, dot, , 0, n/a)", "editable": "true"},
         {"name": "PITCH", "label": "Pitch",
-            "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+            "datatype": "double(°, 1, dot, , 0, n/a)", "editable": "true"},
         {"name": "YAW", "label": "Yaw",
-            "datatype": "double(deg, 2, dot, comma, 0, n/a)", "editable": "true"},
+            "datatype": "double(°, 1, dot, , 0, n/a)", "editable": "true"},
         {"name": "action", "label": "", "datatype": "html", "editable": 'false'}
     ]
 
@@ -332,11 +326,11 @@ def gw_table_JSON():
         {"name": "GW_ID", "label": "Gateway ID",
             "datatype": "string", "editable": "true"},
         {"name": "LAT", "label": "Latitude",
-            "datatype": "double", "editable": "true"},
+            "datatype": "double(°, 2, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "LON", "label": "Longitude",
-            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+            "datatype": "double(°, 2, dot, comma, 0, n/a)", "editable": "true"},
         {"name": "ALT", "label": "Altitude",
-            "datatype": "double(, 2, dot, comma, 0, n/a)", "editable": "true"},
+            "datatype": "double(km, 0, dot, , 0, n/a))", "editable": "true"},
         {"name": "action", "label": "", "datatype": "html", "editable": 'false'}
     ]
 
@@ -488,7 +482,7 @@ def TRSP_FOV_to_JSON():
                      "coordinates": coordinates[i]
                  },
                  "properties": {
-                     "title": "TRSP " + str(i[1]) + " SAT " + str(int(i[0])) + " \n HPBW"}
+                     "title": "TRSP " + str(i[1]+1) + " SAT " + str(int(i[0])) + " \n HPBW"}
                  } for i in coordinates]
     return response.json({"type": "FeatureCollection", 'features': features})
 
@@ -568,7 +562,6 @@ def run():
         compute_lkb_CsN_perfos(EARTH_COORD_VSAT_dict, EARTH_COORD_GW_dict, TRSP_dict, VSAT_dict, 'RTN')
         #
         compute_spectral_efficiency_and_capacity(EARTH_COORD_VSAT_dict, 'DVB-S2', 'RTN')
-
     write_dict_to_table(dbLinkBudget.TRSP, TRSP_dict, job_id, dbLinkBudget)
     write_dict_to_table(dbLinkBudget.SAT, SAT_dict, job_id, dbLinkBudget)
     write_dict_to_table(dbLinkBudget.EARTH_coord_VSAT,
@@ -597,10 +590,10 @@ def performance_maxmin():
                                                                      earth_vsat.SAT_GPT, earth_vsat.SAT_GAIN_TX,
                                                                      earth_vsat.SAT_GAIN_RX, earth_vsat.DIST,
                                                                      earth_vsat.FSL_UP, earth_vsat.FSL_DN,
-                                                                     earth_vsat.SPEC_EFF, earth_vsat.EFFICIENCY,
-                                                                     earth_vsat.CSIM0, earth_vsat.CSIM0,
-                                                                     earth_vsat.CSN0_DN, earth_vsat.CSN0_DN,
-                                                                     earth_vsat.CSI0_DN, earth_vsat.CSI0_DN,
+                                                                     earth_vsat.SPEC_EFF,
+                                                                     earth_vsat.CSN_TOT,
+                                                                     earth_vsat.CSN0_DN,
+                                                                     earth_vsat.CSI0_DN,
                                                                      earth_vsat.LON, earth_vsat.LAT)
     EIRP = [[row.SAT_EIRP] for row in rows]
     ELEVATION = [[row.ELEVATION] for row in rows]
@@ -611,7 +604,7 @@ def performance_maxmin():
     FSL_UP = [[row.FSL_UP] for row in rows]
     FSL_DN = [[row.FSL_DN] for row in rows]
     SPEC_EFF = [[row.SPEC_EFF] for row in rows]
-    CSIM0 = [[row.CSIM0] for row in rows]
+    CSN_TOT = [[row.CSN_TOT] for row in rows]
     CSN0_DN = [[row.CSN0_DN] for row in rows]
     CSI0_DN = [[row.CSI0_DN] for row in rows]
     LAT = [[row.LAT] for row in rows]
@@ -628,7 +621,7 @@ def performance_maxmin():
     "FSL_UP": {"max": max(FSL_UP), "min": min(FSL_UP)},
     "FSL_DN": {"max": max(FSL_DN), "min": min(FSL_DN)},
     "SPEC_EFF": {"max": max(SPEC_EFF), "min": min(SPEC_EFF)},
-    "CSIM0": {"max": max(CSIM0), "min": min(CSIM0)},
+    "CSN_TOT": {"max": max(CSN_TOT), "min": min(CSN_TOT)},
     "CSN0_DN": {"max": max(CSN0_DN), "min": min(CSN0_DN)},
     "CSI0_DN": {"max": max(CSI0_DN), "min": min(CSI0_DN)},
     "LAT": {"max": max(LAT), "min": min(LAT)},
@@ -717,10 +710,10 @@ def get_performance_json():
             features[i]["properties"].update({ "FSL_UP": round(row[earth_vsat.FSL_UP], 2)})
         if row[earth_vsat.FSL_DN]:
             features[i]["properties"].update({ "FSL_DN": round(row[earth_vsat.FSL_DN], 2)})
-        if row[earth_vsat.EFFICIENCY]:
-            features[i]["properties"].update({ "EFFICIENCY": round(row[earth_vsat.EFFICIENCY], 2)})
-        if row[earth_vsat.CSIM0]:
-            features[i]["properties"].update({ "CSIM0": round(row[earth_vsat.CSIM0], 2)})
+        if row[earth_vsat.SPEC_EFF]:
+            features[i]["properties"].update({ "SPEC_EFF": round(row[earth_vsat.SPEC_EFF], 2)})
+        if row[earth_vsat.CSN_TOT]:
+            features[i]["properties"].update({ "CSN_TOT": round(row[earth_vsat.CSN_TOT], 2)})
         if row[earth_vsat.CSN0_DN]:
             features[i]["properties"].update({ "CSN0_DN": round(row[earth_vsat.CSN0_DN], 2)})
         if row[earth_vsat.CSI0_DN]:
