@@ -10,7 +10,9 @@ MODULE
 
 import numpy as np
 from scipy.special import j1
-
+import logging
+logger = logging.getLogger("web2py.app.myweb2pyapplication")
+logger.setLevel(logging.DEBUG)
 #_____________________________________________________________________________________________________
 ######################################################################################################
 #         ANTENNA PATTERNS CALCULATIONS
@@ -62,7 +64,6 @@ def compute_sat_ant_gain(az_elev, ant_diam, freq, max_gain, flag_calc_type, thet
         values = max_gain + 10*np.log10(values)
         
     elif flag_calc_type[0] == 'gauss_beam':
-        
         #TODO : change flag_calc_type[0] in below
         values = calc_pattern_beam(angles_beam, ant_diam, freq, flag_calc_type[0], theta_3dB = theta_3dB * np.pi/180)
         values = max_gain + 10*np.log10(values)
@@ -90,7 +91,6 @@ def calc_pattern_beam(theta, diam, freq, flag_calc_type, theta_3dB = np.nan):
     Input freq : frequency
     NOTE : diam and feq could also be 1D vectors of same size as theta : in that case the function computes the performance for each triplet
     '''
-    
     if flag_calc_type == 'parab_theo':
         theta[np.abs(theta) <= 1e-10] = 1e-10
         wavelength = 3e8/(freq*1e6)

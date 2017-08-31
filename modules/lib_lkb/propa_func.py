@@ -7,14 +7,21 @@ refer to CNES documentation (user manual of library)
 
 ***REMOVED***
 """
+import logging
+logger = logging.getLogger("web2py.app.myweb2pyapplication")
+logger.setLevel(logging.DEBUG)
+
 from lbConfiguration import pathtopropa
 import ctypes as p
 import numpy as np
-#import os
-
-#filepath = os.path.dirname(os.path.abspath(__file__))
-_lib = p.windll.LoadLibrary(pathtopropa)
-
+import platform
+#pathtopropa is defined in /modules/lbConfiguration.py
+if platform.system() == 'Windows':
+    _lib = p.windll.LoadLibrary(pathtopropa)
+elif platform.system() == 'Linux':
+    _lib = p.cdll.LoadLibrary(pathtopropa)
+else:
+    raise HTTP(400, "Internal error : OS not detected")
 
 # _----------------------------------------------------------------------------------------
 def compute_propag(lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, efficiency, availability):
@@ -73,8 +80,8 @@ def compute_propag(lon, lat, alt, elevation, freq, tilt_polar_angle, diameter, e
                                       tilt_polar_angle[ctr])
 
     # A TOTAL
-    Atot = Agaseous + np.sqrt((Aclouds + Arain) ** 2 + Iscint ** 2)
 
+    Atot = Agaseous + np.sqrt((Aclouds + Arain) ** 2 + Iscint ** 2)
     return Atot
 
 

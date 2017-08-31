@@ -5,6 +5,58 @@
     font-size: 22px;
 }
 
+#tab-background {
+    width-62%;
+}
+
+.ui-tabs .ui-tabs-nav {
+    text-align: center;
+}
+
+.ui-tabs .ui-tabs-nav li {
+    float: none !important;
+    display: inline-block;
+}
+
+#ui-id-1
+{
+background: #3C6A89;
+    color: white;
+}
+#ui-id-2
+{
+background: #735177;
+    color: white;
+}
+#ui-id-3
+{
+background: #803F5D;
+    color: white;
+}
+#ui-id-4
+{
+background: #C4294E;
+    color: white;
+}
+
+
+
+#tabs-4{
+    height: 280px;
+}
+
+#previewgo {
+    fill: black;
+    height: 26px;
+    padding-left: 28%;
+}
+
+#processed {
+    height: 65px;
+  }
+#cesium {
+    height: 65px;
+  }
 input {
     color: black
 }
@@ -27,7 +79,6 @@ body {
 }
 
 .ui-widget-content {
-    border: 1px solid #dddddd;
     background: #ffffff;
     color: #333333;
     margin-bottom: -88px;
@@ -45,4 +96,18 @@ body {
 #hero-logo {
   width:50%;
   text-align: center;
+}
+
+#refresh.btn {
+    height: 35px;
+}
+
+form input:valid, form textarea:valid {
+    width: 50px;
+    height: 50px;
+    background-color: white;
+    background-image: url(/static/images/calculate.png);
+    background-repeat: no-repeat;
+    background-size: 45px 45px;
+    color: white;
 }
