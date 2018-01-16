@@ -1,0 +1,43 @@
+<project>
+  <groupId>org.catapult.sa</groupId>
+  <artifactId>linkBudgetWeb</artifactId>
+  <version>0.6-SNAPSHOT</version>
+  <packaging>zip</packaging>
+  <name>Link Budget Web</name>
+  <description>	Development of and Advanced Software Framework for Satellite Link Budget and Interference Analysis in 2D.</description>
+  <organization>
+    <name>SatelliteApplicationsCatapult</name>
+  </organization>
+  <developers>
+    <developer>
+      <id>Simon.Anderson</id>
+      <name>Simon Anderson</name>
+      <email>Simon.Anderson@sa-catapult.co.uk</email>
+      <organization>SatelliteApplicationsCatapult</organization>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>0</timezone>
+	  <properties>
+		<active>false</active>
+	  </properties>
+    </developer>
+    <developer>
+      <id>Yibiao.Li</id>
+      <name>Yibiao Li</name>
+      <email>Yibiao.Li@sa-catapult.co.uk</email>
+      <organization>SatelliteApplicationsCatapult</organization>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>0</timezone>
+    </developer>
+  </developers>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <build.manifest.section/>
+    <build.tag>UNKNOWN</build.tag>
+    <build.revision>a1d3b4f30a254b759860af021ae2caf0765ac3bb</build.revision>
+    <build.number>75</build.number>
+  </properties>
+</project>
