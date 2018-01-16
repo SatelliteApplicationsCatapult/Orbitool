@@ -28,8 +28,33 @@ Move this repository to web2py/applications/
 
 Give the directory the correct permissions:
 
-`sudo chown -R www-data:www-data linkbudgetweb
-`
+`sudo chown -R www-data:www-data linkbudgetweb`
+
+To install the packages required by linkBudgetWeb, pip command should be available. 
+If not, using the following command to install its package:
+
+sudo apt-get install python-pip python-dev build-essential
+
+
+The CNES propa library file is needed in the web2py user's root
+folder (/home/www-data, specified in web2py installation script), which can be found at:
+http://10.21.10.14:8081/artifactory/webapp/#/artifacts/browse/tree/General/ext-release-local/fr/cnes/logiciels/20160905.
+For the current version, you can download it on Linux:
+
+'cd /home/www-data'
+'wget http://10.21.10.14:8081/artifactory/ext-release-local/fr/cnes/logiciels/20160905/propa64.so'
+
+or download it with the web browser directly at:
+http://10.21.10.14:8081/artifactory/ext-release-local/fr/cnes/logiciels/20160905/propa64.so
+and copy it to the library file's system folder on Windows platform.
+
+To get the latest version of this library file, you need to check out
+
+https://logiciels.cnes.fr/fr/node/32?type=desc
+
+and update to the latest.
+
+
 ### Prerequisites
 
 Multi-Mission Link budget is based on Python 2.7+ and web2py. 
