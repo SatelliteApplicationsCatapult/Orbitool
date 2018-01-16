@@ -3,3 +3,4 @@ numpy
 xlrd
 XlsxWriter
 simplejson
+scipy
