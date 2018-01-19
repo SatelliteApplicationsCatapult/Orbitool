@@ -48,7 +48,7 @@ editableGridsat = new window.EditableGrid("satgrid", {
         }
         jQuery.ajax({
             type: "POST",
-            url: "/lbController/ajax_to_db",
+            url: "/default/ajax_to_db",
             data: "array=" + JSON.stringify({
                 "table": "SAT",
                 "columnname": editableGridsat.columns[colIdx].name,
@@ -87,7 +87,7 @@ editableGridsat = new window.EditableGrid("satgrid", {
 editableGridsat.delete = function(rowIndex) {
     jQuery.ajax({
         type: "POST",
-        url: "/lbController/delete_row_editablegrid",
+        url: "/default/delete_row_editablegrid",
         data: "array=" + JSON.stringify({
             "table": "SAT",
             "rowid": editableGridsat.getRowId(rowIndex),
@@ -157,7 +157,7 @@ editableGridsat.duplicate = function(rowIndex)
     // copies a row on the backend
 	jQuery.ajax({
             type: "POST",
-            url: "/lbController/copy",
+            url: "/default/copy",
             data: "array=" + JSON.stringify({
                 "table": "SAT",
                 "rowid": editableGridsat.getRowId(rowIndex),

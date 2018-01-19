@@ -102,7 +102,7 @@ def create_saving_worksheet(filename, my_dict, wksht_name, my_dict2, wksht_name2
                                 wksht_name4, my_dict5, wksht_name5, my_dict6, wksht_name6):
     """
     Creates an excel worksheet.
-    Used in create_download() in lbController.py
+    Used in create_download() in default.py
 
     Args:
         filename:

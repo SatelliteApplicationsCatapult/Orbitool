@@ -30,8 +30,8 @@ response.google_analytics_id = None
 # ----------------------------------------------------------------------------------------------------------------------
 
 response.menu = [
-    (T('Home'), False, URL('lbController', 'index'), []),
-    (T('Select'), False, URL('lbController', 'select')),
+    (T('Home'), False, URL('default', 'index'), []),
+    (T('Select'), False, URL('default', 'select')),
 
 ]
 

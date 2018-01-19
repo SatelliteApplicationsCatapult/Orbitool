@@ -412,7 +412,7 @@
 
 
         var SAT = new Cesium.GeoJsonDataSource();
-        SAT.load("{{=URL('lbController', 'get_geojson_sat',args=[request.args(0)])}}").then(function () {
+        SAT.load("{{=URL('default', 'get_geojson_sat',args=[request.args(0)])}}").then(function () {
             var entities = SAT.entities.values;
             for (var i = 0; i < entities.length; i++) {
                 var entity = entities[i];
@@ -423,7 +423,7 @@
         });
 
         var FOV_CIRCLE = new Cesium.GeoJsonDataSource();
-        FOV_CIRCLE.load("{{=URL('lbController', 'SAT_FOV_to_JSON',args=[request.args(0)])}}").then(function () {
+        FOV_CIRCLE.load("{{=URL('default', 'SAT_FOV_to_JSON',args=[request.args(0)])}}").then(function () {
             var entities = FOV_CIRCLE.entities.values;
             for (var i = 0; i < entities.length; i++) {
                 var entity = entities[i];
@@ -433,7 +433,7 @@
             }
         });
         var TRSP_FOV_CIRCLE = new Cesium.GeoJsonDataSource();
-        TRSP_FOV_CIRCLE.load("{{=URL('lbController', 'TRSP_FOV_to_JSON',args=[request.args(0)])}}").then(function () {
+        TRSP_FOV_CIRCLE.load("{{=URL('default', 'TRSP_FOV_to_JSON',args=[request.args(0)])}}").then(function () {
             var entities = TRSP_FOV_CIRCLE.entities.values;
             for (var i = 0; i < entities.length; i++) {
                 var entity = entities[i];
@@ -445,7 +445,7 @@
 
 
         var GW = new Cesium.GeoJsonDataSource();
-        GW.load("{{=URL('lbController', 'get_geojson_gw',args=[request.args(0)])}}").then(function () {
+        GW.load("{{=URL('default', 'get_geojson_gw',args=[request.args(0)])}}").then(function () {
             var entities = GW.entities.values;
             for (var i = 0; i < entities.length; i++) {
                 var entity = entities[i];
@@ -456,7 +456,7 @@
         });
 
         var SUBSAT = new Cesium.GeoJsonDataSource();
-        SUBSAT.load("{{=URL('lbController', 'json_subsatellite',args=[request.args(0)])}}").then(function () {
+        SUBSAT.load("{{=URL('default', 'json_subsatellite',args=[request.args(0)])}}").then(function () {
             var entities = FOV_CIRCLE.entities.values;
             for (var i = 0; i < entities.length; i++) {
                 var entity = entities[i];
@@ -554,7 +554,7 @@
         });
         jQuery("#refresh").click(function () {
             viewer.dataSources.removeAll()
-            SAT.load("{{=URL('lbController', 'get_geojson_sat',args=[request.args(0)])}}").then(function () {
+            SAT.load("{{=URL('default', 'get_geojson_sat',args=[request.args(0)])}}").then(function () {
                 var entities = SAT.entities.values;
                 for (var i = 0; i < entities.length; i++) {
                     var entity = entities[i];
@@ -563,14 +563,14 @@
                     })
                 }
             });
-            SUBSAT.load("{{=URL('lbController', 'json_subsatellite',args=[request.args(0)])}}").then(function () {
+            SUBSAT.load("{{=URL('default', 'json_subsatellite',args=[request.args(0)])}}").then(function () {
                 var entities = FOV_CIRCLE.entities.values;
                 for (var i = 0; i < entities.length; i++) {
                     var entity = entities[i];
                     entity.polyline.width = 1;
                 }
             });
-            FOV_CIRCLE.load("{{=URL('lbController', 'SAT_FOV_to_JSON',args=[request.args(0)])}}").then(function () {
+            FOV_CIRCLE.load("{{=URL('default', 'SAT_FOV_to_JSON',args=[request.args(0)])}}").then(function () {
                 var entities = FOV_CIRCLE.entities.values;
                 for (var i = 0; i < entities.length; i++) {
                     var entity = entities[i];
@@ -579,7 +579,7 @@
                     entity.polyline.width = .8;// lines get displayed properly with red strok
                 }
             });
-            TRSP_FOV_CIRCLE.load("{{=URL('lbController', 'TRSP_FOV_to_JSON',args=[request.args(0)])}}").then(function () {
+            TRSP_FOV_CIRCLE.load("{{=URL('default', 'TRSP_FOV_to_JSON',args=[request.args(0)])}}").then(function () {
                 var entities = TRSP_FOV_CIRCLE.entities.values;
                 for (var i = 0; i < entities.length; i++) {
                     var entity = entities[i];
@@ -589,7 +589,7 @@
                 }
             });
 
-            GW.load("{{=URL('lbController', 'get_geojson_gw',args=[request.args(0)])}}").then(function () {
+            GW.load("{{=URL('default', 'get_geojson_gw',args=[request.args(0)])}}").then(function () {
                 var entities = GW.entities.values;
                 for (var i = 0; i < entities.length; i++) {
                     var entity = entities[i];

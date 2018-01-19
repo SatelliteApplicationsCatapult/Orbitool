@@ -27,7 +27,7 @@ editableGridtrsp = new window.EditableGrid("trspgrid", {
     modelChanged: function(rowIdx, colIdx, oldValue, newValue, row) {
         jQuery.ajax({
             type: "POST",
-            url: "/lbController/ajax_to_db",
+            url: "/default/ajax_to_db",
             data: "array=" + JSON.stringify({
                 "table": "TRSP",
                 "columnname": editableGridtrsp.columns[colIdx].name,
@@ -54,7 +54,7 @@ editableGridtrsp = new window.EditableGrid("trspgrid", {
 editableGridtrsp.delete = function(rowIndex) {
     jQuery.ajax({
         type: "POST",
-        url: "/lbController/delete_row_editablegrid",
+        url: "/default/delete_row_editablegrid",
         data: "array=" + JSON.stringify({
             "table": "TRSP",
             "rowid": editableGridtrsp.getRowId(rowIndex),
@@ -92,7 +92,7 @@ editableGridtrsp.duplicate = function(rowIndex)
     // copies a row on the backend
 	jQuery.ajax({
             type: "POST",
-            url: "/lbController/copy",
+            url: "/default/copy",
             data: "array=" + JSON.stringify({
                 "table": "TRSP",
                 "rowid": editableGridtrsp.getRowId(rowIndex),
