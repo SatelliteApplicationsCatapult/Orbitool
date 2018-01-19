@@ -350,6 +350,28 @@
                 <img src="{{=URL("static","images/saWhite26.png")}}">
             </a>
         </div>
+
+        {{if 'auth' in globals():}}
+        <ul class="navbar-nav navbar-right">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              {{if auth.user:}}{{=auth.user.first_name}}{{else:}}LOGIN{{pass}}
+            </a>
+            <div>
+              {{if auth.user:}}
+              <a href="{{=URL('default','user/profile')}}">{{=T('Profile')}}</a>
+              <a href="{{=URL('default','user/change_password')}}">{{=T('Change Password')}}</a>
+              <a href="{{=URL('default','user/logout')}}">{{=T('Logout')}}</a>
+              {{else:}}
+              <a href="{{=URL('default','user/login')}}">{{=T('Login')}}</a>
+              <a href="{{=URL('default','user/register')}}">{{=T('Sign up')}}</a>
+              <a href="{{=URL('default','user/request_password')}}">{{=T('Lost Password')}}</a>
+              {{pass}}
+            </div>
+          </li>
+        </ul>        
+        {{pass}}
+
     </div>
 </header>
 <div id="content">

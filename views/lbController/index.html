@@ -179,6 +179,29 @@
                         <img src="{{=URL("static","images/saWhite26.png")}}">
                     </a>
                 </div>
+
+                <div class="menu-button">
+        {{if 'auth' in globals():}}
+        <ul class="navbar-nav navbar-right">
+          <li class="nav-item dropdown">
+            <div>
+            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              {{if auth.user:}}{{=auth.user.first_name}}{{else:}}LOGIN{{pass}}
+            </a>
+              {{if auth.user:}}
+              <a href="{{=URL('lbController','user/profile')}}">{{=T('Profile')}}</a>
+              <a href="{{=URL('lbController','user/change_password')}}">{{=T('Change Password')}}</a>
+              <a href="{{=URL('lbController','user/logout')}}">{{=T('Logout')}}</a>
+              {{else:}}
+              <a href="{{=URL('lbController','user/login')}}">{{=T('Login')}}</a>
+              <a href="{{=URL('lbController','user/register')}}">{{=T('Sign up')}}</a>
+              <a href="{{=URL('lbController','user/request_password')}}">{{=T('Lost Password')}}</a>
+              {{pass}}
+            </div>
+          </li>
+        </ul>        
+        {{pass}}
+	</div>
             </div>
         </header>
         <div id="content">
@@ -234,12 +257,35 @@
             <div id="contact" class="container">
                 <div style="width: 50%">
                     <div style="margin-bottom: 30px">
+                        <p style="font-size: 1.5vw;color:#1D7475">Sign Up</p>
+                    </div>
+                    <form class="go-bottom bl_form">
+                        <div style="width:100%;margin-bottom:30px;display: inline-block">
+                            <div class="input-div" style="width: 35%;padding-right:5%;float: left">
+                                <input id="name" type="text" style="width:100%" required>
+                                <label for="name">NAME</label>
+                            </div>
+                            <div class="input-div" style="width: 60%;float: left">
+                                <input id="email" type="text" style="width: 100%" required>
+                                <label for="email">EMAIL ADDRESS</label>
+                            </div>
+                        </div>
+                        <div class="input-div clearfix" style="margin-bottom:30px;">
+                            <input id="message" type="text" style="width: 100%" required>
+                            <label for="message">MESSAGE</label>
+                        </div>
+                        <div style="width:100%;margin-bottom:30px;">
+                            <a href="#" class="label-button">Submit</a>
+                        </div>
+                        <div class="clearfix"></div>
+                    </form>
+                    <div style="margin-bottom: 30px">
                         <p style="font-size: 1.5vw;color:#1D7475">Get in Touch</p>
                     </div>
                     <div style="text-align:center;height:50px;width:99%;margin-bottom:30px;display: inline-block">
                         <div style="width:45%;padding-right:5%;float:left;display: block">
                             <div style="width:15%;padding-right:5%;float:left;display: block"><img src={{=URL("static", "images/email.svg")}} /></div>
-                            <div style="width:75%;padding-right:5%;float:left;display: block;font-size: 1.1vw"><p>orbitool.support<br>@sa.catapult.org.uk</p></div>
+                            <div style="width:75%;padding-right:5%;float:left;display: block;font-size: 1.1vw"><p>simon.andersson<br>@sa.catapult.org.uk</p></div>
                         </div>
                         <div style="width:45%;padding-right:5%;float: left;display: block">
                             <div style="width:15%;padding-right:5%;float:left;display: block"><img src={{=URL("static", "images/call.svg")}} /></div>
@@ -248,7 +294,7 @@
                     </div>
                     <div class="clearfix" style="margin-bottom:30px;font-size: 1.25vw">
                         <p>If not signed in the user cannot access the other parts of the website.</p>
-                        <p>The user can either sign up for an account or sign in within the navigation bar.</p>
+                        <p>The user can either sign up for an account at the bottom of the homepage or using the ‘Sign in’ button within the navigation bar.</p>
                     </div>
                 </div>
                 <div>
