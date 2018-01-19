@@ -1,18 +1,23 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.12.3.js"></script>
-    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js"></script>
+    <script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.12.3.js">
+    </script>
+    <script type="text/javascript" language="javascript"
+            src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js">
+    </script>
+    <script type="text/javascript" src="https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js">
+    </script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script type="text/javascript" language="javascript"
-            src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="{{=URL('static','css/preview.css')}}">
+    </script>
+    <script type="text/javascript" language="javascript"
+            src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js">
+    </script>
+    <script type="text/javascript" src="https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js">
+    </script>
     <link rel="stylesheet" href="{{=URL('static','css/general.css')}}">
-    <link rel="stylesheet" href="{{=URL('static','css/bootstrap.min.css')}}"/>
-    <link rel="stylesheet" href="{{=URL('static','css/web2py-bootstrap4.css')}}"/>
 </head>
 <body>
 <header>
@@ -306,30 +311,6 @@
                 <img src="{{=URL("static","images/saWhite26.png")}}">
             </a>
         </div>
-
-        {{if 'auth' in globals():}}
-        <ul class="navbar-nav navbar-right">
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              {{if auth.user:}}{{=auth.user.first_name}}{{else:}}LOGIN{{pass}}
-            </a>
-            <div>
-              {{if auth.user:}}
-              <a href="{{=URL('default','user/profile')}}">{{=T('Profile')}}</a>
-              <a href="{{=URL('default','user/change_password')}}">{{=T('Change Password')}}</a>
-              <a href="{{=URL('default','user/logout')}}">{{=T('Logout')}}</a>
-              {{else:}}
-              <a href="{{=URL('default','user/login')}}">{{=T('Login')}}</a>
-              <a href="{{=URL('default','user/register')}}">{{=T('Sign up')}}</a>
-              <a href="{{=URL('default','user/request_password')}}">{{=T('Lost Password')}}</a>
-              {{pass}}
-            </div>
-          </li>
-        </ul>        
-        {{pass}}
-
-
-
     </div>
 </header>
 <div id="content">
@@ -377,4 +358,3 @@
         });
     });
 </script>
-</html>
