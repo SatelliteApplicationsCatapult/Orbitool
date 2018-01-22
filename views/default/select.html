@@ -311,6 +311,24 @@
                 <img src="{{=URL("static","images/saWhite26.png")}}">
             </a>
         </div>
+		<!-- start the login drop down -->
+		<div style="float:right; width: 350px; height: 260px; margin: 5px">
+		{{if 'auth' in globals():}}
+			<div class="lg_dropdown">
+				<span>
+				{{if auth.user:}}{{=auth.user.first_name}}{{else:}}LOGIN{{pass}}: 
+				</span>
+				{{if auth.user:}}
+				<span><a href="{{=URL('default','user/profile')}}" style="color: #1f1f7f">{{=T('Profile')}}</a></span>
+				<span><a href="{{=URL('default','user/change_password')}}" style="3f3fef">{{=T('Change Password')}}</a></span>
+				<span><a href="{{=URL('default','user/logout')}}" style="color: #1f1f7f">{{=T('Logout')}}</a></span>
+				{{else:}}
+				<span><a href="{{=URL('default','user/login')}}" style="color:#1f1f7f">{{=T('Login')}}</a></span>
+				<span><a href="{{=URL('default','user/register')}}" style="color:#3f3fef">{{=T('Sign up')}}</a></span>
+				<span><a href="{{=URL('default','user/request_password')}}" style="color:#1f1f7f">{{=T('Lost Password')}}</a></span>
+				{{pass}}
+			</div>
+		</div>
     </div>
 </header>
 <div id="content">
