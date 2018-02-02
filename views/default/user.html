@@ -1,0 +1,84 @@
+<!doctype html>
+<!--html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{=URL('static','css/main.css')}}">
+    </head>
+    <body>
+        <header>
+            <div id="menu-bar" class="container">
+                <div class="menu-logo"> <img src='{{=URL("static","images/orbitool.png")}}' alt="Orbitool logo" height="50" width="150" />
+                </div>
+                <div class="menu-button home currentpage" style="background:#8dbbbb" onmouseover="this.style.background='blue';" onmouseout="this.style.background='#8dbbbb';">
+                    <a href="#">
+                        <span><img src='{{=URL("static","images/home_icon.png")}}' alt="home icon" height="35" width="35" /></span>
+                            <span><text class="h2 htext menu-fill" transform="translate(155.87 97.92)">Home</text></span>
+                    </a>
+                </div>
+                <div class="menu-button preview" style="background:#8dbbbb" onmouseover="this.style.background='blue';" onmouseout="this.style.background='#8dbbbb';">
+                    <a href="select">
+                        <span><img src='{{=URL("static","images/select_icon.png")}}' alt="select icon" height="35" width="35" /></span>
+                            <span><text class="p2 menu-fill" transform="translate(155.87 97.92)">Select</text></span>
+                    </a>
+                </div>
+                <div class="menu-button viewer" style="background:#8dbbbb" onmouseover="this.style.background='blue';" onmouseout="this.style.background='#8dbbbb';">
+                    <a>
+                        <span><img src='{{=URL("static","images/view_icon.png")}}' alt="view icon" height="35" width="35" /></span>
+                            <span><text class="v2 menu-fill" transform="translate(156.37 97.92)">Viewer</text></span>
+                    </a>
+                </div>
+                <div class="menu-button user">
+                    <a href="https://sa.catapult.org.uk/">
+                        <img src='{{=URL("static","images/saWhite26.png")}}' />
+                    </a>
+                </div>
+
+				<div style="float:right; width: 350px; height: 260px; margin: 5px">
+				{{if 'auth' in globals():}}
+					<div class="lg_dropdown">
+						<span>
+							{{if auth.user:}}{{=auth.user.first_name}}{{else:}}LOGIN{{pass}}: 
+						</span>
+						{{if auth.user:}}
+						<span><a href="{{=URL('default','user/profile')}}" style="color: #1f1f7f">{{=T('Profile')}}</a></span>
+						<span><a href="{{=URL('default','user/change_password')}}" style="3f3fef">{{=T('Change Password')}}</a></span>
+						<span><a href="{{=URL('default','user/logout')}}" style="color: #1f1f7f">{{=T('Logout')}}</a></span>
+						{{else:}}
+						<span><a href="{{=URL('default','user/login')}}" style="color:#1f1f7f">{{=T('Login')}}</a></span>
+						<span><a href="{{=URL('default','user/register')}}" style="color:#3f3fef">{{=T('Sign up')}}</a></span>
+						<span><a href="{{=URL('default','user/request_reset_password')}}" style="color:#1f1f7f">{{=T('Lost Password')}}</a></span>
+						{{pass}}
+					</div>
+				{{pass}}
+				</div>
+            </div>
+        </header-->
+
+        <div id="content">
+
+			<h2>{{=T('Sign Up') if request.args(0) == 'register' else T('Log In') if request.args(0) == 'login' else T(request.args(0).replace('_',' ').title())}}</h2>
+
+			<div class="container">
+				<div class="row">
+					<div id="web2py_user_form" class="col-lg-6">
+					{{
+					if request.args(0)=='login':
+						if not 'register' in auth.settings.actions_disabled:
+							form.add_button(T('Sign Up'),URL(args='register', vars={'_next': request.vars._next} if request.vars._next else None),_class='btn btn-default')
+						pass
+						if not 'request_reset_password' in auth.settings.actions_disabled:
+							form.add_button(T('Lost Password'),URL(args='request_reset_password'),_class='btn btn-default')
+						pass
+					pass
+					=form
+					}}
+					</div>
+				</div>
+			</div>
+		</div>
+
+

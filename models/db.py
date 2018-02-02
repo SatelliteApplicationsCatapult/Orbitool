@@ -49,7 +49,7 @@ else:
     # ---------------------------------------------------------------------
 
 # -------------------------------------------------------------------------
-# by lbController give a view/generic.extension to all actions from localhost
+# by the default controller give a view/generic.extension to all actions from localhost
 # none otherwise. a pattern can be 'controller/function.extension'
 # -------------------------------------------------------------------------
 response.generic_patterns = ['*'] if request.is_local else []
@@ -87,27 +87,37 @@ auth = Auth(db, host_names=myconf.get('host.names'))
 service = Service()
 plugins = PluginManager()
 
+from gluon.contrib.login_methods.email_auth import *
+auth.settings.login_methods.append(email_auth("smtp.gmail.com:587","@gmail.com"))
+
 # -------------------------------------------------------------------------
 # create all tables needed by auth if not custom tables
 # -------------------------------------------------------------------------
-auth.define_tables(username=False, signature=False)
+auth.define_tables(username=True, signature=False)
 
 # -------------------------------------------------------------------------
 # configure email
 # -------------------------------------------------------------------------
-mail = auth.settings.mailer
+'''mail = auth.settings.mailer
 mail.settings.server = 'logging' if request.is_local else myconf.get('smtp.server')
 mail.settings.sender = myconf.get('smtp.sender')
 mail.settings.login = myconf.get('smtp.login')
 mail.settings.tls = myconf.get('smtp.tls') or False
 mail.settings.ssl = myconf.get('smtp.ssl') or False
+'''
+from gluon.tools import Mail
+mail = auth.settings.mailer
+mail.settings.server = 'smtp.gmail.com:587' or 'logging'
+mail.settings.sender = '***REMOVED***'
+mail.settings.login = '***REMOVED******REMOVED***'
+
 
 # -------------------------------------------------------------------------
 # configure auth policy
 # -------------------------------------------------------------------------
-auth.settings.registration_requires_verification = False
-auth.settings.registration_requires_approval = False
-auth.settings.reset_password_requires_verification = True
+auth.settings.registration_requires_verification = True
+auth.settings.registration_requires_approval = True
+auth.settings.reset_password_requires_verification = False
 
 # -------------------------------------------------------------------------
 # Define your tables below (or better in another model file) for example

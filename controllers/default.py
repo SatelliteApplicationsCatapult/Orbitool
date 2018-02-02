@@ -24,7 +24,6 @@ from lib_lkb.propa_func import *
 
 response.title = 'Orbitool'
 
-
 def index():
     """ Input form """
     # TODO: Think about adding drag and drop plugin
@@ -50,7 +49,23 @@ def about():
     """ About page """
     return dict(message=T('About'))
 
+def user():
+     
+    if 'login' in request.args:
+        db.auth_user.username.label = T("Username or Email")
+        auth.settings.login_userfield = 'username'
+        if request.vars.username and not IS_EMAIL()(request.vars.username)[1]:
+            auth.settings.login_userfield = 'email'
+            request.vars.email = request.vars.username
+            request.post_vars.email = request.vars.email
+            request.post_vars.username = None
+        return dict(form=auth())
+    return dict(form=auth())
 
+def register():
+    return dict(form=auth.register())
+
+@auth.requires_login()
 def select():
     """  Page which renders a JQuery Datatable to let you select entries  """
     import json
@@ -81,7 +96,7 @@ def add_excel_2_db():
 
     redirect(URL('preview', args=job_id))
 
-
+@auth.requires_login()
 def preview():
     # SQL FORM
     """
@@ -573,7 +588,7 @@ def run():
                  request.args(0)).update(processed=True)
     redirect(URL('preview', args=request.args(0)))
 
-
+@auth.requires_login()
 def cesium():
     """    Cesium viewing page cesium.html    """
     return dict(a=1)
