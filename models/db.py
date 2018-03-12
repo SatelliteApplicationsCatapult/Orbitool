@@ -234,7 +234,13 @@ dbLinkBudget.define_table('SAT',
 # be in a list otherwise it won't
 
 dbLinkBudget.SAT.PAYLOAD_ID.requires = IS_NOT_EMPTY()  # generated as a list. Futher testing required
+
+dfusid = -1
+if auth.is_logged_in():
+	dfusid = auth.user.id
+	
 dbLinkBudget.define_table('Job',
+                          Field('user_id', default=dfusid, label='UserID',readable=False),
                           Field('job_name', 'string', requires=IS_NOT_EMPTY(), label='Name'),
                           Field('description', 'string', label='Description'),
                           Field('Date', 'string', default=request.now, update=request.now, writable=False,

@@ -29,10 +29,18 @@ def index():
     # TODO: Think about adding drag and drop plugin
     # TODO : separate the form
     session.job = ""
-    record = dbLinkBudget.Job(request.args(0))
+    dbLinkBudget.Job.user_id.writable = False
+    dbLinkBudget.Job.user_id.readable = False
+    
+    if auth.is_logged_in():
+         record = dbLinkBudget.Job((dbLinkBudget.Job.id==request.args(0))&(auth.user.id==dbLinkBudget.Job.user_id))
+    else:
+         record = dbLinkBudget.Job(request.args(0))
     dbLinkBudget.Job.Date.readable = False
     form = SQLFORM(dbLinkBudget.Job, record, deletable=True,
                    upload=URL('download'), formstyle='table3cols')
+    if auth.is_logged_in():
+         form.vars.user_id = auth.user.id
     if form.process().accepted:
         dbLinkBudget.Calculate.insert(Job_ID=form.vars.id)
         session.flash = "Scenario %s - %s has been uploaded!" % (
@@ -69,7 +77,7 @@ def register():
 def select():
     """  Page which renders a JQuery Datatable to let you select entries  """
     import json
-    job = json.dumps(dbLinkBudget(dbLinkBudget.Job).select().as_list(),
+    job = json.dumps(dbLinkBudget(dbLinkBudget.Job.user_id==auth.user.id).select().as_list(),
                      default=json_serial)  # Formatting need to interface with JQuery Datatables
     return dict(job=XML(job))
 
