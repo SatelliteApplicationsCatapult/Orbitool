@@ -115,8 +115,6 @@ web2py - The web framework used
 
 ### Authors
 
-Damien Roques
-
 Jonathan Karimian
 
 Simon Andersson
