@@ -2,7 +2,7 @@
 """
 Created on Fri Jun 26 14:38:06 2015
 
-***REMOVED***
+*REMOVED*
 """
 
 

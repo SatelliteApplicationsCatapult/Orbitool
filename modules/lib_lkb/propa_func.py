@@ -5,7 +5,7 @@ Created on Thu Jan 29 17:37:52 2015
 THIS LIBRARY ACTUALLY IMPORTS PROPA.DLL from CNES
 refer to CNES documentation (user manual of library)
 
-***REMOVED***
+*REMOVED*
 """
 import logging
 logger = logging.getLogger("web2py.app.myweb2pyapplication")

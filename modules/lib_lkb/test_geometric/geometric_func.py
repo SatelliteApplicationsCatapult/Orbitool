@@ -2,7 +2,7 @@
 """
 Created on Mon Jan 26 21:25:04 2015
 
-***REMOVED***
+*REMOVED*
 """
 import numpy as np
 import logging

@@ -2,7 +2,7 @@
 """
 Created on Tue Jun 30 10:50:15 2015
 
-***REMOVED***
+*REMOVED*
 """
 
 from sys import path

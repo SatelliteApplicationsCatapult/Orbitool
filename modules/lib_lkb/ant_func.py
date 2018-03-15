@@ -2,7 +2,7 @@
 """
 Created on Wed Dec 10 09:12:39 2014
 
-***REMOVED***
+*REMOVED*
 
 
 MODULE

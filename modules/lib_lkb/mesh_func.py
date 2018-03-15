@@ -2,7 +2,7 @@
 """
 Created on Wed Jan  7 17:51:42 2015
 
-***REMOVED***
+*REMOVED*
 """
 import numpy as np
 from matplotlib.path import Path

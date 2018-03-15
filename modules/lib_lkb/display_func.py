@@ -2,7 +2,7 @@
 """
 Created on Fri Mar 06 11:52:00 2015
 
-***REMOVED***
+*REMOVED*
 """
 
 import matplotlib.pyplot as plt

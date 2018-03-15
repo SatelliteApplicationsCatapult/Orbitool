@@ -2,7 +2,7 @@
 """
 Created on Wed Mar 04 11:42:39 2015
 
-***REMOVED***
+*REMOVED*
 """
 
 # %%

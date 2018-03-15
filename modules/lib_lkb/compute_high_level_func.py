@@ -2,7 +2,7 @@
 """
 Created on Thu Jun 25 18:00:23 2015
 
-***REMOVED***
+*REMOVED*
 """
 import logging
 logger = logging.getLogger("web2py.app.myweb2pyapplication")
