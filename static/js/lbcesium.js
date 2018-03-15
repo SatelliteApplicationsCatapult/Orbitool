@@ -10,7 +10,7 @@ var performance_maxmin = lbcesium.attr('performance_maxmin');
 var get_performance_json = lbcesium.attr('get_performance_json');
 var json_subsatellite = lbcesium.attr('json_subsatellite');
 
-Cesium.BingMapsApi.defaultKey = '***REMOVED***'
+Cesium.BingMapsApi.defaultKey = '*REMOVED*'
 var viewer = new Cesium.Viewer('cesiumContainer', {
     timeline: false,
     animation: false,

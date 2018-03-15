@@ -108,8 +108,8 @@ mail.settings.ssl = myconf.get('smtp.ssl') or False
 from gluon.tools import Mail
 mail = auth.settings.mailer
 mail.settings.server = 'smtp.gmail.com:587' or 'logging'
-mail.settings.sender = '***REMOVED***'
-mail.settings.login = '***REMOVED******REMOVED***'
+mail.settings.sender = '*REMOVED*'
+mail.settings.login = '*REMOVED*'
 
 
 # -------------------------------------------------------------------------
